@@ -4,7 +4,7 @@ This project was developed as part of the PI – 4th Year Engineering Program at
 # 5G Handover Prediction – Predictive ML/DL Framework
 
 ## Overview
-This project was developed as part of the PIML – Final Year Engineering Program at **Esprit School of Engineering** (Academic Year 2025–2026).
+This project was developed as part of the PI – 4th Year Engineering Program at **Esprit School of Engineering** (Academic Year 2025–2026).
 
 It consists of a predictive machine learning and deep learning framework for 5G handover management. The system anticipates connection loss and ensures seamless cell-to-cell switching before disruptions occur, targeting a 35% improvement in handover success rate.
 
