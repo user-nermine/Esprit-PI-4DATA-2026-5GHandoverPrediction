@@ -1,0 +1,6 @@
+outs:
+- md5: 5f7c50586689871fd226f1c35460ae9b.dir
+  size: 796012612
+  nfiles: 6
+  hash: md5
+  path: FE_data

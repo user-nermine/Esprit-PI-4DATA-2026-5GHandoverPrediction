@@ -1,0 +1,6 @@
+outs:
+- md5: 1f0a653c551305c2882349203ed3d956.dir
+  size: 32149366
+  nfiles: 2
+  hash: md5
+  path: PT_output

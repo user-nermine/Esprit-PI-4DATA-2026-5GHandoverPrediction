@@ -1,0 +1,6 @@
+outs:
+- md5: 2e0e12995f3276d378382592f39a5d85.dir
+  size: 432736430
+  nfiles: 1
+  hash: md5
+  path: FE_output
