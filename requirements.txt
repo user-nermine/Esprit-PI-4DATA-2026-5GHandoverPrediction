@@ -1,0 +1,13 @@
+pandas
+numpy
+scikit-learn
+xgboost
+lightgbm
+tensorflow
+pytorch-tabnet
+pyarrow
+fastparquet
+dvc
+dvc-s3
+pytest
+ruff

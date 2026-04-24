@@ -1,0 +1,96 @@
+# .github/workflows/ci.yml
+# CI Pipeline — DoNext 5G Handover Prediction
+#
+# Triggers : push or PR on clean_notebooks branch
+# Stages   :
+#   1. code-quality  → Ruff lint
+#   2. tests         → pytest (structure + imports)
+#   3. train-dry-run → python src/train.py --skip-deep --start-from dso1
+#                      (skips FE+preprocessing, skips LSTM+TabNet)
+#                      runs only on push to clean_notebooks (not PRs)
+
+name: CI Pipeline
+
+on:
+  push:
+    branches: [clean_notebooks]
+  pull_request:
+    branches: [clean_notebooks]
+
+jobs:
+
+  # ── Job 1 : Code Quality ───────────────────────────────────────────────────
+  code-quality:
+    name: "Lint (Ruff)"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Run Ruff lint
+        run: ruff check src/
+        # Non-zero exit = lint errors = CI fails
+
+  # ── Job 2 : Tests ─────────────────────────────────────────────────────────
+  tests:
+    name: "Tests (pytest)"
+    runs-on: ubuntu-latest
+    needs: code-quality   # only runs if lint passes
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install test dependencies
+        run: pip install pytest
+
+      - name: Run tests
+        run: pytest tests/ -v
+
+  # ── Job 3 : Train dry-run (push only) ────────────────────────────────────
+  train-dry-run:
+    name: "Train dry-run (tree models only)"
+    runs-on: ubuntu-latest
+    needs: tests
+    if: github.event_name == 'push'   # skip on PRs
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Pull data from Backblaze B2 via DVC
+        env:
+          DVC_ACCESS_KEY_ID: ${{ secrets.B2_ACCESS_KEY_ID }}
+          DVC_SECRET_ACCESS_KEY: ${{ secrets.B2_SECRET_ACCESS_KEY }}
+        run: |
+          pip install dvc dvc-s3
+          dvc remote modify b2remote access_key_id $DVC_ACCESS_KEY_ID
+          dvc remote modify b2remote secret_access_key $DVC_SECRET_ACCESS_KEY
+          dvc pull PT_output.dvc MODEL_output.dvc
+
+      - name: Run pipeline (tree models only, skip FE+preprocessing)
+        run: |
+          python src/train.py --skip-deep --start-from dso1
