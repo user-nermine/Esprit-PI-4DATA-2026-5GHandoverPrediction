@@ -83,14 +83,11 @@ jobs:
 
       - name: Pull data from Backblaze B2 via DVC
         env:
-          DVC_ACCESS_KEY_ID: ${{ secrets.B2_ACCESS_KEY_ID }}
-          DVC_SECRET_ACCESS_KEY: ${{ secrets.B2_SECRET_ACCESS_KEY }}
+           AWS_ACCESS_KEY_ID: ${{ secrets.B2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.B2_SECRET_ACCESS_KEY }}
         run: |
-          pip install dvc dvc-s3
-          dvc remote modify b2remote access_key_id $DVC_ACCESS_KEY_ID
-          dvc remote modify b2remote secret_access_key $DVC_SECRET_ACCESS_KEY
-          dvc pull PT_output.dvc MODEL_output.dvc
-
+          dvc remote modify b2remote endpointurl https://s3.eu-central-003.backblazeb2.com
+          dvc pull PT_output.dvc --force
       - name: Run pipeline (tree models only, skip FE+preprocessing)
         run: |
           python src/train.py --skip-deep --start-from dso1
