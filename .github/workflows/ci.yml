@@ -68,13 +68,12 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Pull data from Backblaze B2 via DVC
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.B2_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.B2_SECRET_ACCESS_KEY }}
+     - name: Pull data from Backblaze B2 via DVC
         run: |
           pip install dvc dvc-s3
           dvc remote modify b2remote endpointurl https://s3.eu-central-003.backblazeb2.com
+          dvc remote modify b2remote access_key_id ${{ secrets.B2_ACCESS_KEY_ID }}
+          dvc remote modify b2remote secret_access_key ${{ secrets.B2_SECRET_ACCESS_KEY }}
           dvc pull PT_output.dvc --force
 
       - name: Run pipeline (tree models only, skip FE+preprocessing)
