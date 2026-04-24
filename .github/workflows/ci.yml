@@ -1,14 +1,3 @@
-# .github/workflows/ci.yml
-# CI Pipeline — DoNext 5G Handover Prediction
-#
-# Triggers : push or PR on clean_notebooks branch
-# Stages   :
-#   1. code-quality  → Ruff lint
-#   2. tests         → pytest (structure + imports)
-#   3. train-dry-run → python src/train.py --skip-deep --start-from dso1
-#                      (skips FE+preprocessing, skips LSTM+TabNet)
-#                      runs only on push to clean_notebooks (not PRs)
-
 name: CI Pipeline
 
 on:
@@ -38,13 +27,12 @@ jobs:
 
       - name: Run Ruff lint
         run: ruff check src/
-        # Non-zero exit = lint errors = CI fails
 
   # ── Job 2 : Tests ─────────────────────────────────────────────────────────
   tests:
     name: "Tests (pytest)"
     runs-on: ubuntu-latest
-    needs: code-quality   # only runs if lint passes
+    needs: code-quality
 
     steps:
       - name: Checkout code
@@ -61,12 +49,12 @@ jobs:
       - name: Run tests
         run: pytest tests/ -v
 
-  # ── Job 3 : Train dry-run (push only) ────────────────────────────────────
+  # ── Job 3 : Train dry-run (push only) ─────────────────────────────────────
   train-dry-run:
     name: "Train dry-run (tree models only)"
     runs-on: ubuntu-latest
     needs: tests
-    if: github.event_name == 'push'   # skip on PRs
+    if: github.event_name == 'push'
 
     steps:
       - name: Checkout code
@@ -78,16 +66,16 @@ jobs:
           python-version: "3.10"
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Pull data from Backblaze B2 via DVC
         env:
-           AWS_ACCESS_KEY_ID: ${{ secrets.B2_ACCESS_KEY_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.B2_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.B2_SECRET_ACCESS_KEY }}
         run: |
+          pip install dvc dvc-s3
           dvc remote modify b2remote endpointurl https://s3.eu-central-003.backblazeb2.com
           dvc pull PT_output.dvc --force
+
       - name: Run pipeline (tree models only, skip FE+preprocessing)
-        run: |
-          python src/train.py --skip-deep --start-from dso1
+        run: python src/train.py --skip-deep --start-from dso1
