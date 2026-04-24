@@ -1,8 +1,13 @@
 [core]
     autostage = true
-    remote = minio_remote
+    remote = b2remote
 ['remote "minio_remote"']
     url = s3://mlops-data
     endpointurl = http://localhost:9000
     access_key_id = admin
     secret_access_key = admin123
+['remote "b2remote"']
+    url = s3://mlops-data
+    endpointurl = https://s3.eu-central-003.backblazeb2.com
+    access_key_id = ""
+    secret_access_key = ""
