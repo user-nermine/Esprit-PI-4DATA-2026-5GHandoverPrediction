@@ -106,7 +106,8 @@ def train_dso4(
 
     X_all   = df_ho4[cols_x].values.astype(np.float32)
     y_all   = df_ho4["ho_type_enc"].values.astype(int)
-    del df; gc.collect()
+    del df
+    gc.collect()
 
     # Remap classes to contiguous 0..N-1
     unique_classes = np.unique(y_all)
@@ -237,7 +238,8 @@ def train_dso4(
             X_va_3d = X_val[:,   w_idx].reshape(-1, T, F)
             X_te_3d = X_test[:,  w_idx].reshape(-1, T, F)
         else:
-            F = X_train.shape[1]; T = 1
+            F = X_train.shape[1]
+            T = 1
             X_tr_3d = X_train.reshape(-1, 1, F)
             X_va_3d = X_val.reshape(-1, 1, F)
             X_te_3d = X_test.reshape(-1, 1, F)

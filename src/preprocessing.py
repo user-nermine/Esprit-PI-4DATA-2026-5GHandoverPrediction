@@ -249,8 +249,6 @@ def run_preprocessing(
     gc.collect()
 
     y_binary     = df["handover"].values
-    y_multiclass = (df["ho_type_enc"].values
-                    if "ho_type_enc" in df.columns else None)
 
     cols_X = [c for c in df.columns
               if c not in ["handover", "ho_type_enc"]]

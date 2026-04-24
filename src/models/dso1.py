@@ -53,10 +53,13 @@ def _load_data(pt_out_dir: str):
     )
     gc.collect()
 
-    X_train = df.loc[idx_train].values.astype(np.float32); gc.collect()
-    X_val   = df.loc[idx_val].values.astype(np.float32);   gc.collect()
+    X_train = df.loc[idx_train].values.astype(np.float32)
+    gc.collect()
+    X_val   = df.loc[idx_val].values.astype(np.float32)
+    gc.collect()
     X_test  = df.loc[idx_test].values.astype(np.float32)
-    del df; gc.collect()
+    del df
+    gc.collect()
 
     ratio = int((1 - y_train.mean()) / max(y_train.mean(), 1e-6))
     print(f"✅ X_train {X_train.shape} | HO%={y_train.mean()*100:.2f}% | ratio 1:{ratio}")
@@ -210,7 +213,8 @@ def train_dso1(
             X_va_3d = X_val[:,   w_idx].reshape(-1, T, F)
             X_te_3d = X_test[:,  w_idx].reshape(-1, T, F)
         else:
-            F       = X_train.shape[1]; T = 1
+            F       = X_train.shape[1]
+            T = 1
             X_tr_3d = X_train.reshape(-1, 1, F)
             X_va_3d = X_val.reshape(-1, 1, F)
             X_te_3d = X_test.reshape(-1, 1, F)

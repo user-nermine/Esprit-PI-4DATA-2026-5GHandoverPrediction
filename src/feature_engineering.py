@@ -4,7 +4,6 @@
 
 import os
 import gc
-import json
 import time
 import warnings
 
@@ -415,7 +414,7 @@ def run_feature_engineering(
                 X_sample   = X_cluster
                 y_sample   = df_sub["handover"].values
 
-            print(f"\n  Running DBSCAN (eps=0.05, min_samples=30)...")
+            print("\n  Running DBSCAN (eps=0.05, min_samples=30)...")
             t0            = time.time()
             dbscan        = DBSCAN(eps=0.05, min_samples=30,
                                    metric="euclidean", n_jobs=-1)

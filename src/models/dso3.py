@@ -25,7 +25,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.metrics import (
-    classification_report, confusion_matrix,
+    confusion_matrix,
     f1_score, accuracy_score, top_k_accuracy_score,
 )
 from xgboost import XGBClassifier
@@ -148,7 +148,8 @@ def train_dso3(
     df_filtered = df_filtered.loc[common_idx]
     X_all       = df_pre.loc[common_idx, cols_x].values.astype(np.float32)
     y_all       = df_filtered["next_cell_enc"].values
-    del df_pre; gc.collect()
+    del df_pre
+    gc.collect()
 
     # ── Stratified split ──────────────────────────────────────────────────────
     X_temp, X_test, y_temp, y_test = train_test_split(
@@ -157,7 +158,8 @@ def train_dso3(
     X_train, X_val, y_train, y_val = train_test_split(
         X_temp, y_temp, test_size=0.15 / 0.85, random_state=42, stratify=y_temp
     )
-    del X_temp, y_temp; gc.collect()
+    del X_temp, y_temp
+    gc.collect()
 
     # Re-encode cleanly on y_train classes
     le2     = LabelEncoder()
@@ -176,8 +178,6 @@ def train_dso3(
     X_test, y_test = X_test[mask_test], y_test[mask_test]
 
     N_CLASSES   = len(le2.classes_)
-    cell_labels = [str(le2.classes_[i])[:8] for i in range(N_CLASSES)]
-
     with open(os.path.join(model_out_dir, "label_encoder_cells.pkl"), "wb") as f:
         pickle.dump(le2, f)
 
@@ -291,7 +291,8 @@ def train_dso3(
             X_va_3d = X_val[:,   w_idx].reshape(-1, T, F)
             X_te_3d = X_test[:,  w_idx].reshape(-1, T, F)
         else:
-            F = X_train.shape[1]; T = 1
+            F = X_train.shape[1]
+            T = 1
             X_tr_3d = X_train.reshape(-1, 1, F)
             X_va_3d = X_val.reshape(-1, 1, F)
             X_te_3d = X_test.reshape(-1, 1, F)
