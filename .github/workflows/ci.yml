@@ -42,15 +42,17 @@ jobs:
         with:
           python-version: "3.10"
       - name: Install dependencies
-        run: pip install -r requirements.txt dvc dvc-s3
-      - name: Pull data from Backblaze B2
+        run: pip install -r requirements.txt huggingface_hub
+      - name: Pull PT_output from Hugging Face
         run: |
-          dvc remote modify b2remote endpointurl https://s3.eu-central-003.backblazeb2.com
-          dvc remote modify b2remote access_key_id "$B2_KEY_ID"
-          dvc remote modify b2remote secret_access_key "$B2_SECRET"
-          dvc pull PT_output.dvc --force
-        env:
-          B2_KEY_ID: ${{ secrets.B2_ACCESS_KEY_ID }}
-          B2_SECRET: ${{ secrets.B2_SECRET_ACCESS_KEY }}
+          python -c "
+from huggingface_hub import snapshot_download
+snapshot_download(
+    repo_id='user-nermine/5g-handover-dvc-storage',
+    repo_type='dataset',
+    local_dir='.',
+)
+print('PT_output downloaded successfully')
+"
       - name: Run pipeline
         run: python src/train.py --skip-deep --start-from dso1
