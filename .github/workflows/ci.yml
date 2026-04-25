@@ -33,7 +33,7 @@ jobs:
 
   train-dry-run:
     name: "Train dry-run (tree models only)"
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: tests
     if: github.event_name == 'push'
     steps:
