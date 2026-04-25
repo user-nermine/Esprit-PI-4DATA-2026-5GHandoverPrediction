@@ -10,4 +10,4 @@ fastparquet
 dvc
 dvc-s3
 pytest
-ruff
+ruff"matplotlib" 
