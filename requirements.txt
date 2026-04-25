@@ -12,3 +12,4 @@ dvc-s3
 pytest
 ruff
 matplotlib
+seaborn
