@@ -38,28 +38,9 @@ jobs:
     if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
       - name: Install dependencies
-        run: pip install -r requirements.txt huggingface_hub matplotlib
+        run: pip install pandas numpy scikit-learn xgboost lightgbm pyarrow fastparquet matplotlib seaborn huggingface_hub
       - name: Pull PT_output from Hugging Face
-        run: |
-          cat > /tmp/download_data.py << 'EOF'
-          from huggingface_hub import snapshot_download
-          import shutil, os
-          path = snapshot_download(
-              repo_id="user-nermine/5g-handover-dvc-storage",
-              repo_type="dataset",
-          )
-          print(f"Downloaded to: {path}")
-          if os.path.exists(os.path.join(path, "PT_output")):
-              shutil.copytree(os.path.join(path, "PT_output"), "PT_output", dirs_exist_ok=True)
-              print("PT_output copied successfully")
-          else:
-              print("ERROR: PT_output not found in downloaded repo!")
-          EOF
-          python /tmp/download_data.py
-          ls -la PT_output/
+        run: python scripts/download_data.py
       - name: Run pipeline
         run: python src/train.py --skip-deep --start-from dso1
