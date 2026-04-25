@@ -44,6 +44,12 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt huggingface_hub
       - name: Pull PT_output from Hugging Face
-        run: python scripts/download_hf_data.py
+        run: |
+          cat > /tmp/download_data.py << 'EOF'
+          from huggingface_hub import snapshot_download
+          snapshot_download(repo_id="user-nermine/5g-handover-dvc-storage", repo_type="dataset", local_dir=".")
+          print("PT_output downloaded successfully")
+          EOF
+          python /tmp/download_data.py
       - name: Run pipeline
         run: python src/train.py --skip-deep --start-from dso1
