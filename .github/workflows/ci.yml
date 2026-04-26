@@ -51,10 +51,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
-        run: py -m pip install pandas numpy scikit-learn xgboost lightgbm pyarrow fastparquet matplotlib seaborn huggingface_hub
-      - name: Pull PT_output from Hugging Face
+        run: py -m pip install pandas numpy scikit-learn xgboost lightgbm pyarrow fastparquet matplotlib seaborn huggingface_hub mlflow
+      - name: Pull data from Hugging Face
         run: py scripts/download_data.py
       - name: Data quality validation
         run: py scripts/validate_data.py
       - name: Run pipeline
+        env:
+          MLFLOW_TRACKING_URI: http://localhost:5000
         run: py src/train.py --skip-deep --start-from dso1
