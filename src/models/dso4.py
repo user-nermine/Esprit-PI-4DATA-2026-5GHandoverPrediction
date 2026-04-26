@@ -35,6 +35,7 @@ HO_TYPE_NAMES = [
     "no_handover", "intra_freq", "inter_freq", "inter_RAT_NR",
     "inter_operator", "intra_freq_pci", "inter_freq_pci", "ho_non_type",
 ]
+EXPERIMENT_NAME = "DSO4-HOType"
 
 
 def _save_cm(cm, title, path, labels, cmap="Blues"):
@@ -87,6 +88,15 @@ def train_dso4(
     assert os.path.exists(pt_out_dir), \
         f" {pt_out_dir} not found -- run preprocessing first!"
 
+    try:
+        from mlflow_utils import log_model_run
+        mlflow_available = True
+    except Exception:
+        mlflow_available = False
+        print("  [MLflow] Not available, skipping logging.")
+
+    tags = {"dso": "DSO4", "task": "ho_type", "skip_deep": str(skip_deep)}
+
     # -- Load data -------------------------------------------------------------
     print("=" * 60 + "\n  DSO4 -- Loading data\n" + "=" * 60)
     import pyarrow.parquet as pq
@@ -111,8 +121,8 @@ def train_dso4(
         if c in df_ho4.columns and c not in ["handover", "ho_type_enc"]
     ]
 
-    X_all   = df_ho4[cols_x].values.astype(np.float32)
-    y_all   = df_ho4["ho_type_enc"].values.astype(int)
+    X_all  = df_ho4[cols_x].values.astype(np.float32)
+    y_all  = df_ho4["ho_type_enc"].values.astype(int)
     del df
     gc.collect()
 
@@ -146,10 +156,13 @@ def train_dso4(
 
     # -- M1 : XGBoost ----------------------------------------------------------
     print("=" * 60 + "\n  M1 -- XGBoost DSO4\n" + "=" * 60)
-    sw_train = np.array([cw_dict[y] for y in y_train], dtype=np.float32)
-    xgb_d4   = XGBClassifier(
+    xgb_params = dict(
         n_estimators=400, max_depth=7, learning_rate=0.08,
         subsample=0.8, colsample_bytree=0.8,
+    )
+    sw_train = np.array([cw_dict[y] for y in y_train], dtype=np.float32)
+    xgb_d4   = XGBClassifier(
+        **xgb_params,
         objective="multi:softmax", num_class=N_CLASSES,
         eval_metric="mlogloss", early_stopping_rounds=25,
         tree_method="hist", random_state=42, n_jobs=-1,
@@ -165,19 +178,28 @@ def train_dso4(
 
     metrics_xgb = _metrics_multiclass("XGBoost", y_test, y_pred_xgb)
     all_metrics.append(metrics_xgb)
-    with open(os.path.join(model_out_dir, "xgb_dso4.pkl"), "wb") as f:
+
+    pkl_xgb = os.path.join(model_out_dir, "xgb_dso4.pkl")
+    cm_xgb  = os.path.join(model_out_dir, "cm_xgb_dso4.png")
+    with open(pkl_xgb, "wb") as f:
         pickle.dump(xgb_d4, f)
     _save_cm(
         confusion_matrix(y_test, y_pred_xgb, labels=list(range(N_CLASSES))),
-        "Confusion Matrix -- XGBoost (DSO4)",
-        os.path.join(model_out_dir, "cm_xgb_dso4.png"), class_names, "Blues",
+        "Confusion Matrix -- XGBoost (DSO4)", cm_xgb, class_names, "Blues",
     )
+    if mlflow_available:
+        log_model_run(EXPERIMENT_NAME, "XGBoost", xgb_params,
+                      {k: v for k, v in metrics_xgb.items() if k != "model"},
+                      [cm_xgb, pkl_xgb], tags)
 
     # -- M2 : LightGBM ---------------------------------------------------------
     print("=" * 60 + "\n  M2 -- LightGBM DSO4\n" + "=" * 60)
-    lgbm_d4 = LGBMClassifier(
+    lgbm_params = dict(
         n_estimators=400, max_depth=8, learning_rate=0.08, num_leaves=127,
         subsample=0.8, colsample_bytree=0.8,
+    )
+    lgbm_d4 = LGBMClassifier(
+        **lgbm_params,
         objective="multiclass", num_class=N_CLASSES,
         metric="multi_logloss", class_weight="balanced",
         random_state=42, n_jobs=-1, verbose=-1,
@@ -192,19 +214,27 @@ def train_dso4(
 
     metrics_lgbm = _metrics_multiclass("LightGBM", y_test, y_pred_lgbm)
     all_metrics.append(metrics_lgbm)
-    with open(os.path.join(model_out_dir, "lgbm_dso4.pkl"), "wb") as f:
+
+    pkl_lgbm = os.path.join(model_out_dir, "lgbm_dso4.pkl")
+    cm_lgbm  = os.path.join(model_out_dir, "cm_lgbm_dso4.png")
+    with open(pkl_lgbm, "wb") as f:
         pickle.dump(lgbm_d4, f)
     _save_cm(
         confusion_matrix(y_test, y_pred_lgbm, labels=list(range(N_CLASSES))),
-        "Confusion Matrix -- LightGBM (DSO4)",
-        os.path.join(model_out_dir, "cm_lgbm_dso4.png"), class_names, "Greens",
+        "Confusion Matrix -- LightGBM (DSO4)", cm_lgbm, class_names, "Greens",
     )
+    if mlflow_available:
+        log_model_run(EXPERIMENT_NAME, "LightGBM", lgbm_params,
+                      {k: v for k, v in metrics_lgbm.items() if k != "model"},
+                      [cm_lgbm, pkl_lgbm], tags)
 
     # -- M3 : Random Forest ----------------------------------------------------
     print("=" * 60 + "\n  M3 -- Random Forest DSO4\n" + "=" * 60)
+    rf_params = dict(
+        n_estimators=250, max_depth=18, min_samples_leaf=5, max_features="sqrt",
+    )
     rf_d4 = RandomForestClassifier(
-        n_estimators=250, max_depth=18, min_samples_leaf=5,
-        max_features="sqrt", class_weight="balanced_subsample",
+        **rf_params, class_weight="balanced_subsample",
         max_samples=0.4, random_state=42, n_jobs=-1, verbose=1,
     )
     rf_d4.fit(X_train, y_train)
@@ -214,13 +244,19 @@ def train_dso4(
 
     metrics_rf = _metrics_multiclass("Random Forest", y_test, y_pred_rf)
     all_metrics.append(metrics_rf)
-    with open(os.path.join(model_out_dir, "rf_dso4.pkl"), "wb") as f:
+
+    pkl_rf = os.path.join(model_out_dir, "rf_dso4.pkl")
+    cm_rf  = os.path.join(model_out_dir, "cm_rf_dso4.png")
+    with open(pkl_rf, "wb") as f:
         pickle.dump(rf_d4, f)
     _save_cm(
         confusion_matrix(y_test, y_pred_rf, labels=list(range(N_CLASSES))),
-        "Confusion Matrix -- Random Forest (DSO4)",
-        os.path.join(model_out_dir, "cm_rf_dso4.png"), class_names, "Oranges",
+        "Confusion Matrix -- Random Forest (DSO4)", cm_rf, class_names, "Oranges",
     )
+    if mlflow_available:
+        log_model_run(EXPERIMENT_NAME, "RandomForest", rf_params,
+                      {k: v for k, v in metrics_rf.items() if k != "model"},
+                      [cm_rf, pkl_rf], tags)
 
     # -- M4 : BiLSTM Softmax ---------------------------------------------------
     if not skip_deep:
@@ -295,12 +331,18 @@ def train_dso4(
 
         metrics_lstm = _metrics_multiclass("BiLSTM", y_test, y_pred_lstm)
         all_metrics.append(metrics_lstm)
-        lstm_d4.save(os.path.join(model_out_dir, "lstm_dso4.h5"))
+        lstm_path = os.path.join(model_out_dir, "lstm_dso4.h5")
+        lstm_d4.save(lstm_path)
+        cm_lstm = os.path.join(model_out_dir, "cm_lstm_dso4.png")
         _save_cm(
             confusion_matrix(y_test, y_pred_lstm, labels=list(range(N_CLASSES))),
-            "Confusion Matrix -- BiLSTM (DSO4)",
-            os.path.join(model_out_dir, "cm_lstm_dso4.png"), class_names, "Reds",
+            "Confusion Matrix -- BiLSTM (DSO4)", cm_lstm, class_names, "Reds",
         )
+        if mlflow_available:
+            log_model_run(EXPERIMENT_NAME, "BiLSTM",
+                          {"lstm_units": 128, "epochs": 30, "batch_size": 1024},
+                          {k: v for k, v in metrics_lstm.items() if k != "model"},
+                          [cm_lstm, lstm_path], tags)
 
     # -- M5 : TabNet -----------------------------------------------------------
     if not skip_deep:
@@ -359,6 +401,12 @@ def train_dso4(
         metrics_tn = _metrics_multiclass("TabNet", y_test, y_pred_tn)
         all_metrics.append(metrics_tn)
         tabnet_d4.save_model(os.path.join(model_out_dir, "tabnet_dso4"))
+
+        if mlflow_available:
+            log_model_run(EXPERIMENT_NAME, "TabNet",
+                          {"n_d": 16, "n_a": 16, "n_steps": 3},
+                          {k: v for k, v in metrics_tn.items() if k != "model"},
+                          [], tags)
 
     # -- Save summary ----------------------------------------------------------
     with open(os.path.join(model_out_dir, "results_dso4.json"), "w") as f:

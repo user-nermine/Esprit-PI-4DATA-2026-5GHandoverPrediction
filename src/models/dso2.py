@@ -2,9 +2,7 @@
 # Converted from NB4_DSO2_RSRP_Drop_F.ipynb
 # Task: Binary classification -- predict RSRP drop > 6 dBm in next 5 measures
 # Input:  PT_output/ + FE_output/df_final_fe.parquet  (for label construction)
-# Output: MODEL_output/DSO2/ -> xgb_dso2.pkl, lgbm_dso2.pkl, rf_dso2.pkl,
-#                               lstm_dso2.h5, tabnet_dso2.*,
-#                               results_dso2.json, cm_*.png
+# Output: MODEL_output/DSO2/
 
 import os
 import gc
@@ -31,17 +29,14 @@ from sklearn.metrics import (
 
 warnings.filterwarnings("ignore")
 
-CONFIGS    = {"static": "session_id", "mobile": "device", "hbahn": "device"}
-CM_LABELS  = ["No Drop", "Drop"]
-SEUIL_DBM  = -6.0
-HORIZON    = 5
+CONFIGS         = {"static": "session_id", "mobile": "device", "hbahn": "device"}
+CM_LABELS       = ["No Drop", "Drop"]
+SEUIL_DBM       = -6.0
+HORIZON         = 5
+EXPERIMENT_NAME = "DSO2-RSRP-Drop"
 
 
 def _build_rsrp_drop_label(fe_out_dir: str) -> pd.Series:
-    """
-    Compute rsrp_drop binary label from df_final_fe.parquet.
-    rsrp_drop=1 when RSRP drops > 6 dBm within the next 5 measurements.
-    """
     df_fe = pd.read_parquet(
         os.path.join(fe_out_dir, "df_final_fe.parquet"),
         columns=["rsrp", "session_id", "source_folder", "device"],
@@ -100,33 +95,24 @@ def train_dso2(
     model_out_dir: str = os.path.join("MODEL_output", "DSO2"),
     skip_deep:     bool = False,
 ):
-    """
-    Train all 5 models for DSO2 (RSRP drop prediction).
-
-    Models:
-        M1  XGBoost
-        M2  LightGBM
-        M3  Random Forest
-        M4  BiLSTM          (skipped if skip_deep=True)
-        M5  TabNet          (skipped if skip_deep=True)
-
-    Args:
-        pt_out_dir:    folder produced by preprocessing.py
-        fe_out_dir:    folder produced by feature_engineering.py (for label)
-        model_out_dir: output folder for models + metrics
-        skip_deep:     set True in CI to skip GPU-heavy models
-    """
     os.makedirs(model_out_dir, exist_ok=True)
     assert os.path.exists(pt_out_dir), \
         f" {pt_out_dir} not found -- run preprocessing first!"
     assert os.path.exists(fe_out_dir), \
         f" {fe_out_dir} not found -- run feature_engineering first!"
 
-    # -- Build label -----------------------------------------------------------
+    try:
+        from mlflow_utils import log_model_run
+        mlflow_available = True
+    except Exception:
+        mlflow_available = False
+        print("  [MLflow] Not available, skipping logging.")
+
+    tags = {"dso": "DSO2", "task": "rsrp_drop", "skip_deep": str(skip_deep)}
+
     print("=" * 60 + "\n  DSO2 -- Building RSRP Drop label\n" + "=" * 60)
     rsrp_drop_series = _build_rsrp_drop_label(fe_out_dir)
 
-    # -- Load preprocessed features -------------------------------------------
     with open(os.path.join(pt_out_dir, "config.json")) as f:
         config = json.load(f)
 
@@ -138,11 +124,15 @@ def train_dso2(
     df = pd.concat(chunks, ignore_index=True)
     df["rsrp_drop"] = rsrp_drop_series.values
 
+    cols_x  = [c for c in config["cols_X"] if c in df.columns and c != "rsrp_drop"]
+    y_train = df.loc[np.load(os.path.join(pt_out_dir, "idx_train.npy"), allow_pickle=True), "rsrp_drop"].values
+    y_val   = df.loc[np.load(os.path.join(pt_out_dir, "idx_val.npy"),   allow_pickle=True), "rsrp_drop"].values
+    y_test  = df.loc[np.load(os.path.join(pt_out_dir, "idx_test.npy"),  allow_pickle=True), "rsrp_drop"].values
+
     idx_train = np.load(os.path.join(pt_out_dir, "idx_train.npy"), allow_pickle=True)
     idx_val   = np.load(os.path.join(pt_out_dir, "idx_val.npy"),   allow_pickle=True)
     idx_test  = np.load(os.path.join(pt_out_dir, "idx_test.npy"),  allow_pickle=True)
 
-    cols_x  = [c for c in config["cols_X"] if c in df.columns and c != "rsrp_drop"]
     y_train = df.loc[idx_train, "rsrp_drop"].values
     y_val   = df.loc[idx_val,   "rsrp_drop"].values
     y_test  = df.loc[idx_test,  "rsrp_drop"].values
@@ -172,11 +162,6 @@ def train_dso2(
         idx_test  = np.concatenate([pos_idx_t[:n_pos_t], neg_idx_t[:n_neg_t]])
         y_test    = np.concatenate([np.ones(n_pos_t), np.zeros(n_neg_t)])
 
-    cols_x  = [c for c in config["cols_X"] if c in df.columns and c != "rsrp_drop"]
-    y_train = df.loc[idx_train, "rsrp_drop"].values
-    y_val   = df.loc[idx_val,   "rsrp_drop"].values
-    y_test  = df.loc[idx_test,  "rsrp_drop"].values
-
     X_train = df.loc[idx_train, cols_x].values.astype(np.float32)
     X_val   = df.loc[idx_val,   cols_x].values.astype(np.float32)
     X_test  = df.loc[idx_test,  cols_x].values.astype(np.float32)
@@ -190,67 +175,81 @@ def train_dso2(
 
     # -- M1 : XGBoost ----------------------------------------------------------
     print("=" * 60 + "\n  M1 -- XGBoost DSO2\n" + "=" * 60)
+    xgb_params = dict(n_estimators=500, max_depth=6, learning_rate=0.05,
+                      subsample=0.8, colsample_bytree=0.8, scale_pos_weight=ratio)
     xgb_d2 = XGBClassifier(
-        n_estimators=500, max_depth=6, learning_rate=0.05,
-        subsample=0.8, colsample_bytree=0.8, scale_pos_weight=ratio,
-        eval_metric="aucpr", early_stopping_rounds=30, tree_method="hist",
-        random_state=42, n_jobs=-1, use_label_encoder=False,
+        **xgb_params, eval_metric="aucpr", early_stopping_rounds=30,
+        tree_method="hist", random_state=42, n_jobs=-1, use_label_encoder=False,
     )
     xgb_d2.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=50)
     y_pred_xgb = xgb_d2.predict(X_test)
     y_prob_xgb = xgb_d2.predict_proba(X_test)[:, 1]
     print(classification_report(y_test, y_pred_xgb, target_names=CM_LABELS))
-
     metrics_xgb = _metrics_binary("XGBoost", y_test, y_pred_xgb, y_prob_xgb)
     all_metrics.append(metrics_xgb)
-    with open(os.path.join(model_out_dir, "xgb_dso2.pkl"), "wb") as f:
+
+    cm_xgb = os.path.join(model_out_dir, "cm_xgb_dso2.png")
+    pkl_xgb = os.path.join(model_out_dir, "xgb_dso2.pkl")
+    with open(pkl_xgb, "wb") as f:
         pickle.dump(xgb_d2, f)
-    _save_cm(confusion_matrix(y_test, y_pred_xgb),
-             "Confusion Matrix -- XGBoost (DSO2)",
-             os.path.join(model_out_dir, "cm_xgb_dso2.png"), CM_LABELS, "Blues")
+    _save_cm(confusion_matrix(y_test, y_pred_xgb), "Confusion Matrix -- XGBoost (DSO2)",
+             cm_xgb, CM_LABELS, "Blues")
+    if mlflow_available:
+        log_model_run(EXPERIMENT_NAME, "XGBoost", xgb_params,
+                      {k: v for k, v in metrics_xgb.items() if k != "model"},
+                      [cm_xgb, pkl_xgb], tags)
 
     # -- M2 : LightGBM ---------------------------------------------------------
     print("=" * 60 + "\n  M2 -- LightGBM DSO2\n" + "=" * 60)
+    lgbm_params = dict(n_estimators=500, max_depth=7, learning_rate=0.05, num_leaves=63,
+                       subsample=0.8, colsample_bytree=0.8)
     lgbm_d2 = LGBMClassifier(
-        n_estimators=500, max_depth=7, learning_rate=0.05, num_leaves=63,
-        subsample=0.8, colsample_bytree=0.8, is_unbalance=True,
+        **lgbm_params, is_unbalance=True,
         metric="average_precision", random_state=42, n_jobs=-1, verbose=-1,
     )
-    lgbm_d2.fit(
-        X_train, y_train, eval_set=[(X_val, y_val)],
-        callbacks=[lgb.early_stopping(30, verbose=False), lgb.log_evaluation(50)],
-    )
+    lgbm_d2.fit(X_train, y_train, eval_set=[(X_val, y_val)],
+                callbacks=[lgb.early_stopping(30, verbose=False), lgb.log_evaluation(50)])
     y_pred_lgbm = lgbm_d2.predict(X_test)
     y_prob_lgbm = lgbm_d2.predict_proba(X_test)[:, 1]
     print(classification_report(y_test, y_pred_lgbm, target_names=CM_LABELS))
-
     metrics_lgbm = _metrics_binary("LightGBM", y_test, y_pred_lgbm, y_prob_lgbm)
     all_metrics.append(metrics_lgbm)
-    with open(os.path.join(model_out_dir, "lgbm_dso2.pkl"), "wb") as f:
+
+    cm_lgbm = os.path.join(model_out_dir, "cm_lgbm_dso2.png")
+    pkl_lgbm = os.path.join(model_out_dir, "lgbm_dso2.pkl")
+    with open(pkl_lgbm, "wb") as f:
         pickle.dump(lgbm_d2, f)
-    _save_cm(confusion_matrix(y_test, y_pred_lgbm),
-             "Confusion Matrix -- LightGBM (DSO2)",
-             os.path.join(model_out_dir, "cm_lgbm_dso2.png"), CM_LABELS, "Greens")
+    _save_cm(confusion_matrix(y_test, y_pred_lgbm), "Confusion Matrix -- LightGBM (DSO2)",
+             cm_lgbm, CM_LABELS, "Greens")
+    if mlflow_available:
+        log_model_run(EXPERIMENT_NAME, "LightGBM", lgbm_params,
+                      {k: v for k, v in metrics_lgbm.items() if k != "model"},
+                      [cm_lgbm, pkl_lgbm], tags)
 
     # -- M3 : Random Forest ----------------------------------------------------
     print("=" * 60 + "\n  M3 -- Random Forest DSO2\n" + "=" * 60)
+    rf_params = dict(n_estimators=300, max_depth=15, min_samples_leaf=20, max_features="sqrt")
     rf_d2 = RandomForestClassifier(
-        n_estimators=300, max_depth=15, min_samples_leaf=20,
-        max_features="sqrt", class_weight="balanced_subsample",
+        **rf_params, class_weight="balanced_subsample",
         max_samples=0.2, random_state=42, n_jobs=-1, verbose=1,
     )
     rf_d2.fit(X_train, y_train)
     y_pred_rf = rf_d2.predict(X_test)
     y_prob_rf = rf_d2.predict_proba(X_test)[:, 1]
     print(classification_report(y_test, y_pred_rf, target_names=CM_LABELS))
-
     metrics_rf = _metrics_binary("Random Forest", y_test, y_pred_rf, y_prob_rf)
     all_metrics.append(metrics_rf)
-    with open(os.path.join(model_out_dir, "rf_dso2.pkl"), "wb") as f:
+
+    cm_rf = os.path.join(model_out_dir, "cm_rf_dso2.png")
+    pkl_rf = os.path.join(model_out_dir, "rf_dso2.pkl")
+    with open(pkl_rf, "wb") as f:
         pickle.dump(rf_d2, f)
-    _save_cm(confusion_matrix(y_test, y_pred_rf),
-             "Confusion Matrix -- Random Forest (DSO2)",
-             os.path.join(model_out_dir, "cm_rf_dso2.png"), CM_LABELS, "Oranges")
+    _save_cm(confusion_matrix(y_test, y_pred_rf), "Confusion Matrix -- Random Forest (DSO2)",
+             cm_rf, CM_LABELS, "Oranges")
+    if mlflow_available:
+        log_model_run(EXPERIMENT_NAME, "RandomForest", rf_params,
+                      {k: v for k, v in metrics_rf.items() if k != "model"},
+                      [cm_rf, pkl_rf], tags)
 
     # -- M4 : BiLSTM -----------------------------------------------------------
     if not skip_deep:
@@ -291,37 +290,33 @@ def train_dso2(
         out = Dense(1, activation="sigmoid")(x)
 
         lstm_d2 = KModel(inputs=inp, outputs=out, name="BiLSTM_DSO2")
-        lstm_d2.compile(
-            optimizer=Adam(1e-3), loss="binary_crossentropy", metrics=["AUC"]
-        )
+        lstm_d2.compile(optimizer=Adam(1e-3), loss="binary_crossentropy", metrics=["AUC"])
         sw = np.where(y_train == 1, ratio, 1).astype(np.float32)
         lstm_d2.fit(
-            X_tr_3d, y_train,
-            validation_data=(X_va_3d, y_val),
-            sample_weight=sw,
-            epochs=30, batch_size=2048, verbose=1,
+            X_tr_3d, y_train, validation_data=(X_va_3d, y_val),
+            sample_weight=sw, epochs=30, batch_size=2048, verbose=1,
             callbacks=[
                 EarlyStopping(monitor="val_AUC", patience=5,
                               restore_best_weights=True, mode="max"),
-                ReduceLROnPlateau(monitor="val_loss", factor=0.5,
-                                  patience=3, min_lr=1e-6),
-                ModelCheckpoint(
-                    os.path.join(model_out_dir, "lstm_dso2_best.h5"),
-                    monitor="val_AUC", save_best_only=True, mode="max",
-                ),
+                ReduceLROnPlateau(monitor="val_loss", factor=0.5, patience=3, min_lr=1e-6),
+                ModelCheckpoint(os.path.join(model_out_dir, "lstm_dso2_best.h5"),
+                                monitor="val_AUC", save_best_only=True, mode="max"),
             ],
         )
-
         y_prob_lstm = lstm_d2.predict(X_te_3d, batch_size=4096, verbose=0).flatten()
         y_pred_lstm = (y_prob_lstm > 0.5).astype(int)
         print(classification_report(y_test, y_pred_lstm, target_names=CM_LABELS))
-
         metrics_lstm = _metrics_binary("BiLSTM", y_test, y_pred_lstm, y_prob_lstm)
         all_metrics.append(metrics_lstm)
         lstm_d2.save(os.path.join(model_out_dir, "lstm_dso2.h5"))
-        _save_cm(confusion_matrix(y_test, y_pred_lstm),
-                 "Confusion Matrix -- BiLSTM (DSO2)",
-                 os.path.join(model_out_dir, "cm_lstm_dso2.png"), CM_LABELS, "Reds")
+        cm_lstm = os.path.join(model_out_dir, "cm_lstm_dso2.png")
+        _save_cm(confusion_matrix(y_test, y_pred_lstm), "Confusion Matrix -- BiLSTM (DSO2)",
+                 cm_lstm, CM_LABELS, "Reds")
+        if mlflow_available:
+            log_model_run(EXPERIMENT_NAME, "BiLSTM",
+                          {"lstm_units": 128, "epochs": 30, "batch_size": 2048},
+                          {k: v for k, v in metrics_lstm.items() if k != "model"},
+                          [cm_lstm], tags)
 
     # -- M5 : TabNet -----------------------------------------------------------
     if not skip_deep:
@@ -340,46 +335,37 @@ def train_dso2(
         pt_d2 = TabNetPretrainer(
             n_d=16, n_a=16, n_steps=3, gamma=1.5,
             n_independent=2, n_shared=2, mask_type="entmax",
-            optimizer_fn=torch.optim.Adam,
-            optimizer_params={"lr": 2e-3},
+            optimizer_fn=torch.optim.Adam, optimizer_params={"lr": 2e-3},
             verbose=5, seed=42,
         )
-        pt_d2.fit(
-            X_train=X_tr_tn, eval_set=[X_va_tn],
-            max_epochs=30, patience=5,
-            batch_size=2048, virtual_batch_size=256,
-            pretraining_ratio=0.5,
-        )
+        pt_d2.fit(X_train=X_tr_tn, eval_set=[X_va_tn], max_epochs=30, patience=5,
+                  batch_size=2048, virtual_batch_size=256, pretraining_ratio=0.5)
 
         tabnet_d2 = TabNetClassifier(
             n_d=16, n_a=16, n_steps=3, gamma=1.5,
             n_independent=2, n_shared=2, mask_type="entmax",
-            optimizer_fn=torch.optim.Adam,
-            optimizer_params={"lr": 2e-3},
+            optimizer_fn=torch.optim.Adam, optimizer_params={"lr": 2e-3},
             verbose=0, seed=42,
         )
-        tabnet_d2.fit(
-            X_train=X_tr_tn[:512], y_train=y_tr_tn[:512].astype(int),
-            max_epochs=1, batch_size=512, virtual_batch_size=512,
-        )
+        tabnet_d2.fit(X_train=X_tr_tn[:512], y_train=y_tr_tn[:512].astype(int),
+                      max_epochs=1, batch_size=512, virtual_batch_size=512)
         tabnet_d2.load_weights_from_unsupervised(pt_d2)
         tabnet_d2.verbose = 10
-        tabnet_d2.fit(
-            X_train=X_tr_tn, y_train=y_tr_tn.astype(int),
-            eval_set=[(X_va_tn, y_val.astype(int))],
-            eval_metric=["auc"],
-            max_epochs=30, patience=5,
-            batch_size=2048, virtual_batch_size=256,
-            weights=1,
-        )
+        tabnet_d2.fit(X_train=X_tr_tn, y_train=y_tr_tn.astype(int),
+                      eval_set=[(X_va_tn, y_val.astype(int))], eval_metric=["auc"],
+                      max_epochs=30, patience=5, batch_size=2048, virtual_batch_size=256, weights=1)
 
         y_pred_tn = tabnet_d2.predict(X_te_tn)
         y_prob_tn = tabnet_d2.predict_proba(X_te_tn)[:, 1]
         print(classification_report(y_test, y_pred_tn, target_names=CM_LABELS))
-
         metrics_tn = _metrics_binary("TabNet", y_test, y_pred_tn, y_prob_tn)
         all_metrics.append(metrics_tn)
         tabnet_d2.save_model(os.path.join(model_out_dir, "tabnet_dso2"))
+        if mlflow_available:
+            log_model_run(EXPERIMENT_NAME, "TabNet",
+                          {"n_d": 16, "n_a": 16, "n_steps": 3},
+                          {k: v for k, v in metrics_tn.items() if k != "model"},
+                          [], tags)
 
     # -- Save summary ----------------------------------------------------------
     with open(os.path.join(model_out_dir, "results_dso2.json"), "w") as f:

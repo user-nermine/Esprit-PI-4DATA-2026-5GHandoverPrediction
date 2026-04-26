@@ -35,15 +35,16 @@ from sklearn.ensemble import RandomForestClassifier
 
 warnings.filterwarnings("ignore")
 
-CONFIGS     = {"static": "session_id", "mobile": "device", "hbahn": "device"}
-TOP_N_CELLS = 50
-TOP_K_EVAL  = 3
+CONFIGS         = {"static": "session_id", "mobile": "device", "hbahn": "device"}
+TOP_N_CELLS     = 50
+TOP_K_EVAL      = 3
+EXPERIMENT_NAME = "DSO3-NextCell"
 
 
 def _build_next_cell_label(fe_data_dir: str, model_out_dir: str):
     """
     Build next_cell multiclass label from df_ho.parquet.
-    Returns X_all, y_all (re-encoded), le2 (LabelEncoder), N_CLASSES.
+    Returns df_filtered (with next_cell_enc), le (LabelEncoder).
     """
     df_ho = pd.read_parquet(
         os.path.join(fe_data_dir, "df_ho.parquet"),
@@ -58,10 +59,10 @@ def _build_next_cell_label(fe_data_dir: str, model_out_dir: str):
         for _, grp in df_ho[mask_env].groupby(cle):
             df_ho.loc[grp.index, "next_cell"] = grp["cell_index"].shift(-1)
 
-    df_ho_only   = df_ho[df_ho["handover"] == 1].dropna(subset=["next_cell"])
-    cell_counts  = df_ho_only["next_cell"].value_counts()
-    top_cells    = cell_counts.head(TOP_N_CELLS).index.tolist()
-    coverage     = cell_counts.head(TOP_N_CELLS).sum() / cell_counts.sum() * 100
+    df_ho_only  = df_ho[df_ho["handover"] == 1].dropna(subset=["next_cell"])
+    cell_counts = df_ho_only["next_cell"].value_counts()
+    top_cells   = cell_counts.head(TOP_N_CELLS).index.tolist()
+    coverage    = cell_counts.head(TOP_N_CELLS).sum() / cell_counts.sum() * 100
     print(f"  Top-{TOP_N_CELLS} covers {coverage:.1f}% of handovers")
 
     df_filtered = df_ho_only[df_ho_only["next_cell"].isin(top_cells)].copy()
@@ -129,6 +130,15 @@ def train_dso3(
     assert os.path.exists(fe_data_dir), \
         f" {fe_data_dir} not found -- run feature_engineering first!"
 
+    try:
+        from mlflow_utils import log_model_run
+        mlflow_available = True
+    except Exception:
+        mlflow_available = False
+        print("  [MLflow] Not available, skipping logging.")
+
+    tags = {"dso": "DSO3", "task": "next_cell", "skip_deep": str(skip_deep)}
+
     # -- Build label -----------------------------------------------------------
     print("=" * 60 + "\n  DSO3 -- Building Next Cell label\n" + "=" * 60)
     df_filtered, _le = _build_next_cell_label(fe_data_dir, model_out_dir)
@@ -137,11 +147,11 @@ def train_dso3(
     with open(os.path.join(pt_out_dir, "config.json")) as f:
         config = json.load(f)
 
-    pf        = pq.ParquetFile(os.path.join(pt_out_dir, "df_preprocessed.parquet"))
-    schema    = pf.schema_arrow.names
-    cols_x    = [c for c in config["cols_X"] if c in schema]
+    pf     = pq.ParquetFile(os.path.join(pt_out_dir, "df_preprocessed.parquet"))
+    schema = pf.schema_arrow.names
+    cols_x = [c for c in config["cols_X"] if c in schema]
 
-    df_pre    = pd.read_parquet(
+    df_pre     = pd.read_parquet(
         os.path.join(pt_out_dir, "df_preprocessed.parquet"), columns=cols_x
     )
     common_idx  = df_filtered.index[df_filtered.index.isin(df_pre.index)]
@@ -150,7 +160,7 @@ def train_dso3(
     y_all       = df_filtered["next_cell_enc"].values
 
     if skip_deep:
-        n = 10_000
+        n     = 10_000
         X_all = X_all[:n]
         y_all = y_all[:n]
     del df_pre
@@ -182,7 +192,7 @@ def train_dso3(
     X_val,  y_val  = X_val[mask_val],   y_val[mask_val]
     X_test, y_test = X_test[mask_test], y_test[mask_test]
 
-    N_CLASSES   = len(le2.classes_)
+    N_CLASSES = len(le2.classes_)
     with open(os.path.join(model_out_dir, "label_encoder_cells.pkl"), "wb") as f:
         pickle.dump(le2, f)
 
@@ -191,11 +201,19 @@ def train_dso3(
 
     all_metrics = []
 
+    # Top-15 cells mask (computed once, reused for all CMs)
+    top15_cls    = pd.Series(y_test).value_counts().head(15).index.tolist()
+    mask_top     = np.isin(y_test, top15_cls)
+    top15_labels = [str(le2.classes_[i])[:8] for i in top15_cls]
+
     # -- M1 : XGBoost ----------------------------------------------------------
     print("=" * 60 + "\n  M1 -- XGBoost DSO3\n" + "=" * 60)
-    xgb_d3 = XGBClassifier(
+    xgb_params = dict(
         n_estimators=300, max_depth=6, learning_rate=0.1,
         subsample=0.8, colsample_bytree=0.8,
+    )
+    xgb_d3 = XGBClassifier(
+        **xgb_params,
         objective="multi:softmax", num_class=N_CLASSES,
         eval_metric="mlogloss", early_stopping_rounds=20,
         tree_method="hist", random_state=42, n_jobs=-1,
@@ -212,23 +230,28 @@ def train_dso3(
           f"Top-{TOP_K_EVAL}={metrics_xgb[f'top{TOP_K_EVAL}_acc']:.4f} | "
           f"F1={metrics_xgb['f1_macro']:.4f}")
 
-    with open(os.path.join(model_out_dir, "xgb_dso3.pkl"), "wb") as f:
+    pkl_xgb = os.path.join(model_out_dir, "xgb_dso3.pkl")
+    cm_xgb  = os.path.join(model_out_dir, "cm_xgb_dso3.png")
+    with open(pkl_xgb, "wb") as f:
         pickle.dump(xgb_d3, f)
-
-    top15_cls   = pd.Series(y_test).value_counts().head(15).index.tolist()
-    mask_top    = np.isin(y_test, top15_cls)
-    top15_labels = [str(le2.classes_[i])[:8] for i in top15_cls]
     _save_cm(
         confusion_matrix(y_test[mask_top], y_pred_xgb[mask_top], labels=top15_cls),
         "Confusion Matrix -- XGBoost DSO3 (Top-15 cells)",
-        os.path.join(model_out_dir, "cm_xgb_dso3.png"), top15_labels, "Blues",
+        cm_xgb, top15_labels, "Blues",
     )
+    if mlflow_available:
+        log_model_run(EXPERIMENT_NAME, "XGBoost", xgb_params,
+                      {k: v for k, v in metrics_xgb.items() if k != "model"},
+                      [cm_xgb, pkl_xgb], tags)
 
     # -- M2 : LightGBM ---------------------------------------------------------
     print("=" * 60 + "\n  M2 -- LightGBM DSO3\n" + "=" * 60)
-    lgbm_d3 = LGBMClassifier(
+    lgbm_params = dict(
         n_estimators=300, max_depth=7, learning_rate=0.1, num_leaves=63,
         subsample=0.8, colsample_bytree=0.8,
+    )
+    lgbm_d3 = LGBMClassifier(
+        **lgbm_params,
         objective="multiclass", num_class=N_CLASSES,
         metric="multi_logloss", class_weight="balanced",
         random_state=42, n_jobs=-1, verbose=-1,
@@ -243,19 +266,28 @@ def train_dso3(
     metrics_lgbm = _metrics_multiclass("LightGBM", y_test, y_pred_lgbm,
                                         y_proba_lgbm, N_CLASSES)
     all_metrics.append(metrics_lgbm)
-    with open(os.path.join(model_out_dir, "lgbm_dso3.pkl"), "wb") as f:
+
+    pkl_lgbm = os.path.join(model_out_dir, "lgbm_dso3.pkl")
+    cm_lgbm  = os.path.join(model_out_dir, "cm_lgbm_dso3.png")
+    with open(pkl_lgbm, "wb") as f:
         pickle.dump(lgbm_d3, f)
     _save_cm(
         confusion_matrix(y_test[mask_top], y_pred_lgbm[mask_top], labels=top15_cls),
         "Confusion Matrix -- LightGBM DSO3 (Top-15)",
-        os.path.join(model_out_dir, "cm_lgbm_dso3.png"), top15_labels, "Greens",
+        cm_lgbm, top15_labels, "Greens",
     )
+    if mlflow_available:
+        log_model_run(EXPERIMENT_NAME, "LightGBM", lgbm_params,
+                      {k: v for k, v in metrics_lgbm.items() if k != "model"},
+                      [cm_lgbm, pkl_lgbm], tags)
 
     # -- M3 : Random Forest ----------------------------------------------------
     print("=" * 60 + "\n  M3 -- Random Forest DSO3\n" + "=" * 60)
+    rf_params = dict(
+        n_estimators=200, max_depth=15, min_samples_leaf=10, max_features="sqrt",
+    )
     rf_d3 = RandomForestClassifier(
-        n_estimators=200, max_depth=15, min_samples_leaf=10,
-        max_features="sqrt", class_weight="balanced_subsample",
+        **rf_params, class_weight="balanced_subsample",
         max_samples=0.3, random_state=42, n_jobs=-1, verbose=1,
     )
     rf_d3.fit(X_train, y_train)
@@ -265,13 +297,20 @@ def train_dso3(
     metrics_rf = _metrics_multiclass("Random Forest", y_test, y_pred_rf,
                                       y_proba_rf, N_CLASSES)
     all_metrics.append(metrics_rf)
-    with open(os.path.join(model_out_dir, "rf_dso3.pkl"), "wb") as f:
+
+    pkl_rf = os.path.join(model_out_dir, "rf_dso3.pkl")
+    cm_rf  = os.path.join(model_out_dir, "cm_rf_dso3.png")
+    with open(pkl_rf, "wb") as f:
         pickle.dump(rf_d3, f)
     _save_cm(
         confusion_matrix(y_test[mask_top], y_pred_rf[mask_top], labels=top15_cls),
         "Confusion Matrix -- Random Forest DSO3 (Top-15)",
-        os.path.join(model_out_dir, "cm_rf_dso3.png"), top15_labels, "Oranges",
+        cm_rf, top15_labels, "Oranges",
     )
+    if mlflow_available:
+        log_model_run(EXPERIMENT_NAME, "RandomForest", rf_params,
+                      {k: v for k, v in metrics_rf.items() if k != "model"},
+                      [cm_rf, pkl_rf], tags)
 
     # -- M4 : LSTM Softmax -----------------------------------------------------
     if not skip_deep:
@@ -347,7 +386,14 @@ def train_dso3(
         metrics_lstm = _metrics_multiclass("BiLSTM", y_test, y_pred_lstm,
                                             y_proba_lstm, N_CLASSES)
         all_metrics.append(metrics_lstm)
-        lstm_d3.save(os.path.join(model_out_dir, "lstm_dso3.h5"))
+        lstm_path = os.path.join(model_out_dir, "lstm_dso3.h5")
+        lstm_d3.save(lstm_path)
+
+        if mlflow_available:
+            log_model_run(EXPERIMENT_NAME, "BiLSTM",
+                          {"lstm_units": 128, "epochs": 30, "batch_size": 1024},
+                          {k: v for k, v in metrics_lstm.items() if k != "model"},
+                          [lstm_path], tags)
 
     # -- M5 : TabNet -----------------------------------------------------------
     if not skip_deep:
@@ -405,6 +451,12 @@ def train_dso3(
                                           y_proba_tn, N_CLASSES)
         all_metrics.append(metrics_tn)
         tabnet_d3.save_model(os.path.join(model_out_dir, "tabnet_dso3"))
+
+        if mlflow_available:
+            log_model_run(EXPERIMENT_NAME, "TabNet",
+                          {"n_d": 16, "n_a": 16, "n_steps": 3},
+                          {k: v for k, v in metrics_tn.items() if k != "model"},
+                          [], tags)
 
     # -- Save summary ----------------------------------------------------------
     with open(os.path.join(model_out_dir, "results_dso3.json"), "w") as f:
