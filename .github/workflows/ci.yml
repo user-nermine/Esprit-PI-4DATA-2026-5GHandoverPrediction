@@ -59,4 +59,5 @@ jobs:
       - name: Run pipeline
         env:
           MLFLOW_TRACKING_URI: http://localhost:5000
+          PYTHONIOENCODING: utf-8
         run: py src/train.py --skip-deep --start-from dso1
