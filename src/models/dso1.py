@@ -34,7 +34,7 @@ warnings.filterwarnings("ignore")
 CM_LABELS = ["No HO", "HO"]
 
 
-def _load_data(pt_out_dir: str):
+def _load_data(pt_out_dir: str, dry_run: bool = False):
     """Load preprocessed data and split indices from PT_output."""
     idx_train = np.load(os.path.join(pt_out_dir, "idx_train.npy"), allow_pickle=True)
     idx_val   = np.load(os.path.join(pt_out_dir, "idx_val.npy"),   allow_pickle=True)
@@ -47,24 +47,34 @@ def _load_data(pt_out_dir: str):
         config = json.load(f)
     cols_x = config["cols_X"]
 
-    df = pd.read_parquet(
-        os.path.join(pt_out_dir, "df_preprocessed.parquet"),
-        columns=cols_x,
-    )
+    # CI dry-run: slice to 10k rows to avoid OOM
+    if dry_run:
+        n = 10_000
+        idx_train = idx_train[:n]
+        idx_val   = idx_val[:int(n * 0.2)]
+        idx_test  = idx_test[:int(n * 0.2)]
+        y_train   = y_train[:n]
+        y_val     = y_val[:int(n * 0.2)]
+        y_test    = y_test[:int(n * 0.2)]
+
+    # read in chunks + cast to float32 immediately — avoids 6 GB float64 spike
+    import pyarrow.parquet as pq
+    pf = pq.ParquetFile(os.path.join(pt_out_dir, "df_preprocessed.parquet"))
+    chunks = []
+    for batch in pf.iter_batches(batch_size=100_000, columns=cols_x):
+        chunks.append(batch.to_pandas().astype(np.float32))
+    df = pd.concat(chunks, ignore_index=True)
     gc.collect()
 
-    X_train = df.loc[idx_train].values.astype(np.float32)
-    gc.collect()
-    X_val   = df.loc[idx_val].values.astype(np.float32)
-    gc.collect()
-    X_test  = df.loc[idx_test].values.astype(np.float32)
+    X_train = df.loc[idx_train].values
+    X_val   = df.loc[idx_val].values
+    X_test  = df.loc[idx_test].values
     del df
     gc.collect()
 
     ratio = int((1 - y_train.mean()) / max(y_train.mean(), 1e-6))
-    print(f"✅ X_train {X_train.shape} | HO%={y_train.mean()*100:.2f}% | ratio 1:{ratio}")
+    print(f"X_train {X_train.shape} | HO%={y_train.mean()*100:.2f}% | ratio 1:{ratio}")
     return X_train, X_val, X_test, y_train, y_val, y_test, cols_x, ratio
-
 
 def _save_cm(cm, title, path, labels, cmap="Blues"):
     """Save a confusion-matrix PNG (headless)."""
@@ -116,8 +126,8 @@ def train_dso1(
         f"❌ {pt_out_dir} not found — run preprocessing first!"
 
     # ── Load data ─────────────────────────────────────────────────────────────
-    X_train, X_val, X_test, y_train, y_val, y_test, cols_x, ratio = \
-        _load_data(pt_out_dir)
+   X_train, X_val, X_test, y_train, y_val, y_test, cols_x, ratio = \
+    _load_data(pt_out_dir, dry_run=skip_deep)
 
     all_metrics = []
 
