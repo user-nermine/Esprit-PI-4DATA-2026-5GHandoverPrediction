@@ -1,6 +1,6 @@
 [core]
     autostage = true
-    remote = b2remote
+    remote = minio_remote
 ['remote "minio_remote"']
     url = s3://mlops-data
     endpointurl = http://localhost:9000
@@ -9,3 +9,11 @@
 ['remote "b2remote"']
     url = s3://mlops-data
     endpointurl = https://s3.eu-central-003.backblazeb2.com
+['remote "gdrive_remote"']
+    url = gdrive://1iTxRAAv5OkcblQARtNabGZvruEcl1aFJ
+    gdrive_acknowledge_abuse = true
+['remote "hf_remote"']
+    url = https://huggingface.co/datasets/user-nermine/5g-handover-dvc-storage
+    auth = basic
+    user = user-nermine
+    method = PUT
