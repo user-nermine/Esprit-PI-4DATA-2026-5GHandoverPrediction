@@ -49,13 +49,13 @@ def run_feature_engineering(
 
     os.makedirs(fe_out_dir, exist_ok=True)
     assert os.path.exists(fe_data_dir), (
-        f"❌ {fe_data_dir} not found — run NB1_EDA first!"
+        f" {fe_data_dir} not found — run NB1_EDA first!"
     )
 
     # ── FE-1 : Load & sort cell_data ─────────────────────────────────────────
-    print("🔹 Loading cell_data...")
+    print(" Loading cell_data...")
     df_cell = pd.read_parquet(os.path.join(fe_data_dir, "cell_data.parquet"))
-    print(f"  ✅ {len(df_cell):,} rows × {df_cell.shape[1]} cols")
+    print(f"   {len(df_cell):,} rows × {df_cell.shape[1]} cols")
 
     ts_col = next(
         (c for c in ["timestampstart", "timestamp", "timestamp_day"]
@@ -70,9 +70,9 @@ def run_feature_engineering(
             .sort_values([SESSION_COL, ts_col], na_position="last")
             .reset_index(drop=True)
         )
-        print("  ✅ Sorted by session × timestamp")
+        print("   Sorted by session × timestamp")
     else:
-        print("  ⚠️  No timestamp — order not guaranteed")
+        print("    No timestamp — order not guaranteed")
 
     # ── FE-2 : Vectorised handover detection ─────────────────────────────────
     print("\n" + "=" * 60)
@@ -116,7 +116,7 @@ def run_feature_engineering(
     print(f"\n  TOTAL : {total:,} rows | {n_ho:,} HO ({ho_pct:.2f}%)")
     print(f"  Imbalance ratio : 1:{imbalance}")
     if imbalance > 5:
-        print("  ⚠️  High imbalance → use class_weight / SMOTE / Focal Loss")
+        print("    High imbalance → use class_weight / SMOTE / Focal Loss")
 
     # ── FE-3 : 3GPP TR 38.300 handover typing ────────────────────────────────
     print("\n" + "=" * 60)
@@ -195,7 +195,7 @@ def run_feature_engineering(
     path_ho = os.path.join(fe_data_dir, "df_ho.parquet")
     df_ho.to_parquet(path_ho, index=False, compression="snappy")
     size_ho = os.path.getsize(path_ho) / 1e6
-    print(f"\n✅ df_ho saved : {len(df_ho):,} rows × {df_ho.shape[1]} cols → {size_ho:.1f} MB")
+    print(f"\n df_ho saved : {len(df_ho):,} rows × {df_ho.shape[1]} cols → {size_ho:.1f} MB")
 
     del df_cell
     gc.collect()
@@ -204,7 +204,7 @@ def run_feature_engineering(
     print("\n" + "=" * 60)
     print("  FE-4 — JOINS (latency / iperf / neighboring)")
     print("=" * 60)
-    print("🔹 Loading complementary tables...")
+    print(" Loading complementary tables...")
 
     # Neighboring
     cols_neigh = ["device", "source_folder", "passive_id",
@@ -215,7 +215,7 @@ def run_feature_engineering(
     df_neigh   = pd.read_parquet(
         os.path.join(fe_data_dir, "neighboring_data.parquet"), columns=cols_neigh
     )
-    print(f"  ✅ neighboring : {len(df_neigh):,} rows × {df_neigh.shape[1]} cols")
+    print(f"   neighboring : {len(df_neigh):,} rows × {df_neigh.shape[1]} cols")
 
     # Latency
     cols_lat  = ["device", "source_folder", "mean_latency", "mean_dev_latency",
@@ -225,7 +225,7 @@ def run_feature_engineering(
     df_lat    = pd.read_parquet(
         os.path.join(fe_data_dir, "latency_data.parquet"), columns=cols_lat
     )
-    print(f"  ✅ latency : {len(df_lat):,} rows")
+    print(f"   latency : {len(df_lat):,} rows")
 
     # iperf
     cols_iperf = ["device", "source_folder", "datarate", "tcp_mean_rtt_0",
@@ -235,7 +235,7 @@ def run_feature_engineering(
     df_iperf   = pd.read_parquet(
         os.path.join(fe_data_dir, "iperf_data.parquet"), columns=cols_iperf
     )
-    print(f"  ✅ iperf : {len(df_iperf):,} rows")
+    print(f"   iperf : {len(df_iperf):,} rows")
 
     df_final = df_ho.copy()
 
@@ -364,7 +364,7 @@ def run_feature_engineering(
     print(f"  Mobile+Hbahn with GPS  : {n_valid:>12,} ({n_valid / n_total * 100:.1f}%)")
 
     if n_valid < 1000:
-        print("  ⚠️  Not enough GPS data → clustering skipped")
+        print("    Not enough GPS data → clustering skipped")
     else:
         cols_cluster = []
 
@@ -375,7 +375,7 @@ def run_feature_engineering(
         if len(gps_ok) == 2:
             cols_cluster += gps_ok
         else:
-            print("  ❌ GPS not available → skipping clustering")
+            print("   GPS not available → skipping clustering")
             cols_cluster = None
 
         if cols_cluster is not None:
@@ -476,7 +476,7 @@ def run_feature_engineering(
 
             del X_cluster, X_sample, labels_all, labels_sample, df_sub
             gc.collect()
-            print(f"\n  ✅ FE-5 done — df_final shape : {df_final.shape}")
+            print(f"\n   FE-5 done — df_final shape : {df_final.shape}")
 
     # ── FE-6 : Post-processing cluster features ───────────────────────────────
     print("\n" + "=" * 60)
@@ -508,7 +508,7 @@ def run_feature_engineering(
     n_ho_final = int(df_final["handover"].sum())
     total_final = len(df_final)
 
-    print(f"✅ df_final_fe.parquet : {total_final:,} rows × "
+    print(f" df_final_fe.parquet : {total_final:,} rows × "
           f"{df_final.shape[1]} cols → {size_fe:.1f} MB")
     print(f"  HO : {n_ho_final:,} / {total_final:,} "
           f"({n_ho_final / total_final * 100:.2f}%)")

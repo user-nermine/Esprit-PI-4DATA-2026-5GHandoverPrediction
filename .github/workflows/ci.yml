@@ -45,66 +45,16 @@ jobs:
 
   train-dry-run:
     name: "Train dry-run"
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: tests
     if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
       - name: Install dependencies
-        run: pip install pandas numpy scikit-learn xgboost lightgbm pyarrow seaborn matplotlib huggingface_hub
+        run: py -m pip install pandas numpy scikit-learn xgboost lightgbm pyarrow fastparquet matplotlib seaborn huggingface_hub
       - name: Pull PT_output from Hugging Face
-        run: |
-          cat > /tmp/download_data.py << 'EOF'
-          from huggingface_hub import snapshot_download
-          snapshot_download(repo_id="user-nermine/5g-handover-dvc-storage", repo_type="dataset", local_dir=".")
-          print("PT_output downloaded successfully")
-          EOF
-          python /tmp/download_data.py
+        run: py scripts/download_data.py
       - name: Data quality validation
-        run: |
-          cat > /tmp/validate_data.py << 'EOF'
-          import pandas as pd
-          import numpy as np
-          import os
-          import sys
-
-          print("=" * 50)
-          print("  DATA QUALITY VALIDATION")
-          print("=" * 50)
-          errors = []
-
-          required = ["df_preprocessed.parquet","config.json","idx_train.npy","y_train.npy","y_test.npy"]
-          for f in required:
-              path = os.path.join("PT_output", f)
-              if not os.path.exists(path):
-                  errors.append(f"Missing: {path}")
-              else:
-                  size_mb = os.path.getsize(path) / 1e6
-                  print(f"  OK {f} ({size_mb:.1f} MB)")
-
-          schema = pd.read_parquet("PT_output/df_preprocessed.parquet", columns=["handover"]).columns.tolist()
-          if "handover" not in schema:
-              errors.append("Missing: handover column")
-          else:
-              print("  OK handover column exists")
-
-          y_train = np.load("PT_output/y_train.npy")
-          y_test = np.load("PT_output/y_test.npy")
-          print(f"  OK y_train: {len(y_train):,}")
-          print(f"  OK y_test: {len(y_test):,}")
-
-          print("=" * 50)
-          if errors:
-              print("FAILED:")
-              for e in errors:
-                  print(f"  - {e}")
-              sys.exit(1)
-          print("  ALL CHECKS PASSED")
-          print("=" * 50)
-          EOF
-          python /tmp/validate_data.py
-      - name: Run pipeline (tree models, skip deep learning)
-        run: python src/train.py --skip-deep --start-from dso1
+        run: py scripts/validate_data.py
+      - name: Run pipeline
+        run: py src/train.py --skip-deep --start-from dso1

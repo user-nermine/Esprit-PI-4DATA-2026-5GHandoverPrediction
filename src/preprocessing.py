@@ -39,7 +39,7 @@ def run_preprocessing(
 
     os.makedirs(pt_out_dir, exist_ok=True)
     assert os.path.exists(fe_out_dir), \
-        f"❌ {fe_out_dir} not found — run NB2 / feature_engineering first!"
+        f" {fe_out_dir} not found — run NB2 / feature_engineering first!"
 
     # ── PT-0 : Load ──────────────────────────────────────────────────────────
     print("=" * 60)
@@ -47,7 +47,7 @@ def run_preprocessing(
     print("=" * 60)
 
     df_final = pd.read_parquet(os.path.join(fe_out_dir, "df_final_fe.parquet"))
-    print(f"✅ {len(df_final):,} rows × {df_final.shape[1]} cols")
+    print(f"{len(df_final):,} rows × {df_final.shape[1]} cols")
     print(f"   RAM estimate : {df_final.memory_usage(deep=True).sum() / 1e6:.0f} MB")
 
     df = df_final.copy()
@@ -83,7 +83,7 @@ def run_preprocessing(
         except Exception:
             continue
 
-    print("  Analysis done ✅")
+    print("  Analysis done ")
 
     cols_id = [c for c in
                ["source_file", "id", "refsig_id", "username",
@@ -100,7 +100,7 @@ def run_preprocessing(
     print(f"  Columns to drop : {len(all_drop)}")
 
     df = df.drop(columns=all_drop, errors="ignore")
-    print(f"✅ Remaining columns : {df.shape[1]}")
+    print(f"Remaining columns : {df.shape[1]}")
 
     # ── PT-2 : Robust NaN imputation ─────────────────────────────────────────
     print("=" * 60)
@@ -150,7 +150,7 @@ def run_preprocessing(
 
     # Numeric columns
     for col in df.columns:
-        if np.issubdtype(df[col].dtype, np.number) and df[col].isna().any():
+        if pd.api.types.is_numeric_dtype(df[col]) and df[col].isna().any():
             med = df[col].median()
             df[col] = df[col].fillna(med if not np.isnan(med) else 0)
 
@@ -167,7 +167,7 @@ def run_preprocessing(
 
     nan_total = df.isna().sum().sum()
     print(f"\n  Remaining NaN : {nan_total}")
-    print("✅ OK" if nan_total == 0 else "⚠️  NaN remaining")
+    print(" OK" if nan_total == 0 else "  NaN remaining")
     print(f"  Shape : {df.shape}")
 
     # ── PT-3 : Categorical encoding ──────────────────────────────────────────
@@ -219,7 +219,7 @@ def run_preprocessing(
     with open(os.path.join(pt_out_dir, "mappings.json"), "w") as f:
         json.dump(MAPPINGS, f, indent=2)
 
-    print("\n✅ PT-3 done")
+    print("\n PT-3 done")
 
     # ── PT-4 : IQR Winsorization ─────────────────────────────────────────────
     print("=" * 60)
@@ -240,7 +240,7 @@ def run_preprocessing(
         df[col] = df[col].clip(lower=lo, upper=hi)
         print(f"  {col:<25} borne_hi={hi:>10.1f}  capped={n_cap:,}")
 
-    print("\n✅ PT-4 done")
+    print("\n PT-4 done")
 
     # ── PT-5 : Temporal split 70/15/15 ───────────────────────────────────────
     print("=" * 60)
@@ -294,7 +294,7 @@ def run_preprocessing(
     print(f"\n  Train : {len(idx_train_all):,}  |  "
           f"Val : {len(idx_val_all):,}  |  "
           f"Test : {len(idx_test_all):,}")
-    print("\n✅ PT-5 done")
+    print("\n PT-5 done")
 
     # ── PT-6 : Hybrid normalisation ──────────────────────────────────────────
     print("=" * 60)
@@ -334,7 +334,6 @@ def run_preprocessing(
     if cols_minmax:
         scaler_mm.fit(X_train_ref[cols_minmax])
         df[cols_minmax] = scaler_mm.transform(df[cols_minmax])
-
     scaler_rb = RobustScaler()
     if cols_robust:
         scaler_rb.fit(X_train_ref[cols_robust])
@@ -384,7 +383,7 @@ def run_preprocessing(
     print(f"  y_train {y_train.shape}  HO={y_train.mean() * 100:.2f}%")
     print(f"  y_val   {y_val.shape}    HO={y_val.mean() * 100:.2f}%")
     print(f"  y_test  {y_test.shape}   HO={y_test.mean() * 100:.2f}%")
-    print("\n✅ PREPROCESSING COMPLETE → ready for NB4 / modeling")
+    print("\n PREPROCESSING COMPLETE → ready for NB4 / modeling")
 
 
 if __name__ == "__main__":
