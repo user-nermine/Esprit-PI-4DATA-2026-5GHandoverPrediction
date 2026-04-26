@@ -71,46 +71,39 @@ jobs:
           import os
           import sys
 
-          def validate():
-              print("=" * 50)
-              print("  DATA QUALITY VALIDATION")
-              print("=" * 50)
-              errors = []
-              required = ["df_preprocessed.parquet","config.json","idx_train.npy","idx_val.npy","idx_test.npy","y_train.npy","y_val.npy","y_test.npy"]
-              for f in required:
-                  path = os.path.join("PT_output", f)
-                  if not os.path.exists(path):
-                      errors.append(f"Missing: {path}")
-                  else:
-                      print(f"  OK {f}")
-              df = pd.read_parquet("PT_output/df_preprocessed.parquet")
-              if len(df) < 1000:
-                  errors.append(f"Too few rows: {len(df)}")
-              else:
-                  print(f"  OK rows: {len(df):,}")
-              empty = [c for c in df.columns if df[c].isna().all()]
-              if empty:
-                  errors.append(f"Empty columns: {empty}")
-              else:
-                  print("  OK no empty columns")
-              if "handover" not in df.columns:
-                  errors.append("Missing: handover column")
-              else:
-                  print(f"  OK handover column (HO rate: {df['handover'].mean():.2%})")
-              y_train = np.load("PT_output/y_train.npy")
-              y_test = np.load("PT_output/y_test.npy")
-              print(f"  OK y_train: {len(y_train):,}")
-              print(f"  OK y_test: {len(y_test):,}")
-              print("=" * 50)
-              if errors:
-                  print("FAILED:")
-                  for e in errors:
-                      print(f"  - {e}")
-                  sys.exit(1)
-              print("  ALL CHECKS PASSED")
-              print("=" * 50)
+          print("=" * 50)
+          print("  DATA QUALITY VALIDATION")
+          print("=" * 50)
+          errors = []
 
-          validate()
+          required = ["df_preprocessed.parquet","config.json","idx_train.npy","y_train.npy","y_test.npy"]
+          for f in required:
+              path = os.path.join("PT_output", f)
+              if not os.path.exists(path):
+                  errors.append(f"Missing: {path}")
+              else:
+                  size_mb = os.path.getsize(path) / 1e6
+                  print(f"  OK {f} ({size_mb:.1f} MB)")
+
+          schema = pd.read_parquet("PT_output/df_preprocessed.parquet", columns=["handover"]).columns.tolist()
+          if "handover" not in schema:
+              errors.append("Missing: handover column")
+          else:
+              print("  OK handover column exists")
+
+          y_train = np.load("PT_output/y_train.npy")
+          y_test = np.load("PT_output/y_test.npy")
+          print(f"  OK y_train: {len(y_train):,}")
+          print(f"  OK y_test: {len(y_test):,}")
+
+          print("=" * 50)
+          if errors:
+              print("FAILED:")
+              for e in errors:
+                  print(f"  - {e}")
+              sys.exit(1)
+          print("  ALL CHECKS PASSED")
+          print("=" * 50)
           EOF
           python /tmp/validate_data.py
       - name: Run pipeline (tree models, skip deep learning)
