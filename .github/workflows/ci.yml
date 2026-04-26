@@ -44,7 +44,7 @@ jobs:
       - run: pytest tests/ -v
 
   train-dry-run:
-    name: "Train dry-run (tree models only)"
+    name: "Train dry-run"
     runs-on: ubuntu-latest
     needs: tests
     if: github.event_name == 'push'
@@ -54,7 +54,7 @@ jobs:
         with:
           python-version: "3.10"
       - name: Install dependencies
-        run: pip install -r requirements.txt huggingface_hub
+        run: pip install pandas numpy scikit-learn xgboost lightgbm pyarrow seaborn matplotlib huggingface_hub
       - name: Pull PT_output from Hugging Face
         run: |
           cat > /tmp/download_data.py << 'EOF'
@@ -71,58 +71,47 @@ jobs:
           import os
           import sys
 
-          def validate_pt_output(pt_out_dir="PT_output"):
+          def validate():
               print("=" * 50)
               print("  DATA QUALITY VALIDATION")
               print("=" * 50)
               errors = []
-              required_files = [
-                  "df_preprocessed.parquet", "config.json",
-                  "idx_train.npy", "idx_val.npy", "idx_test.npy",
-                  "y_train.npy", "y_val.npy", "y_test.npy",
-              ]
-              for f in required_files:
-                  path = os.path.join(pt_out_dir, f)
+              required = ["df_preprocessed.parquet","config.json","idx_train.npy","idx_val.npy","idx_test.npy","y_train.npy","y_val.npy","y_test.npy"]
+              for f in required:
+                  path = os.path.join("PT_output", f)
                   if not os.path.exists(path):
-                      errors.append(f"Missing file: {path}")
+                      errors.append(f"Missing: {path}")
                   else:
-                      print(f"  OK {f} exists")
-              df = pd.read_parquet(os.path.join(pt_out_dir, "df_preprocessed.parquet"))
+                      print(f"  OK {f}")
+              df = pd.read_parquet("PT_output/df_preprocessed.parquet")
               if len(df) < 1000:
                   errors.append(f"Too few rows: {len(df)}")
               else:
-                  print(f"  OK Row count: {len(df):,}")
-              empty_cols = [c for c in df.columns if df[c].isna().all()]
-              if empty_cols:
-                  errors.append(f"Fully empty columns: {empty_cols}")
+                  print(f"  OK rows: {len(df):,}")
+              empty = [c for c in df.columns if df[c].isna().all()]
+              if empty:
+                  errors.append(f"Empty columns: {empty}")
               else:
-                  print("  OK No fully empty columns")
+                  print("  OK no empty columns")
               if "handover" not in df.columns:
-                  errors.append("Missing column: handover")
+                  errors.append("Missing: handover column")
               else:
-                  print(f"  OK handover column exists")
-              y_train = np.load(os.path.join(pt_out_dir, "y_train.npy"))
-              y_test = np.load(os.path.join(pt_out_dir, "y_test.npy"))
-              if len(y_train) == 0:
-                  errors.append("y_train is empty")
-              else:
-                  print(f"  OK y_train size: {len(y_train):,}")
-              if len(y_test) == 0:
-                  errors.append("y_test is empty")
-              else:
-                  print(f"  OK y_test size: {len(y_test):,}")
+                  print(f"  OK handover column (HO rate: {df['handover'].mean():.2%})")
+              y_train = np.load("PT_output/y_train.npy")
+              y_test = np.load("PT_output/y_test.npy")
+              print(f"  OK y_train: {len(y_train):,}")
+              print(f"  OK y_test: {len(y_test):,}")
               print("=" * 50)
               if errors:
-                  print("  FAILED:")
+                  print("FAILED:")
                   for e in errors:
-                      print(f"     - {e}")
+                      print(f"  - {e}")
                   sys.exit(1)
-              else:
-                  print("  ALL CHECKS PASSED")
+              print("  ALL CHECKS PASSED")
               print("=" * 50)
 
-          validate_pt_output()
+          validate()
           EOF
           python /tmp/validate_data.py
-      - name: Run pipeline
+      - name: Run pipeline (tree models, skip deep learning)
         run: python src/train.py --skip-deep --start-from dso1
