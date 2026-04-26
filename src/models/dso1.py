@@ -125,10 +125,9 @@ def train_dso1(
     assert os.path.exists(pt_out_dir), \
         f"❌ {pt_out_dir} not found — run preprocessing first!"
 
-    # ── Load data ─────────────────────────────────────────────────────────────
-   X_train, X_val, X_test, y_train, y_val, y_test, cols_x, ratio = \
-    _load_data(pt_out_dir, dry_run=skip_deep)
-
+   # ── Load data ─────────────────────────────────────────────────────────────
+    X_train, X_val, X_test, y_train, y_val, y_test, cols_x, ratio = \
+        _load_data(pt_out_dir, dry_run=skip_deep)
     all_metrics = []
 
     # ── M1 : XGBoost ──────────────────────────────────────────────────────────
