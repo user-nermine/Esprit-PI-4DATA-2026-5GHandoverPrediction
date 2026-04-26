@@ -69,7 +69,7 @@ def run_pipeline(skip_deep: bool = False, start_from: str = "fe"):
         train_dso4(skip_deep=skip_deep)
 
     print("\n" + "=" * 60)
-    print("  ✅ FULL PIPELINE COMPLETE")
+    print("   FULL PIPELINE COMPLETE")
     print("=" * 60)
 
 
