@@ -149,27 +149,28 @@ def train_dso2(
 
     if skip_deep:
         n = 10_000
-        # Stratified sampling to ensure both classes are present
-        pos_idx = idx_train[y_train == 1]
-        neg_idx = idx_train[y_train == 0]
-        n_pos = min(len(pos_idx), n // 2)
-        n_neg = min(len(neg_idx), n - n_pos)
-        idx_train = np.concatenate([pos_idx[:n_pos], neg_idx[:n_neg]])
-        y_train   = y_train[np.isin(idx_train, pos_idx[:n_pos])]
+        pos_mask_tr = y_train == 1
+        neg_mask_tr = y_train == 0
+        pos_idx_tr  = idx_train[pos_mask_tr]
+        neg_idx_tr  = idx_train[neg_mask_tr]
+        n_pos = min(len(pos_idx_tr), n // 2)
+        n_neg = min(len(neg_idx_tr), n - n_pos)
+        idx_train = np.concatenate([pos_idx_tr[:n_pos], neg_idx_tr[:n_neg]])
+        y_train   = np.concatenate([np.ones(n_pos), np.zeros(n_neg)])
 
-        pos_val = idx_val[y_val == 1]
-        neg_val = idx_val[y_val == 0]
-        n_pos_v = min(len(pos_val), 1000)
-        n_neg_v = min(len(neg_val), 1000)
-        idx_val = np.concatenate([pos_val[:n_pos_v], neg_val[:n_neg_v]])
-        y_val   = np.concatenate([np.ones(n_pos_v), np.zeros(n_neg_v)])
+        pos_idx_v = idx_val[y_val == 1]
+        neg_idx_v = idx_val[y_val == 0]
+        n_pos_v   = min(len(pos_idx_v), 1000)
+        n_neg_v   = min(len(neg_idx_v), 1000)
+        idx_val   = np.concatenate([pos_idx_v[:n_pos_v], neg_idx_v[:n_neg_v]])
+        y_val     = np.concatenate([np.ones(n_pos_v), np.zeros(n_neg_v)])
 
-        pos_test = idx_test[y_test == 1]
-        neg_test = idx_test[y_test == 0]
-        n_pos_t = min(len(pos_test), 1000)
-        n_neg_t = min(len(neg_test), 1000)
-        idx_test = np.concatenate([pos_test[:n_pos_t], neg_test[:n_neg_t]])
-        y_test   = np.concatenate([np.ones(n_pos_t), np.zeros(n_neg_t)])
+        pos_idx_t = idx_test[y_test == 1]
+        neg_idx_t = idx_test[y_test == 0]
+        n_pos_t   = min(len(pos_idx_t), 1000)
+        n_neg_t   = min(len(neg_idx_t), 1000)
+        idx_test  = np.concatenate([pos_idx_t[:n_pos_t], neg_idx_t[:n_neg_t]])
+        y_test    = np.concatenate([np.ones(n_pos_t), np.zeros(n_neg_t)])
 
     cols_x  = [c for c in config["cols_X"] if c in df.columns and c != "rsrp_drop"]
     y_train = df.loc[idx_train, "rsrp_drop"].values
