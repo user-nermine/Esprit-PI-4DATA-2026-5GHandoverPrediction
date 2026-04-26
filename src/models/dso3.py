@@ -42,10 +42,6 @@ EXPERIMENT_NAME = "DSO3-NextCell"
 
 
 def _build_next_cell_label(fe_data_dir: str, model_out_dir: str):
-    """
-    Build next_cell multiclass label from df_ho.parquet.
-    Returns df_filtered (with next_cell_enc), le (LabelEncoder).
-    """
     df_ho = pd.read_parquet(
         os.path.join(fe_data_dir, "df_ho.parquet"),
         columns=["session_id", "device", "source_folder", "cell_index", "handover"],
@@ -108,22 +104,6 @@ def train_dso3(
     model_out_dir: str = os.path.join("MODEL_output", "DSO3"),
     skip_deep:     bool = False,
 ):
-    """
-    Train all 5 models for DSO3 (next best cell prediction).
-
-    Models:
-        M1  XGBoost        (multi:softmax)
-        M2  LightGBM       (multiclass)
-        M3  Random Forest
-        M4  LSTM Softmax    (skipped if skip_deep=True)
-        M5  TabNet          (skipped if skip_deep=True)
-
-    Args:
-        pt_out_dir:    folder produced by preprocessing.py
-        fe_data_dir:   folder containing df_ho.parquet (from feature_engineering)
-        model_out_dir: output folder for models + metrics
-        skip_deep:     set True in CI to skip GPU-heavy models
-    """
     os.makedirs(model_out_dir, exist_ok=True)
     assert os.path.exists(pt_out_dir), \
         f" {pt_out_dir} not found -- run preprocessing first!"
@@ -143,7 +123,7 @@ def train_dso3(
     print("=" * 60 + "\n  DSO3 -- Building Next Cell label\n" + "=" * 60)
     df_filtered, _le = _build_next_cell_label(fe_data_dir, model_out_dir)
 
-    # -- Load preprocessed features -------------------------------------------
+    # -- Load preprocessed features (chunked to avoid OOM) --------------------
     with open(os.path.join(pt_out_dir, "config.json")) as f:
         config = json.load(f)
 
@@ -151,9 +131,13 @@ def train_dso3(
     schema = pf.schema_arrow.names
     cols_x = [c for c in config["cols_X"] if c in schema]
 
-    df_pre     = pd.read_parquet(
-        os.path.join(pt_out_dir, "df_preprocessed.parquet"), columns=cols_x
-    )
+    chunks = []
+    for batch in pf.iter_batches(batch_size=100_000, columns=cols_x):
+        chunks.append(batch.to_pandas().astype(np.float32))
+    df_pre = pd.concat(chunks, ignore_index=True)
+    del chunks
+    gc.collect()
+
     common_idx  = df_filtered.index[df_filtered.index.isin(df_pre.index)]
     df_filtered = df_filtered.loc[common_idx]
     X_all       = df_pre.loc[common_idx, cols_x].values.astype(np.float32)
