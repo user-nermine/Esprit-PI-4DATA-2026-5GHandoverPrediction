@@ -138,7 +138,7 @@ def train_dso2(
     df = pd.concat(chunks, ignore_index=True)
     df["rsrp_drop"] = rsrp_drop_series.values
 
-   idx_train = np.load(os.path.join(pt_out_dir, "idx_train.npy"), allow_pickle=True)
+    idx_train = np.load(os.path.join(pt_out_dir, "idx_train.npy"), allow_pickle=True)
     idx_val   = np.load(os.path.join(pt_out_dir, "idx_val.npy"),   allow_pickle=True)
     idx_test  = np.load(os.path.join(pt_out_dir, "idx_test.npy"),  allow_pickle=True)
 
