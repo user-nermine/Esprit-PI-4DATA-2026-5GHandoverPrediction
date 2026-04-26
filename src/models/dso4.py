@@ -100,11 +100,18 @@ def train_dso4(
     # -- Load data -------------------------------------------------------------
     print("=" * 60 + "\n  DSO4 -- Loading data\n" + "=" * 60)
     import pyarrow.parquet as pq
+    with open(os.path.join(pt_out_dir, "config.json")) as f:
+        config = json.load(f)
+    needed_cols = list(config["cols_X"]) + ["handover", "ho_type_enc"]
     pf = pq.ParquetFile(os.path.join(pt_out_dir, "df_preprocessed.parquet"))
+    schema_names = pf.schema_arrow.names
+    needed_cols = [c for c in needed_cols if c in schema_names]
     chunks = []
-    for batch in pf.iter_batches(batch_size=100_000):
+    for batch in pf.iter_batches(batch_size=100_000, columns=needed_cols):
         chunks.append(batch.to_pandas())
     df = pd.concat(chunks, ignore_index=True)
+    del chunks
+    gc.collect()
     if skip_deep:
         df = df.iloc[:50_000].copy()
     assert "ho_type_enc" in df.columns and "handover" in df.columns, \
@@ -113,8 +120,6 @@ def train_dso4(
     df_ho4 = df[df["handover"] == 1].copy()
     print(f"  Handovers : {len(df_ho4):,}")
 
-    with open(os.path.join(pt_out_dir, "config.json")) as f:
-        config = json.load(f)
 
     cols_x = [
         c for c in config["cols_X"]
