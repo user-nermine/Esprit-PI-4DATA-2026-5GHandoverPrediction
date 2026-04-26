@@ -6,8 +6,11 @@ path = snapshot_download(
     repo_type="dataset",
 )
 print(f"Downloaded to: {path}")
-if os.path.exists(os.path.join(path, "PT_output")):
-    shutil.copytree(os.path.join(path, "PT_output"), "PT_output", dirs_exist_ok=True)
-    print("PT_output copied successfully")
-else:
-    print("ERROR: PT_output not found!")
+
+for folder in ["PT_output", "FE_output", "FE_data"]:
+    src = os.path.join(path, folder)
+    if os.path.exists(src):
+        shutil.copytree(src, folder, dirs_exist_ok=True)
+        print(f"{folder} copied successfully")
+    else:
+        print(f"ERROR: {folder} not found in HF repo!")

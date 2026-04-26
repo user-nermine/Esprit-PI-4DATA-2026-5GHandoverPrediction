@@ -1,8 +1,8 @@
 # src/models/dso4.py
 # Converted from NB4_DSO4_HO_Type_F.ipynb
-# Task: Multiclass classification — predict 3GPP handover type
+# Task: Multiclass classification -- predict 3GPP handover type
 # Input:  PT_output/df_preprocessed.parquet  (ho_type_enc column)
-# Output: MODEL_output/DSO4/ → xgb_dso4.pkl, lgbm_dso4.pkl, rf_dso4.pkl,
+# Output: MODEL_output/DSO4/ -> xgb_dso4.pkl, lgbm_dso4.pkl, rf_dso4.pkl,
 #                               lstm_dso4.h5, tabnet_dso4.*,
 #                               results_dso4.json, cm_*.png
 
@@ -42,8 +42,8 @@ def _save_cm(cm, title, path, labels, cmap="Blues"):
     sns.heatmap(cm, annot=True, fmt="d", cmap=cmap,
                 xticklabels=labels, yticklabels=labels,
                 linewidths=0.4, ax=ax, annot_kws={"size": 9, "weight": "bold"})
-    ax.set_xlabel("Prédit", fontsize=11)
-    ax.set_ylabel("Réel", fontsize=11)
+    ax.set_xlabel("Predit", fontsize=11)
+    ax.set_ylabel("Reel", fontsize=11)
     ax.tick_params(axis="x", rotation=35, labelsize=8)
     ax.tick_params(axis="y", rotation=0, labelsize=8)
     ax.set_title(title, fontsize=12, fontweight="bold")
@@ -85,13 +85,20 @@ def train_dso4(
     """
     os.makedirs(model_out_dir, exist_ok=True)
     assert os.path.exists(pt_out_dir), \
-        f"❌ {pt_out_dir} not found — run preprocessing first!"
+        f" {pt_out_dir} not found -- run preprocessing first!"
 
-    # ── Load data ─────────────────────────────────────────────────────────────
-    print("=" * 60 + "\n  DSO4 — Loading data\n" + "=" * 60)
-    df = pd.read_parquet(os.path.join(pt_out_dir, "df_preprocessed.parquet"))
+    # -- Load data -------------------------------------------------------------
+    print("=" * 60 + "\n  DSO4 -- Loading data\n" + "=" * 60)
+    import pyarrow.parquet as pq
+    pf = pq.ParquetFile(os.path.join(pt_out_dir, "df_preprocessed.parquet"))
+    chunks = []
+    for batch in pf.iter_batches(batch_size=100_000):
+        chunks.append(batch.to_pandas())
+    df = pd.concat(chunks, ignore_index=True)
+    if skip_deep:
+        df = df.iloc[:50_000].copy()
     assert "ho_type_enc" in df.columns and "handover" in df.columns, \
-        "❌ ho_type_enc or handover column missing — check preprocessing!"
+        " ho_type_enc or handover column missing -- check preprocessing!"
 
     df_ho4 = df[df["handover"] == 1].copy()
     print(f"  Handovers : {len(df_ho4):,}")
@@ -137,8 +144,8 @@ def train_dso4(
 
     all_metrics = []
 
-    # ── M1 : XGBoost ──────────────────────────────────────────────────────────
-    print("=" * 60 + "\n  M1 — XGBoost DSO4\n" + "=" * 60)
+    # -- M1 : XGBoost ----------------------------------------------------------
+    print("=" * 60 + "\n  M1 -- XGBoost DSO4\n" + "=" * 60)
     sw_train = np.array([cw_dict[y] for y in y_train], dtype=np.float32)
     xgb_d4   = XGBClassifier(
         n_estimators=400, max_depth=7, learning_rate=0.08,
@@ -162,12 +169,12 @@ def train_dso4(
         pickle.dump(xgb_d4, f)
     _save_cm(
         confusion_matrix(y_test, y_pred_xgb, labels=list(range(N_CLASSES))),
-        "Confusion Matrix — XGBoost (DSO4)",
+        "Confusion Matrix -- XGBoost (DSO4)",
         os.path.join(model_out_dir, "cm_xgb_dso4.png"), class_names, "Blues",
     )
 
-    # ── M2 : LightGBM ─────────────────────────────────────────────────────────
-    print("=" * 60 + "\n  M2 — LightGBM DSO4\n" + "=" * 60)
+    # -- M2 : LightGBM ---------------------------------------------------------
+    print("=" * 60 + "\n  M2 -- LightGBM DSO4\n" + "=" * 60)
     lgbm_d4 = LGBMClassifier(
         n_estimators=400, max_depth=8, learning_rate=0.08, num_leaves=127,
         subsample=0.8, colsample_bytree=0.8,
@@ -189,12 +196,12 @@ def train_dso4(
         pickle.dump(lgbm_d4, f)
     _save_cm(
         confusion_matrix(y_test, y_pred_lgbm, labels=list(range(N_CLASSES))),
-        "Confusion Matrix — LightGBM (DSO4)",
+        "Confusion Matrix -- LightGBM (DSO4)",
         os.path.join(model_out_dir, "cm_lgbm_dso4.png"), class_names, "Greens",
     )
 
-    # ── M3 : Random Forest ────────────────────────────────────────────────────
-    print("=" * 60 + "\n  M3 — Random Forest DSO4\n" + "=" * 60)
+    # -- M3 : Random Forest ----------------------------------------------------
+    print("=" * 60 + "\n  M3 -- Random Forest DSO4\n" + "=" * 60)
     rf_d4 = RandomForestClassifier(
         n_estimators=250, max_depth=18, min_samples_leaf=5,
         max_features="sqrt", class_weight="balanced_subsample",
@@ -211,13 +218,13 @@ def train_dso4(
         pickle.dump(rf_d4, f)
     _save_cm(
         confusion_matrix(y_test, y_pred_rf, labels=list(range(N_CLASSES))),
-        "Confusion Matrix — Random Forest (DSO4)",
+        "Confusion Matrix -- Random Forest (DSO4)",
         os.path.join(model_out_dir, "cm_rf_dso4.png"), class_names, "Oranges",
     )
 
-    # ── M4 : BiLSTM Softmax ───────────────────────────────────────────────────
+    # -- M4 : BiLSTM Softmax ---------------------------------------------------
     if not skip_deep:
-        print("=" * 60 + "\n  M4 — BiLSTM DSO4\n" + "=" * 60)
+        print("=" * 60 + "\n  M4 -- BiLSTM DSO4\n" + "=" * 60)
         import tensorflow as tf
         from tensorflow.keras.models import Model as KModel
         from tensorflow.keras.layers import (
@@ -291,13 +298,13 @@ def train_dso4(
         lstm_d4.save(os.path.join(model_out_dir, "lstm_dso4.h5"))
         _save_cm(
             confusion_matrix(y_test, y_pred_lstm, labels=list(range(N_CLASSES))),
-            "Confusion Matrix — BiLSTM (DSO4)",
+            "Confusion Matrix -- BiLSTM (DSO4)",
             os.path.join(model_out_dir, "cm_lstm_dso4.png"), class_names, "Reds",
         )
 
-    # ── M5 : TabNet ───────────────────────────────────────────────────────────
+    # -- M5 : TabNet -----------------------------------------------------------
     if not skip_deep:
-        print("=" * 60 + "\n  M5 — TabNet DSO4\n" + "=" * 60)
+        print("=" * 60 + "\n  M5 -- TabNet DSO4\n" + "=" * 60)
         import torch
         from pytorch_tabnet.tab_model import TabNetClassifier
         from pytorch_tabnet.pretraining import TabNetPretrainer
@@ -353,15 +360,15 @@ def train_dso4(
         all_metrics.append(metrics_tn)
         tabnet_d4.save_model(os.path.join(model_out_dir, "tabnet_dso4"))
 
-    # ── Save summary ──────────────────────────────────────────────────────────
+    # -- Save summary ----------------------------------------------------------
     with open(os.path.join(model_out_dir, "results_dso4.json"), "w") as f:
         json.dump(all_metrics, f, indent=2)
 
     df_results = pd.DataFrame(all_metrics).set_index("model")
     print("\n" + df_results.to_string())
     best = df_results["f1_macro"].idxmax()
-    print(f"\n🏆 Best (F1-macro) : {best} → {df_results.loc[best, 'f1_macro']:.4f}")
-    print("\n✅ DSO4 training complete")
+    print(f"\nBest (F1-macro) : {best} -> {df_results.loc[best, 'f1_macro']:.4f}")
+    print("\nDSO4 training complete")
     return all_metrics
 
 

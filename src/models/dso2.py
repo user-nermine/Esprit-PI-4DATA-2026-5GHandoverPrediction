@@ -1,8 +1,8 @@
 # src/models/dso2.py
 # Converted from NB4_DSO2_RSRP_Drop_F.ipynb
-# Task: Binary classification — predict RSRP drop > 6 dBm in next 5 measures
+# Task: Binary classification -- predict RSRP drop > 6 dBm in next 5 measures
 # Input:  PT_output/ + FE_output/df_final_fe.parquet  (for label construction)
-# Output: MODEL_output/DSO2/ → xgb_dso2.pkl, lgbm_dso2.pkl, rf_dso2.pkl,
+# Output: MODEL_output/DSO2/ -> xgb_dso2.pkl, lgbm_dso2.pkl, rf_dso2.pkl,
 #                               lstm_dso2.h5, tabnet_dso2.*,
 #                               results_dso2.json, cm_*.png
 
@@ -75,8 +75,8 @@ def _save_cm(cm, title, path, labels, cmap="Blues"):
     sns.heatmap(cm, annot=True, fmt="d", cmap=cmap,
                 xticklabels=labels, yticklabels=labels,
                 linewidths=0.5, ax=ax, annot_kws={"size": 14, "weight": "bold"})
-    ax.set_xlabel("Prédit", fontsize=11)
-    ax.set_ylabel("Réel", fontsize=11)
+    ax.set_xlabel("Predit", fontsize=11)
+    ax.set_ylabel("Reel", fontsize=11)
     ax.set_title(title, fontsize=12, fontweight="bold")
     plt.tight_layout()
     plt.savefig(path, bbox_inches="tight")
@@ -118,24 +118,38 @@ def train_dso2(
     """
     os.makedirs(model_out_dir, exist_ok=True)
     assert os.path.exists(pt_out_dir), \
-        f"❌ {pt_out_dir} not found — run preprocessing first!"
+        f" {pt_out_dir} not found -- run preprocessing first!"
     assert os.path.exists(fe_out_dir), \
-        f"❌ {fe_out_dir} not found — run feature_engineering first!"
+        f" {fe_out_dir} not found -- run feature_engineering first!"
 
-    # ── Build label ───────────────────────────────────────────────────────────
-    print("=" * 60 + "\n  DSO2 — Building RSRP Drop label\n" + "=" * 60)
+    # -- Build label -----------------------------------------------------------
+    print("=" * 60 + "\n  DSO2 -- Building RSRP Drop label\n" + "=" * 60)
     rsrp_drop_series = _build_rsrp_drop_label(fe_out_dir)
 
-    # ── Load preprocessed features ───────────────────────────────────────────
+    # -- Load preprocessed features -------------------------------------------
     with open(os.path.join(pt_out_dir, "config.json")) as f:
         config = json.load(f)
 
-    df = pd.read_parquet(os.path.join(pt_out_dir, "df_preprocessed.parquet"))
+    import pyarrow.parquet as pq
+    pf = pq.ParquetFile(os.path.join(pt_out_dir, "df_preprocessed.parquet"))
+    chunks = []
+    for batch in pf.iter_batches(batch_size=100_000, columns=config["cols_X"]):
+        chunks.append(batch.to_pandas().astype(np.float32))
+    df = pd.concat(chunks, ignore_index=True)
     df["rsrp_drop"] = rsrp_drop_series.values
 
-    idx_train = np.load(os.path.join(pt_out_dir, "idx_train.npy"), allow_pickle=True)
+   idx_train = np.load(os.path.join(pt_out_dir, "idx_train.npy"), allow_pickle=True)
     idx_val   = np.load(os.path.join(pt_out_dir, "idx_val.npy"),   allow_pickle=True)
     idx_test  = np.load(os.path.join(pt_out_dir, "idx_test.npy"),  allow_pickle=True)
+
+    if skip_deep:
+        n = 10_000
+        idx_train = idx_train[:n]
+        idx_val   = idx_val[:int(n * 0.2)]
+        idx_test  = idx_test[:int(n * 0.2)]
+        y_train   = y_train[:n] if len(y_train) > n else y_train
+        y_val     = y_val[:int(n*0.2)]
+        y_test    = y_test[:int(n*0.2)]
 
     cols_x  = [c for c in config["cols_X"] if c in df.columns and c != "rsrp_drop"]
     y_train = df.loc[idx_train, "rsrp_drop"].values
@@ -149,12 +163,12 @@ def train_dso2(
     gc.collect()
 
     ratio = int((1 - y_train.mean()) / max(y_train.mean(), 1e-6))
-    print(f"✅ X_train {X_train.shape} | Drop%={y_train.mean()*100:.2f}% | ratio 1:{ratio}")
+    print(f" X_train {X_train.shape} | Drop%={y_train.mean()*100:.2f}% | ratio 1:{ratio}")
 
     all_metrics = []
 
-    # ── M1 : XGBoost ──────────────────────────────────────────────────────────
-    print("=" * 60 + "\n  M1 — XGBoost DSO2\n" + "=" * 60)
+    # -- M1 : XGBoost ----------------------------------------------------------
+    print("=" * 60 + "\n  M1 -- XGBoost DSO2\n" + "=" * 60)
     xgb_d2 = XGBClassifier(
         n_estimators=500, max_depth=6, learning_rate=0.05,
         subsample=0.8, colsample_bytree=0.8, scale_pos_weight=ratio,
@@ -171,11 +185,11 @@ def train_dso2(
     with open(os.path.join(model_out_dir, "xgb_dso2.pkl"), "wb") as f:
         pickle.dump(xgb_d2, f)
     _save_cm(confusion_matrix(y_test, y_pred_xgb),
-             "Confusion Matrix — XGBoost (DSO2)",
+             "Confusion Matrix -- XGBoost (DSO2)",
              os.path.join(model_out_dir, "cm_xgb_dso2.png"), CM_LABELS, "Blues")
 
-    # ── M2 : LightGBM ─────────────────────────────────────────────────────────
-    print("=" * 60 + "\n  M2 — LightGBM DSO2\n" + "=" * 60)
+    # -- M2 : LightGBM ---------------------------------------------------------
+    print("=" * 60 + "\n  M2 -- LightGBM DSO2\n" + "=" * 60)
     lgbm_d2 = LGBMClassifier(
         n_estimators=500, max_depth=7, learning_rate=0.05, num_leaves=63,
         subsample=0.8, colsample_bytree=0.8, is_unbalance=True,
@@ -194,11 +208,11 @@ def train_dso2(
     with open(os.path.join(model_out_dir, "lgbm_dso2.pkl"), "wb") as f:
         pickle.dump(lgbm_d2, f)
     _save_cm(confusion_matrix(y_test, y_pred_lgbm),
-             "Confusion Matrix — LightGBM (DSO2)",
+             "Confusion Matrix -- LightGBM (DSO2)",
              os.path.join(model_out_dir, "cm_lgbm_dso2.png"), CM_LABELS, "Greens")
 
-    # ── M3 : Random Forest ────────────────────────────────────────────────────
-    print("=" * 60 + "\n  M3 — Random Forest DSO2\n" + "=" * 60)
+    # -- M3 : Random Forest ----------------------------------------------------
+    print("=" * 60 + "\n  M3 -- Random Forest DSO2\n" + "=" * 60)
     rf_d2 = RandomForestClassifier(
         n_estimators=300, max_depth=15, min_samples_leaf=20,
         max_features="sqrt", class_weight="balanced_subsample",
@@ -214,12 +228,12 @@ def train_dso2(
     with open(os.path.join(model_out_dir, "rf_dso2.pkl"), "wb") as f:
         pickle.dump(rf_d2, f)
     _save_cm(confusion_matrix(y_test, y_pred_rf),
-             "Confusion Matrix — Random Forest (DSO2)",
+             "Confusion Matrix -- Random Forest (DSO2)",
              os.path.join(model_out_dir, "cm_rf_dso2.png"), CM_LABELS, "Oranges")
 
-    # ── M4 : BiLSTM ───────────────────────────────────────────────────────────
+    # -- M4 : BiLSTM -----------------------------------------------------------
     if not skip_deep:
-        print("=" * 60 + "\n  M4 — BiLSTM DSO2\n" + "=" * 60)
+        print("=" * 60 + "\n  M4 -- BiLSTM DSO2\n" + "=" * 60)
         import tensorflow as tf
         from tensorflow.keras.models import Model as KModel
         from tensorflow.keras.layers import (
@@ -285,12 +299,12 @@ def train_dso2(
         all_metrics.append(metrics_lstm)
         lstm_d2.save(os.path.join(model_out_dir, "lstm_dso2.h5"))
         _save_cm(confusion_matrix(y_test, y_pred_lstm),
-                 "Confusion Matrix — BiLSTM (DSO2)",
+                 "Confusion Matrix -- BiLSTM (DSO2)",
                  os.path.join(model_out_dir, "cm_lstm_dso2.png"), CM_LABELS, "Reds")
 
-    # ── M5 : TabNet ───────────────────────────────────────────────────────────
+    # -- M5 : TabNet -----------------------------------------------------------
     if not skip_deep:
-        print("=" * 60 + "\n  M5 — TabNet DSO2\n" + "=" * 60)
+        print("=" * 60 + "\n  M5 -- TabNet DSO2\n" + "=" * 60)
         import torch
         from pytorch_tabnet.tab_model import TabNetClassifier
         from pytorch_tabnet.pretraining import TabNetPretrainer
@@ -346,15 +360,15 @@ def train_dso2(
         all_metrics.append(metrics_tn)
         tabnet_d2.save_model(os.path.join(model_out_dir, "tabnet_dso2"))
 
-    # ── Save summary ──────────────────────────────────────────────────────────
+    # -- Save summary ----------------------------------------------------------
     with open(os.path.join(model_out_dir, "results_dso2.json"), "w") as f:
         json.dump(all_metrics, f, indent=2)
 
     df_results = pd.DataFrame(all_metrics).set_index("model")
     print("\n" + df_results.to_string())
     best = df_results["f1"].idxmax()
-    print(f"\n🏆 Best (F1) : {best} → {df_results.loc[best, 'f1']:.4f}")
-    print("\n✅ DSO2 training complete")
+    print(f"\nBest (F1) : {best} -> {df_results.loc[best, 'f1']:.4f}")
+    print("\nDSO2 training complete")
     return all_metrics
 
 

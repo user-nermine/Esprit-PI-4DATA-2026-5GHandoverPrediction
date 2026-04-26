@@ -1,8 +1,8 @@
 # src/models/dso3.py
 # Converted from NB4_DSO3_Next_Cell_F.ipynb
-# Task: Multiclass classification — predict next best cell (Top-N)
+# Task: Multiclass classification -- predict next best cell (Top-N)
 # Input:  PT_output/ + FE_data/df_ho.parquet  (for label construction)
-# Output: MODEL_output/DSO3/ → xgb_dso3.pkl, lgbm_dso3.pkl, rf_dso3.pkl,
+# Output: MODEL_output/DSO3/ -> xgb_dso3.pkl, lgbm_dso3.pkl, rf_dso3.pkl,
 #                               lstm_dso3.h5, tabnet_dso3.*,
 #                               label_encoder_cells.pkl,
 #                               results_dso3.json, cm_*.png
@@ -78,8 +78,8 @@ def _save_cm(cm, title, path, labels, cmap="Blues"):
     sns.heatmap(cm, annot=True, fmt="d", cmap=cmap,
                 xticklabels=labels, yticklabels=labels,
                 linewidths=0.3, ax=ax, annot_kws={"size": 8})
-    ax.set_xlabel("Prédit", fontsize=10)
-    ax.set_ylabel("Réel", fontsize=10)
+    ax.set_xlabel("Predit", fontsize=10)
+    ax.set_ylabel("Reel", fontsize=10)
     ax.tick_params(axis="x", rotation=45, labelsize=7)
     ax.tick_params(axis="y", labelsize=7)
     ax.set_title(title, fontsize=11, fontweight="bold")
@@ -125,15 +125,15 @@ def train_dso3(
     """
     os.makedirs(model_out_dir, exist_ok=True)
     assert os.path.exists(pt_out_dir), \
-        f"❌ {pt_out_dir} not found — run preprocessing first!"
+        f" {pt_out_dir} not found -- run preprocessing first!"
     assert os.path.exists(fe_data_dir), \
-        f"❌ {fe_data_dir} not found — run feature_engineering first!"
+        f" {fe_data_dir} not found -- run feature_engineering first!"
 
-    # ── Build label ───────────────────────────────────────────────────────────
-    print("=" * 60 + "\n  DSO3 — Building Next Cell label\n" + "=" * 60)
+    # -- Build label -----------------------------------------------------------
+    print("=" * 60 + "\n  DSO3 -- Building Next Cell label\n" + "=" * 60)
     df_filtered, _le = _build_next_cell_label(fe_data_dir, model_out_dir)
 
-    # ── Load preprocessed features ───────────────────────────────────────────
+    # -- Load preprocessed features -------------------------------------------
     with open(os.path.join(pt_out_dir, "config.json")) as f:
         config = json.load(f)
 
@@ -148,10 +148,15 @@ def train_dso3(
     df_filtered = df_filtered.loc[common_idx]
     X_all       = df_pre.loc[common_idx, cols_x].values.astype(np.float32)
     y_all       = df_filtered["next_cell_enc"].values
+
+    if skip_deep:
+        n = 10_000
+        X_all = X_all[:n]
+        y_all = y_all[:n]
     del df_pre
     gc.collect()
 
-    # ── Stratified split ──────────────────────────────────────────────────────
+    # -- Stratified split ------------------------------------------------------
     X_temp, X_test, y_temp, y_test = train_test_split(
         X_all, y_all, test_size=0.15, random_state=42, stratify=y_all
     )
@@ -181,13 +186,13 @@ def train_dso3(
     with open(os.path.join(model_out_dir, "label_encoder_cells.pkl"), "wb") as f:
         pickle.dump(le2, f)
 
-    print(f"✅ {N_CLASSES} classes | train={len(X_train):,} "
+    print(f" {N_CLASSES} classes | train={len(X_train):,} "
           f"| val={len(X_val):,} | test={len(X_test):,}")
 
     all_metrics = []
 
-    # ── M1 : XGBoost ──────────────────────────────────────────────────────────
-    print("=" * 60 + "\n  M1 — XGBoost DSO3\n" + "=" * 60)
+    # -- M1 : XGBoost ----------------------------------------------------------
+    print("=" * 60 + "\n  M1 -- XGBoost DSO3\n" + "=" * 60)
     xgb_d3 = XGBClassifier(
         n_estimators=300, max_depth=6, learning_rate=0.1,
         subsample=0.8, colsample_bytree=0.8,
@@ -215,12 +220,12 @@ def train_dso3(
     top15_labels = [str(le2.classes_[i])[:8] for i in top15_cls]
     _save_cm(
         confusion_matrix(y_test[mask_top], y_pred_xgb[mask_top], labels=top15_cls),
-        "Confusion Matrix — XGBoost DSO3 (Top-15 cells)",
+        "Confusion Matrix -- XGBoost DSO3 (Top-15 cells)",
         os.path.join(model_out_dir, "cm_xgb_dso3.png"), top15_labels, "Blues",
     )
 
-    # ── M2 : LightGBM ─────────────────────────────────────────────────────────
-    print("=" * 60 + "\n  M2 — LightGBM DSO3\n" + "=" * 60)
+    # -- M2 : LightGBM ---------------------------------------------------------
+    print("=" * 60 + "\n  M2 -- LightGBM DSO3\n" + "=" * 60)
     lgbm_d3 = LGBMClassifier(
         n_estimators=300, max_depth=7, learning_rate=0.1, num_leaves=63,
         subsample=0.8, colsample_bytree=0.8,
@@ -242,12 +247,12 @@ def train_dso3(
         pickle.dump(lgbm_d3, f)
     _save_cm(
         confusion_matrix(y_test[mask_top], y_pred_lgbm[mask_top], labels=top15_cls),
-        "Confusion Matrix — LightGBM DSO3 (Top-15)",
+        "Confusion Matrix -- LightGBM DSO3 (Top-15)",
         os.path.join(model_out_dir, "cm_lgbm_dso3.png"), top15_labels, "Greens",
     )
 
-    # ── M3 : Random Forest ────────────────────────────────────────────────────
-    print("=" * 60 + "\n  M3 — Random Forest DSO3\n" + "=" * 60)
+    # -- M3 : Random Forest ----------------------------------------------------
+    print("=" * 60 + "\n  M3 -- Random Forest DSO3\n" + "=" * 60)
     rf_d3 = RandomForestClassifier(
         n_estimators=200, max_depth=15, min_samples_leaf=10,
         max_features="sqrt", class_weight="balanced_subsample",
@@ -264,13 +269,13 @@ def train_dso3(
         pickle.dump(rf_d3, f)
     _save_cm(
         confusion_matrix(y_test[mask_top], y_pred_rf[mask_top], labels=top15_cls),
-        "Confusion Matrix — Random Forest DSO3 (Top-15)",
+        "Confusion Matrix -- Random Forest DSO3 (Top-15)",
         os.path.join(model_out_dir, "cm_rf_dso3.png"), top15_labels, "Oranges",
     )
 
-    # ── M4 : LSTM Softmax ─────────────────────────────────────────────────────
+    # -- M4 : LSTM Softmax -----------------------------------------------------
     if not skip_deep:
-        print("=" * 60 + "\n  M4 — LSTM Softmax DSO3\n" + "=" * 60)
+        print("=" * 60 + "\n  M4 -- LSTM Softmax DSO3\n" + "=" * 60)
         import tensorflow as tf
         from tensorflow.keras.models import Model as KModel
         from tensorflow.keras.layers import (
@@ -344,9 +349,9 @@ def train_dso3(
         all_metrics.append(metrics_lstm)
         lstm_d3.save(os.path.join(model_out_dir, "lstm_dso3.h5"))
 
-    # ── M5 : TabNet ───────────────────────────────────────────────────────────
+    # -- M5 : TabNet -----------------------------------------------------------
     if not skip_deep:
-        print("=" * 60 + "\n  M5 — TabNet DSO3\n" + "=" * 60)
+        print("=" * 60 + "\n  M5 -- TabNet DSO3\n" + "=" * 60)
         import torch
         from pytorch_tabnet.tab_model import TabNetClassifier
         from pytorch_tabnet.pretraining import TabNetPretrainer
@@ -401,15 +406,15 @@ def train_dso3(
         all_metrics.append(metrics_tn)
         tabnet_d3.save_model(os.path.join(model_out_dir, "tabnet_dso3"))
 
-    # ── Save summary ──────────────────────────────────────────────────────────
+    # -- Save summary ----------------------------------------------------------
     with open(os.path.join(model_out_dir, "results_dso3.json"), "w") as f:
         json.dump(all_metrics, f, indent=2)
 
     df_results = pd.DataFrame(all_metrics).set_index("model")
     print("\n" + df_results.to_string())
     best = df_results["f1_macro"].idxmax()
-    print(f"\n🏆 Best (F1-macro) : {best} → {df_results.loc[best, 'f1_macro']:.4f}")
-    print("\n✅ DSO3 training complete")
+    print(f"\nBest (F1-macro) : {best} -> {df_results.loc[best, 'f1_macro']:.4f}")
+    print("\nDSO3 training complete")
     return all_metrics
 
 
