@@ -123,7 +123,7 @@ def train_dso1(
     """
     os.makedirs(model_out_dir, exist_ok=True)
     assert os.path.exists(pt_out_dir), \
-        f"❌ {pt_out_dir} not found — run preprocessing first!"
+        f" {pt_out_dir} not found — run preprocessing first!"
 
    # ── Load data ─────────────────────────────────────────────────────────────
     X_train, X_val, X_test, y_train, y_val, y_test, cols_x, ratio = \
@@ -339,8 +339,8 @@ def train_dso1(
     df_results = pd.DataFrame(all_metrics).set_index("model")
     print("\n" + df_results.to_string())
     best = df_results["f1"].idxmax()
-    print(f"\n🏆 Best (F1) : {best} → {df_results.loc[best, 'f1']:.4f}")
-    print("\n✅ DSO1 training complete")
+    print(f"\n Best (F1) : {best} → {df_results.loc[best, 'f1']:.4f}")
+    print("\n DSO1 training complete")
     return all_metrics
 
 
