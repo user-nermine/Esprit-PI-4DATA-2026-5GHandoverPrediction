@@ -2,7 +2,7 @@
 # Converted from NB4_DSO1_Handover_Binary_CORRIGE.ipynb
 # Task: Binary classification — predict handover (0/1)
 # Input:  PT_output/df_preprocessed.parquet + idx/y .npy files
-# Output: MODEL_output/DSO1/ → xgb_model.pkl, lgbm_model.pkl, rf_model.pkl,
+# Output: MODEL_output/DSO1/ ? xgb_model.pkl, lgbm_model.pkl, rf_model.pkl,
 #                               lstm_dso1.h5, tabnet_model.*,
 #                               results_dso1.json, cm_*.png
 
@@ -104,7 +104,7 @@ def _metrics_binary(name, y_true, y_pred, y_prob):
 def train_dso1(
     pt_out_dir:    str = "PT_output",
     model_out_dir: str = os.path.join("MODEL_output", "DSO1"),
-    skip_deep:     bool = False,
+    skip_deep: bool = False,
 ):
     """
     Train all 5 models for DSO1 (binary handover prediction).
@@ -125,12 +125,12 @@ def train_dso1(
     assert os.path.exists(pt_out_dir), \
         f" {pt_out_dir} not found — run preprocessing first!"
 
-   # ── Load data ─────────────────────────────────────────────────────────────
+   # ?? Load data ?????????????????????????????????????????????????????????????
     X_train, X_val, X_test, y_train, y_val, y_test, cols_x, ratio = \
         _load_data(pt_out_dir, dry_run=skip_deep)
     all_metrics = []
 
-    # ── M1 : XGBoost ──────────────────────────────────────────────────────────
+    # ?? M1 : XGBoost ??????????????????????????????????????????????????????????
     print("=" * 60 + "\n  M1 — XGBoost\n" + "=" * 60)
     xgb_model = XGBClassifier(
         n_estimators=500, max_depth=6, learning_rate=0.05,
@@ -153,7 +153,7 @@ def train_dso1(
              "Confusion Matrix — XGBoost (DSO1)",
              os.path.join(model_out_dir, "cm_xgb_dso1.png"), CM_LABELS, "Blues")
 
-    # ── M2 : LightGBM ─────────────────────────────────────────────────────────
+    # ?? M2 : LightGBM ?????????????????????????????????????????????????????????
     print("=" * 60 + "\n  M2 — LightGBM\n" + "=" * 60)
     lgbm_model = LGBMClassifier(
         n_estimators=500, max_depth=7, learning_rate=0.05, num_leaves=63,
@@ -178,7 +178,7 @@ def train_dso1(
              "Confusion Matrix — LightGBM (DSO1)",
              os.path.join(model_out_dir, "cm_lgbm_dso1.png"), CM_LABELS, "Greens")
 
-    # ── M3 : Random Forest ────────────────────────────────────────────────────
+    # ?? M3 : Random Forest ????????????????????????????????????????????????????
     print("=" * 60 + "\n  M3 — Random Forest\n" + "=" * 60)
     rf_model = RandomForestClassifier(
         n_estimators=300, max_depth=15, min_samples_leaf=20,
@@ -200,7 +200,7 @@ def train_dso1(
              "Confusion Matrix — Random Forest (DSO1)",
              os.path.join(model_out_dir, "cm_rf_dso1.png"), CM_LABELS, "Oranges")
 
-    # ── M4 : BiLSTM ───────────────────────────────────────────────────────────
+    # ?? M4 : BiLSTM ???????????????????????????????????????????????????????????
     if not skip_deep:
         print("=" * 60 + "\n  M4 — BiLSTM\n" + "=" * 60)
         import tensorflow as tf
@@ -222,7 +222,7 @@ def train_dso1(
             X_va_3d = X_val[:,   w_idx].reshape(-1, T, F)
             X_te_3d = X_test[:,  w_idx].reshape(-1, T, F)
         else:
-            F       = X_train.shape[1]
+            F = X_train.shape[1]
             T = 1
             X_tr_3d = X_train.reshape(-1, 1, F)
             X_va_3d = X_val.reshape(-1, 1, F)
@@ -274,7 +274,7 @@ def train_dso1(
                  "Confusion Matrix — BiLSTM (DSO1)",
                  os.path.join(model_out_dir, "cm_lstm_dso1.png"), CM_LABELS, "Blues")
 
-    # ── M5 : TabNet ───────────────────────────────────────────────────────────
+    # ?? M5 : TabNet ???????????????????????????????????????????????????????????
     if not skip_deep:
         print("=" * 60 + "\n  M5 — TabNet\n" + "=" * 60)
         import torch
@@ -332,14 +332,14 @@ def train_dso1(
         all_metrics.append(metrics_tn)
         tabnet_model.save_model(os.path.join(model_out_dir, "tabnet_model"))
 
-    # ── Save summary ──────────────────────────────────────────────────────────
+    # ?? Save summary ??????????????????????????????????????????????????????????
     with open(os.path.join(model_out_dir, "results_dso1.json"), "w") as f:
         json.dump(all_metrics, f, indent=2)
 
     df_results = pd.DataFrame(all_metrics).set_index("model")
     print("\n" + df_results.to_string())
     best = df_results["f1"].idxmax()
-    print(f"\n Best (F1) : {best} → {df_results.loc[best, 'f1']:.4f}")
+    print(f"\n Best (F1) : {best} -> {df_results.loc[best, 'f1']:.4f}")
     print("\n DSO1 training complete")
     return all_metrics
 
