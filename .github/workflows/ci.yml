@@ -19,10 +19,22 @@ jobs:
       - run: pip install ruff
       - run: ruff check src/
 
+  security:
+    name: "Security (Bandit)"
+    runs-on: ubuntu-latest
+    needs: code-quality
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - run: pip install bandit
+      - run: bandit -r src/ -ll
+
   tests:
     name: "Tests (pytest)"
     runs-on: ubuntu-latest
-    needs: code-quality
+    needs: security
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -33,14 +45,84 @@ jobs:
 
   train-dry-run:
     name: "Train dry-run (tree models only)"
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: tests
     if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
       - name: Install dependencies
-        run: py -m pip install pandas numpy scikit-learn xgboost lightgbm pyarrow fastparquet matplotlib seaborn huggingface_hub
+        run: pip install -r requirements.txt huggingface_hub
       - name: Pull PT_output from Hugging Face
-        run: py scripts/download_data.py
+        run: |
+          cat > /tmp/download_data.py << 'EOF'
+          from huggingface_hub import snapshot_download
+          snapshot_download(repo_id="user-nermine/5g-handover-dvc-storage", repo_type="dataset", local_dir=".")
+          print("PT_output downloaded successfully")
+          EOF
+          python /tmp/download_data.py
+      - name: Data quality validation
+        run: |
+          cat > /tmp/validate_data.py << 'EOF'
+          import pandas as pd
+          import numpy as np
+          import os
+          import sys
+
+          def validate_pt_output(pt_out_dir="PT_output"):
+              print("=" * 50)
+              print("  DATA QUALITY VALIDATION")
+              print("=" * 50)
+              errors = []
+              required_files = [
+                  "df_preprocessed.parquet", "config.json",
+                  "idx_train.npy", "idx_val.npy", "idx_test.npy",
+                  "y_train.npy", "y_val.npy", "y_test.npy",
+              ]
+              for f in required_files:
+                  path = os.path.join(pt_out_dir, f)
+                  if not os.path.exists(path):
+                      errors.append(f"Missing file: {path}")
+                  else:
+                      print(f"  OK {f} exists")
+              df = pd.read_parquet(os.path.join(pt_out_dir, "df_preprocessed.parquet"))
+              if len(df) < 1000:
+                  errors.append(f"Too few rows: {len(df)}")
+              else:
+                  print(f"  OK Row count: {len(df):,}")
+              empty_cols = [c for c in df.columns if df[c].isna().all()]
+              if empty_cols:
+                  errors.append(f"Fully empty columns: {empty_cols}")
+              else:
+                  print("  OK No fully empty columns")
+              if "handover" not in df.columns:
+                  errors.append("Missing column: handover")
+              else:
+                  print(f"  OK handover column exists")
+              y_train = np.load(os.path.join(pt_out_dir, "y_train.npy"))
+              y_test = np.load(os.path.join(pt_out_dir, "y_test.npy"))
+              if len(y_train) == 0:
+                  errors.append("y_train is empty")
+              else:
+                  print(f"  OK y_train size: {len(y_train):,}")
+              if len(y_test) == 0:
+                  errors.append("y_test is empty")
+              else:
+                  print(f"  OK y_test size: {len(y_test):,}")
+              print("=" * 50)
+              if errors:
+                  print("  FAILED:")
+                  for e in errors:
+                      print(f"     - {e}")
+                  sys.exit(1)
+              else:
+                  print("  ALL CHECKS PASSED")
+              print("=" * 50)
+
+          validate_pt_output()
+          EOF
+          python /tmp/validate_data.py
       - name: Run pipeline
-        run: py src/train.py --skip-deep --start-from dso1
+        run: python src/train.py --skip-deep --start-from dso1
