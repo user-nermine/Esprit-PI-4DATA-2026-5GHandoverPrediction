@@ -142,14 +142,19 @@ def train_dso2(
     idx_val   = np.load(os.path.join(pt_out_dir, "idx_val.npy"),   allow_pickle=True)
     idx_test  = np.load(os.path.join(pt_out_dir, "idx_test.npy"),  allow_pickle=True)
 
+    cols_x  = [c for c in config["cols_X"] if c in df.columns and c != "rsrp_drop"]
+    y_train = df.loc[idx_train, "rsrp_drop"].values
+    y_val   = df.loc[idx_val,   "rsrp_drop"].values
+    y_test  = df.loc[idx_test,  "rsrp_drop"].values
+
     if skip_deep:
         n = 10_000
         idx_train = idx_train[:n]
         idx_val   = idx_val[:int(n * 0.2)]
         idx_test  = idx_test[:int(n * 0.2)]
-        y_train   = y_train[:n] if len(y_train) > n else y_train
-        y_val     = y_val[:int(n*0.2)]
-        y_test    = y_test[:int(n*0.2)]
+        y_train   = y_train[:n]
+        y_val     = y_val[:int(n * 0.2)]
+        y_test    = y_test[:int(n * 0.2)]
 
     cols_x  = [c for c in config["cols_X"] if c in df.columns and c != "rsrp_drop"]
     y_train = df.loc[idx_train, "rsrp_drop"].values
