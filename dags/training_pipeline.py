@@ -1,0 +1,110 @@
+# dags/training_pipeline.py
+# Airflow DAG — replaces Makefile as orchestration tool (Excellence)
+# Triggers: every 6 hours automatically + manual trigger
+# Tasks: lint → security → tests → preprocess → train DSO1→4 → MLflow check
+
+from datetime import datetime, timedelta
+from airflow import DAG
+from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
+from airflow.utils.dates import days_ago
+
+# ─────────────────────────────────────────────
+# Default arguments
+# ─────────────────────────────────────────────
+default_args = {
+    "owner": "airflow",
+    "depends_on_past": False,
+    "email_on_failure": False,
+    "email_on_retry": False,
+    "retries": 1,
+    "retry_delay": timedelta(minutes=5),
+}
+
+PROJECT_DIR = "/opt/airflow"
+
+# ─────────────────────────────────────────────
+# DAG definition
+# ─────────────────────────────────────────────
+with DAG(
+    dag_id="training_pipeline",
+    description="5G Handover ML Pipeline — CI checks + training + MLflow logging",
+    default_args=default_args,
+    start_date=days_ago(1),
+    schedule_interval="0 */6 * * *",   # every 6 hours
+    catchup=False,
+    tags=["mlops", "5g", "training"],
+) as dag:
+
+    # ── CI Layer ──────────────────────────────
+
+    lint = BashOperator(
+        task_id="lint_ruff",
+        bash_command=f"cd {PROJECT_DIR} && python -m ruff check src/ --output-format=text",
+    )
+
+    security = BashOperator(
+        task_id="security_bandit",
+        bash_command=f"cd {PROJECT_DIR} && python -m bandit -r src/ -ll -q",
+    )
+
+    tests = BashOperator(
+        task_id="tests_pytest",
+        bash_command=f"cd {PROJECT_DIR} && python -m pytest tests/ -q --tb=short",
+    )
+
+    validate_data = BashOperator(
+        task_id="validate_data",
+        bash_command=f"cd {PROJECT_DIR} && python scripts/validate_data.py",
+    )
+
+    # ── Training Layer ────────────────────────
+
+    train_dso1 = BashOperator(
+        task_id="train_dso1",
+        bash_command=f"cd {PROJECT_DIR} && python -m src.models.dso1",
+        execution_timeout=timedelta(hours=2),
+    )
+
+    train_dso2 = BashOperator(
+        task_id="train_dso2",
+        bash_command=f"cd {PROJECT_DIR} && python -m src.models.dso2",
+        execution_timeout=timedelta(hours=2),
+    )
+
+    train_dso3 = BashOperator(
+        task_id="train_dso3",
+        bash_command=f"cd {PROJECT_DIR} && python -m src.models.dso3",
+        execution_timeout=timedelta(hours=2),
+    )
+
+    train_dso4 = BashOperator(
+        task_id="train_dso4",
+        bash_command=f"cd {PROJECT_DIR} && python -m src.models.dso4",
+        execution_timeout=timedelta(hours=2),
+    )
+
+    # ── MLflow check ──────────────────────────
+
+    check_mlflow = BashOperator(
+        task_id="check_mlflow",
+        bash_command=(
+            "curl -f http://mlflow_server:5000/api/2.0/mlflow/experiments/list "
+            "&& echo 'MLflow OK'"
+        ),
+    )
+
+    # ─────────────────────────────────────────
+    # Pipeline order
+    # ─────────────────────────────────────────
+    #
+    #  lint ──┐
+    #         ├──► validate_data ──► train_dso1 ──┐
+    # security┘                     train_dso2 ──┤
+    #         tests (parallel)       train_dso3 ──┤──► check_mlflow
+    #                                train_dso4 ──┘
+    #
+    [lint, security] >> validate_data
+    tests >> validate_data
+    validate_data >> [train_dso1, train_dso2, train_dso3, train_dso4]
+    [train_dso1, train_dso2, train_dso3, train_dso4] >> check_mlflow
