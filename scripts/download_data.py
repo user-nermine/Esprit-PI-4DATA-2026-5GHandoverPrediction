@@ -1,9 +1,15 @@
-from huggingface_hub import snapshot_download
+﻿from huggingface_hub import snapshot_download
 import shutil, os
+
+token = os.environ.get("HF_TOKEN")
+if not token:
+    print("WARNING: HF_TOKEN not set — skipping download")
+    exit(0)
 
 path = snapshot_download(
     repo_id="user-nermine/5g-handover-dvc-storage",
     repo_type="dataset",
+    token=token,
 )
 print(f"Downloaded to: {path}")
 

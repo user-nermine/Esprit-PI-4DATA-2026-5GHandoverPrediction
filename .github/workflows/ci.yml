@@ -1,4 +1,4 @@
-name: CI Pipeline
+﻿name: CI Pipeline
 
 on:
   push:
@@ -53,6 +53,8 @@ jobs:
       - name: Install dependencies
         run: py -m pip install pandas numpy scikit-learn xgboost lightgbm pyarrow fastparquet matplotlib seaborn huggingface_hub mlflow
       - name: Pull data from Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: py scripts/download_data.py
       - name: Data quality validation
         run: py scripts/validate_data.py
