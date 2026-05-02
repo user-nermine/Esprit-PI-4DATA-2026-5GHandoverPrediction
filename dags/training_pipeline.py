@@ -1,7 +1,7 @@
-# dags/training_pipeline.py
+﻿# dags/training_pipeline.py
 # Airflow DAG — replaces Makefile as orchestration tool (Excellence)
 # Triggers: every 6 hours automatically + manual trigger
-# Tasks: lint → security → tests → preprocess → train DSO1→4 → MLflow check
+# Tasks: fetch_data → lint → security → tests → validate → train DSO1→4 → MLflow check
 
 from datetime import datetime, timedelta
 from airflow import DAG
@@ -9,9 +9,6 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
 
-# ─────────────────────────────────────────────
-# Default arguments
-# ─────────────────────────────────────────────
 default_args = {
     "owner": "airflow",
     "depends_on_past": False,
@@ -23,20 +20,26 @@ default_args = {
 
 PROJECT_DIR = "/opt/airflow"
 
-# ─────────────────────────────────────────────
-# DAG definition
-# ─────────────────────────────────────────────
+def fetch_data_from_hf():
+    import sys
+    sys.path.insert(0, "/opt/airflow")
+    from src.data.hf_loader import download_from_huggingface
+    download_from_huggingface()
+
 with DAG(
     dag_id="training_pipeline",
     description="5G Handover ML Pipeline — CI checks + training + MLflow logging",
     default_args=default_args,
     start_date=days_ago(1),
-    schedule_interval="0 */6 * * *",   # every 6 hours
+    schedule_interval="0 */6 * * *",
     catchup=False,
     tags=["mlops", "5g", "training"],
 ) as dag:
 
-    # ── CI Layer ──────────────────────────────
+    fetch_data = PythonOperator(
+        task_id="fetch_data_huggingface",
+        python_callable=fetch_data_from_hf,
+    )
 
     lint = BashOperator(
         task_id="lint_ruff",
@@ -57,8 +60,6 @@ with DAG(
         task_id="validate_data",
         bash_command=f"cd {PROJECT_DIR} && python scripts/validate_data.py",
     )
-
-    # ── Training Layer ────────────────────────
 
     train_dso1 = BashOperator(
         task_id="train_dso1",
@@ -84,8 +85,6 @@ with DAG(
         execution_timeout=timedelta(hours=2),
     )
 
-    # ── MLflow check ──────────────────────────
-
     check_mlflow = BashOperator(
         task_id="check_mlflow",
         bash_command=(
@@ -94,17 +93,7 @@ with DAG(
         ),
     )
 
-    # ─────────────────────────────────────────
-    # Pipeline order
-    # ─────────────────────────────────────────
-    #
-    #  lint ──┐
-    #         ├──► validate_data ──► train_dso1 ──┐
-    # security┘                     train_dso2 ──┤
-    #         tests (parallel)       train_dso3 ──┤──► check_mlflow
-    #                                train_dso4 ──┘
-    #
-    [lint, security] >> validate_data
-    tests >> validate_data
+    fetch_data >> [lint, security] >> validate_data
+    fetch_data >> tests >> validate_data
     validate_data >> [train_dso1, train_dso2, train_dso3, train_dso4]
     [train_dso1, train_dso2, train_dso3, train_dso4] >> check_mlflow
