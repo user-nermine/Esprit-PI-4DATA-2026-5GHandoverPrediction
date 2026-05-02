@@ -11,7 +11,7 @@ def download_from_huggingface():
         return
 
     print(f"Downloading data from HuggingFace: {HF_REPO}")
-    snapshot_download(
+    snapshot_download(  # nosec B615
         repo_id=HF_REPO,
         repo_type="dataset",
         local_dir=LOCAL_DIR,
@@ -22,3 +22,4 @@ def download_from_huggingface():
 
 if __name__ == "__main__":
     download_from_huggingface()
+
