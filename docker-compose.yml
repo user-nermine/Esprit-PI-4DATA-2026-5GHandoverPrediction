@@ -126,7 +126,7 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
       MLFLOW_TRACKING_URI: http://mlflow_server:5000
-      HF_TOKEN: "khf_GoIZTcadIZztSExIWTUnDoLZVgcDmKGyvK"
+      HF_TOKEN: ${HF_TOKEN}
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
@@ -150,7 +150,7 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
       MLFLOW_TRACKING_URI: http://mlflow_server:5000
-      HF_TOKEN: "khf_GoIZTcadIZztSExIWTUnDoLZVgcDmKGyvK"
+      HF_TOKEN: ${HF_TOKEN}
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
@@ -208,3 +208,6 @@ volumes:
   minio_data:
   grafana_data:
   elasticsearch_data:
+
+
+

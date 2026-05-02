@@ -97,14 +97,18 @@ def _load_data(pt_out_dir: str):
 
     # Load parquet (selected columns only)
     print("\nChargement df_preprocessed.parquet...")
-    df = pd.read_parquet(
-        os.path.join(pt_out_dir, "df_preprocessed.parquet"),
-        columns=cols_x,
-    )
     ci_mode = os.environ.get("CI", "false").lower() == "true"
     if ci_mode:
-        df = df.iloc[:50_000]
-        print(f"  CI mode: sliced to {len(df):,} rows")
+        import pyarrow.parquet as pq
+        pf = pq.ParquetFile(os.path.join(pt_out_dir, "df_preprocessed.parquet"))
+        df = pf.read_row_group(0, columns=cols_x).to_pandas()
+        print(f"  CI mode: loaded row_group_0 = {len(df):,} rows")
+    else:
+        df = pd.read_parquet(
+            os.path.join(pt_out_dir, "df_preprocessed.parquet"),
+            columns=cols_x,
+        )
+    
     gc.collect()
 
     X_train = df.loc[idx_train].values.astype(np.float32)
@@ -673,5 +677,6 @@ def train_dso1(
 # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if __name__ == "__main__":
     train_dso1()
+
 
 
