@@ -141,7 +141,6 @@ def _load_data(pt_out_dir: str, fe_data_dir: str,
     df_filtered = df_filtered.loc[common_idx]
     ci_mode = os.environ.get("CI", "false").lower() == "true"
     if ci_mode:
-        import pyarrow.parquet as pq
         pf = pq.ParquetFile(os.path.join(pt_out_dir, "df_preprocessed.parquet"))
         df_pre = pf.read_row_group(0, columns=COLS_X + ["next_cell_enc"]).to_pandas()
         common_idx = df_pre.index
@@ -809,5 +808,6 @@ def train_dso3(
 # -----------------------------------------------------------------------------
 if __name__ == "__main__":
     train_dso3()
+
 
 
