@@ -203,6 +203,30 @@ services:
       - elasticsearch
     restart: always
 
+# ─────────────────────────────────────────────
+  # DoNext Microservices
+  # ─────────────────────────────────────────────
+  explainability:
+    build: ./explainability
+    container_name: donnext-explainability
+    ports:
+      - "8001:8001"
+    restart: unless-stopped
+
+  monitoring-service:
+    build: ./monitoring
+    container_name: donnext-monitoring
+    ports:
+      - "8002:8002"
+    restart: unless-stopped
+
+  prediction-service:
+    build: ./prediction
+    container_name: donnext-prediction
+    ports:
+      - "8003:8003"
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   minio_data:
