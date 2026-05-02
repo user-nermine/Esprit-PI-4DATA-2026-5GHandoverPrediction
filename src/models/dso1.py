@@ -103,13 +103,15 @@ def _load_data(pt_out_dir: str):
         pf = pq.ParquetFile(os.path.join(pt_out_dir, "df_preprocessed.parquet"))
         df = pf.read_row_group(0, columns=cols_x).to_pandas()
         print(f"  CI mode: loaded row_group_0 = {len(df):,} rows")
-        valid_idx = set(df.index)
-        idx_train = idx_train[np.isin(idx_train, list(valid_idx))]
-        idx_val   = idx_val[np.isin(idx_val,   list(valid_idx))]
-        idx_test  = idx_test[np.isin(idx_test,  list(valid_idx))]
-        y_train   = y_train[:len(idx_train)]
-        y_val     = y_val[:len(idx_val)]
-        y_test    = y_test[:len(idx_test)]
+        n = len(df)
+        n_tr = int(n * 0.70)
+        n_va = int(n * 0.15)
+        idx_train = np.array(df.index[:n_tr])
+        idx_val   = np.array(df.index[n_tr:n_tr+n_va])
+        idx_test  = np.array(df.index[n_tr+n_va:])
+        y_train   = y_train[:n_tr]
+        y_val     = y_val[:n_va]
+        y_test    = y_test[:(n - n_tr - n_va)]
     else:
         df = pd.read_parquet(
             os.path.join(pt_out_dir, "df_preprocessed.parquet"),
@@ -684,6 +686,7 @@ def train_dso1(
 # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if __name__ == "__main__":
     train_dso1()
+
 
 
 
