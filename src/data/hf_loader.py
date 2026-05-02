@@ -1,5 +1,4 @@
-import os
-from pathlib import Path
+﻿import os
 from huggingface_hub import snapshot_download
 
 HF_REPO    = "user-nermine/5g-handover-dvc-storage"
@@ -8,7 +7,7 @@ LOCAL_DIR  = "/opt/airflow"
 def download_from_huggingface():
     token = os.environ.get("HF_TOKEN")
     if not token:
-        print("HF_TOKEN not set — skipping HuggingFace download, using local data")
+        print("HF_TOKEN not set â€” skipping HuggingFace download, using local data")
         return
 
     print(f"Downloading data from HuggingFace: {HF_REPO}")
