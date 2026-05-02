@@ -1,6 +1,6 @@
-# src/models/dso4.py
+﻿# src/models/dso4.py
 # Converted from NB4_DSO4_V2.ipynb
-# Task  : Multiclass classification — predict handover TYPE (3GPP TR 38.300)
+# Task  : Multiclass classification â€” predict handover TYPE (3GPP TR 38.300)
 # Input : PT_output/df_preprocessed.parquet  +  config.json
 #         FE_output/df_final_fe.parquet       (labels: handover, ho_type)
 # Output: MODEL_output/DSO4/
@@ -42,7 +42,7 @@ from xgboost import XGBClassifier
 
 warnings.filterwarnings("ignore")
 
-# ── Colour palette (matches DSO1 / DSO3) ─────────────────────────────────────
+# â”€â”€ Colour palette (matches DSO1 / DSO3) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 BLUE   = "#4FC3F7"
 GREEN  = "#69F0AE"
 ORANGE = "#FFB74D"
@@ -65,7 +65,7 @@ HO_TYPE_NAMES = [
 
 HO_TYPE_MAPPING = {name: i for i, name in enumerate(HO_TYPE_NAMES)}
 
-# ── Plot style (dark theme, non-interactive) ──────────────────────────────────
+# â”€â”€ Plot style (dark theme, non-interactive) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 plt.rcParams.update({
     "figure.facecolor": "#0F1117", "axes.facecolor": "#1A1D27",
     "axes.edgecolor":  "#3A3D4D",  "axes.labelcolor": "#E0E0E0",
@@ -77,9 +77,9 @@ plt.rcParams.update({
 })
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Helpers
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _load_data(pt_out_dir: str, fe_out_dir: str):
     """
@@ -87,14 +87,14 @@ def _load_data(pt_out_dir: str, fe_out_dir: str):
 
     Steps:
       1. Read ho_type + handover labels from df_final_fe.parquet (NB2 output).
-      2. Re-encode ho_type string → int using HO_TYPE_MAPPING (NB3 PT-3).
+      2. Re-encode ho_type string â†’ int using HO_TYPE_MAPPING (NB3 PT-3).
       3. Filter rows where handover == 1.
       4. Load feature matrix from df_preprocessed.parquet (NB3 output).
       5. Remap active class indices to [0, N_CLASSES-1].
-      6. Temporal 70 / 15 / 15 split (preserves time order — no shuffle).
+      6. Temporal 70 / 15 / 15 split (preserves time order â€” no shuffle).
       7. Compute balanced class weights for imbalance handling.
     """
-    # ── Labels ────────────────────────────────────────────────────────────────
+    # â”€â”€ Labels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     print("Chargement labels depuis df_final_fe.parquet...")
     df_labels = pd.read_parquet(
         os.path.join(fe_out_dir, "df_final_fe.parquet"),
@@ -109,7 +109,7 @@ def _load_data(pt_out_dir: str, fe_out_dir: str):
     )
     print("ho_type_enc recree depuis ho_type")
 
-    # ── Features ──────────────────────────────────────────────────────────────
+    # â”€â”€ Features â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     print("\nChargement df_preprocessed.parquet...")
     with open(os.path.join(pt_out_dir, "config.json")) as fh:
         config = json.load(fh)
@@ -136,7 +136,7 @@ def _load_data(pt_out_dir: str, fe_out_dir: str):
     df["ho_type_enc"] = df_labels["ho_type_enc"].values
     gc.collect()
 
-    # ── Filter: handover events only ──────────────────────────────────────────
+    # â”€â”€ Filter: handover events only â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     df_ho4 = df[df["handover"] == 1].copy()
     print(f"\nHandovers retenus : {len(df_ho4):,}")
 
@@ -147,10 +147,10 @@ def _load_data(pt_out_dir: str, fe_out_dir: str):
                 else f"type_{enc}")
         print(f"  {name:<20}: {cnt:>8,} ({cnt / len(df_ho4) * 100:.1f}%)")
 
-    # ── Feature / label arrays ────────────────────────────────────────────────
+    # â”€â”€ Feature / label arrays â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     X_all = df_ho4[COLS_X].values.astype(np.float32)
     y_raw = df_ho4["ho_type_enc"].values.astype(int)
-    del df, df_ho4, df_labels; gc.collect()
+    del df, df_ho4, df_labels
 
     # Remap to [0, N_CLASSES-1] to satisfy XGBoost / LGBM / TF requirements
     unique_classes = np.unique(y_raw)
@@ -163,7 +163,7 @@ def _load_data(pt_out_dir: str, fe_out_dir: str):
         for c in unique_classes
     ]
 
-    # ── Temporal 70 / 15 / 15 split (no shuffle — time series) ──────────────
+    # â”€â”€ Temporal 70 / 15 / 15 split (no shuffle â€” time series) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     n    = len(X_all)
     n_tr = int(n * 0.70)
     n_va = int(n * 0.15)
@@ -171,9 +171,9 @@ def _load_data(pt_out_dir: str, fe_out_dir: str):
     X_train, y_train = X_all[:n_tr],          y_all[:n_tr]
     X_val,   y_val   = X_all[n_tr:n_tr+n_va], y_all[n_tr:n_tr+n_va]
     X_test,  y_test  = X_all[n_tr+n_va:],     y_all[n_tr+n_va:]
-    del X_all, y_all; gc.collect()
+    del X_all, y_all
 
-    # ── Balanced class weights ────────────────────────────────────────────────
+    # â”€â”€ Balanced class weights â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     cw_arr  = compute_class_weight(
         "balanced", classes=np.arange(N_CLASSES), y=y_train
     )
@@ -190,7 +190,7 @@ def _load_data(pt_out_dir: str, fe_out_dir: str):
 
 
 def _save_cm_pct(cm, cm_pct, title, path, class_names, cmap):
-    """Save a percentage-normalised confusion matrix (8 × 8 for DSO4)."""
+    """Save a percentage-normalised confusion matrix (8 Ã— 8 for DSO4)."""
     fig, ax = plt.subplots(figsize=(11, 8))
     sns.heatmap(
         cm_pct, annot=True, fmt=".1f", cmap=cmap,
@@ -228,9 +228,9 @@ def _cm_and_pct(y_true, y_pred, n_classes):
     return cm, cm_pct
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Main training function
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def train_dso4(
     pt_out_dir:    str  = "PT_output",
@@ -250,9 +250,9 @@ def train_dso4(
     """
     os.makedirs(model_out_dir, exist_ok=True)
     assert os.path.exists(pt_out_dir), \
-        f"{pt_out_dir} not found — run NB3 preprocessing first!"
+        f"{pt_out_dir} not found â€” run NB3 preprocessing first!"
     assert os.path.exists(fe_out_dir), \
-        f"{fe_out_dir} not found — run NB2 feature_engineering first!"
+        f"{fe_out_dir} not found â€” run NB2 feature_engineering first!"
 
     # Optional MLflow
     try:
@@ -282,8 +282,8 @@ def train_dso4(
 
     all_metrics = []
 
-    # ── M1 : XGBoost ─────────────────────────────────────────────────────────
-    print("=" * 60 + "\n  M1 — XGBoost DSO4\n" + "=" * 60)
+    # â”€â”€ M1 : XGBoost â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    print("=" * 60 + "\n  M1 â€” XGBoost DSO4\n" + "=" * 60)
 
     xgb_params = dict(
         n_estimators=400, max_depth=7, learning_rate=0.08,
@@ -302,7 +302,7 @@ def train_dso4(
     print(f" best_iteration={xgb_d4.best_iteration}")
 
     y_pred_xgb  = xgb_d4.predict(X_test)
-    y_proba_xgb = xgb_d4.predict_proba(X_test)
+    xgb_d4.predict_proba(X_test)
     print(classification_report(
         y_test, y_pred_xgb, target_names=CLASS_NAMES, zero_division=0
     ))
@@ -321,7 +321,7 @@ def train_dso4(
     cm_xgb_path = os.path.join(model_out_dir, "cm_xgb_dso4.png")
     _save_cm_pct(
         cm_xgb, cm_xgb_pct,
-        (f" Matrice de Confusion (%) — XGBoost (DSO4)\n"
+        (f" Matrice de Confusion (%) â€” XGBoost (DSO4)\n"
          f"Acc={metrics_xgb['accuracy']*100:.2f}% "
          f"F1-macro={metrics_xgb['f1_macro']*100:.2f}%"),
         cm_xgb_path, CLASS_NAMES, "Blues",
@@ -332,8 +332,8 @@ def train_dso4(
                       {k: v for k, v in metrics_xgb.items() if k != "model"},
                       [cm_xgb_path, pkl_xgb], tags)
 
-    # ── M2 : LightGBM ────────────────────────────────────────────────────────
-    print("=" * 60 + "\n  M2 — LightGBM DSO4\n" + "=" * 60)
+    # â”€â”€ M2 : LightGBM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    print("=" * 60 + "\n  M2 â€” LightGBM DSO4\n" + "=" * 60)
 
     lgbm_params = dict(
         n_estimators=400, max_depth=8, learning_rate=0.08,
@@ -354,7 +354,7 @@ def train_dso4(
     print(" LightGBM entraine")
 
     y_pred_lgbm  = lgbm_d4.predict(X_test)
-    y_proba_lgbm = lgbm_d4.predict_proba(X_test)
+    lgbm_d4.predict_proba(X_test)
     print(classification_report(
         y_test, y_pred_lgbm, target_names=CLASS_NAMES, zero_division=0
     ))
@@ -373,7 +373,7 @@ def train_dso4(
     cm_lgbm_path = os.path.join(model_out_dir, "cm_lgbm_dso4.png")
     _save_cm_pct(
         cm_lgbm, cm_lgbm_pct,
-        (f" Matrice de Confusion (%) — LightGBM (DSO4)\n"
+        (f" Matrice de Confusion (%) â€” LightGBM (DSO4)\n"
          f"Acc={metrics_lgbm['accuracy']*100:.2f}% "
          f"F1-macro={metrics_lgbm['f1_macro']*100:.2f}%"),
         cm_lgbm_path, CLASS_NAMES, "Greens",
@@ -384,8 +384,8 @@ def train_dso4(
                       {k: v for k, v in metrics_lgbm.items() if k != "model"},
                       [cm_lgbm_path, pkl_lgbm], tags)
 
-    # ── M3 : Random Forest ───────────────────────────────────────────────────
-    print("=" * 60 + "\n  M3 — Random Forest DSO4\n" + "=" * 60)
+    # â”€â”€ M3 : Random Forest â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    print("=" * 60 + "\n  M3 â€” Random Forest DSO4\n" + "=" * 60)
 
     rf_params = dict(
         n_estimators=250, max_depth=18, min_samples_leaf=5,
@@ -397,7 +397,7 @@ def train_dso4(
     print(" Random Forest entraine")
 
     y_pred_rf  = rf_d4.predict(X_test)
-    y_proba_rf = rf_d4.predict_proba(X_test)
+    rf_d4.predict_proba(X_test)
     print(classification_report(
         y_test, y_pred_rf, target_names=CLASS_NAMES, zero_division=0
     ))
@@ -416,7 +416,7 @@ def train_dso4(
     cm_rf_path = os.path.join(model_out_dir, "cm_rf_dso4.png")
     _save_cm_pct(
         cm_rf, cm_rf_pct,
-        (f" Matrice de Confusion (%) — Random Forest (DSO4)\n"
+        (f" Matrice de Confusion (%) â€” Random Forest (DSO4)\n"
          f"Acc={metrics_rf['accuracy']*100:.2f}% "
          f"F1-macro={metrics_rf['f1_macro']*100:.2f}%"),
         cm_rf_path, CLASS_NAMES, "Oranges",
@@ -427,9 +427,9 @@ def train_dso4(
                       {k: v for k, v in metrics_rf.items() if k != "model"},
                       [cm_rf_path, pkl_rf], tags)
 
-    # ── M4 : BiLSTM Softmax ──────────────────────────────────────────────────
+    # â”€â”€ M4 : BiLSTM Softmax â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if not skip_deep:
-        print("=" * 60 + "\n  M4 — BiLSTM DSO4\n" + "=" * 60)
+        print("=" * 60 + "\n  M4 â€” BiLSTM DSO4\n" + "=" * 60)
 
         import tensorflow as tf
         from tensorflow.keras.callbacks import (
@@ -442,14 +442,14 @@ def train_dso4(
         from tensorflow.keras.optimizers import Adam
         from tensorflow.keras.utils import to_categorical
 
-        # BUG FIX: '_t-{k}' → '_T{k}' (NB2 column format)
+        # BUG FIX: '_t-{k}' â†’ '_T{k}' (NB2 column format)
         WINDOW_COLS = [
             c for c in COLS_X
             if any(f"_T{k}" in c for k in range(1, 6))
         ]
         print(f"  WINDOW_COLS: {len(WINDOW_COLS)} colonnes")
         print(f"  cluster_id dans WINDOW_COLS: {'cluster_id' in WINDOW_COLS}")
-        print("  → Normal: cluster_id est statique, pas temporel")
+        print("  â†’ Normal: cluster_id est statique, pas temporel")
 
         T = 5 if WINDOW_COLS else 1
         if WINDOW_COLS:
@@ -459,7 +459,7 @@ def train_dso4(
             X_va_3d = X_val[:,   w_idx].reshape(-1, T, F)
             X_te_3d = X_test[:,  w_idx].reshape(-1, T, F)
         else:
-            print("  WINDOW_COLS vide → fallback T=1")
+            print("  WINDOW_COLS vide â†’ fallback T=1")
             F       = X_train.shape[1]
             T       = 1
             X_tr_3d = X_train.reshape(-1, 1, F)
@@ -530,7 +530,7 @@ def train_dso4(
         cm_lstm_path = os.path.join(model_out_dir, "cm_lstm_dso4.png")
         _save_cm_pct(
             cm_lstm, cm_lstm_pct,
-            (f" Matrice de Confusion (%) — BiLSTM (DSO4)\n"
+            (f" Matrice de Confusion (%) â€” BiLSTM (DSO4)\n"
              f"Acc={metrics_lstm['accuracy']*100:.2f}% "
              f"F1-macro={metrics_lstm['f1_macro']*100:.2f}%"),
             cm_lstm_path, CLASS_NAMES, "Reds",
@@ -542,15 +542,15 @@ def train_dso4(
                           {k: v for k, v in metrics_lstm.items() if k != "model"},
                           [cm_lstm_path], tags)
 
-    # ── M5 : TabNet ──────────────────────────────────────────────────────────
+    # â”€â”€ M5 : TabNet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if not skip_deep:
-        print("=" * 60 + "\n  M5 — TabNet DSO4\n" + "=" * 60)
+        print("=" * 60 + "\n  M5 â€” TabNet DSO4\n" + "=" * 60)
 
         import torch
         from pytorch_tabnet.tab_model import TabNetClassifier
         from pytorch_tabnet.pretraining import TabNetPretrainer
 
-        # ── 1. Sampling (TabNet is GPU/RAM intensive) ─────────────────────────
+        # â”€â”€ 1. Sampling (TabNet is GPU/RAM intensive) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         N_TN       = min(100_000, len(X_train))
         idx_tn     = np.random.choice(len(X_train), N_TN, replace=False)
         X_tr_tn    = X_train[idx_tn].astype(np.float32)
@@ -559,7 +559,7 @@ def train_dso4(
         y_train_tn = y_train[idx_tn]
         print(f"Sample train: {len(X_tr_tn):,}")
 
-        # ── 2. Unsupervised pretraining ───────────────────────────────────────
+        # â”€â”€ 2. Unsupervised pretraining â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         print("\nPre-entrainement TabNetPretrainer...")
         pt_d4 = TabNetPretrainer(
             n_d=16, n_a=16, n_steps=3, gamma=1.5,
@@ -577,7 +577,7 @@ def train_dso4(
         )
         print("Pre-entrainement termine")
 
-        # ── 3. Supervised model ───────────────────────────────────────────────
+        # â”€â”€ 3. Supervised model â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         tabnet_d4 = TabNetClassifier(
             n_d=16, n_a=16, n_steps=3, gamma=1.5,
             n_independent=2, n_shared=2, mask_type="entmax",
@@ -595,7 +595,7 @@ def train_dso4(
         tabnet_d4.load_weights_from_unsupervised(pt_d4)
         print(" Poids pretrainer transferes")
 
-        # ── 4. Real supervised training ───────────────────────────────────────
+        # â”€â”€ 4. Real supervised training â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         tabnet_d4.verbose = 10
         tabnet_d4.fit(
             X_train=X_tr_tn,
@@ -609,7 +609,7 @@ def train_dso4(
         print("TabNet entraine")
 
         y_pred_tn  = tabnet_d4.predict(X_te_tn)
-        y_proba_tn = tabnet_d4.predict_proba(X_te_tn)
+        tabnet_d4.predict_proba(X_te_tn)
         print(classification_report(
             y_test, y_pred_tn, target_names=CLASS_NAMES, zero_division=0
         ))
@@ -626,7 +626,7 @@ def train_dso4(
         cm_tn_path = os.path.join(model_out_dir, "cm_tabnet_dso4.png")
         _save_cm_pct(
             cm_tn, cm_tn_pct,
-            (f" Matrice de Confusion (%) — TabNet (DSO4)\n"
+            (f" Matrice de Confusion (%) â€” TabNet (DSO4)\n"
              f"Acc={metrics_tn['accuracy']*100:.2f}% "
              f"F1-macro={metrics_tn['f1_macro']*100:.2f}%"),
             cm_tn_path, CLASS_NAMES, "Purples",
@@ -638,7 +638,7 @@ def train_dso4(
                           {k: v for k, v in metrics_tn.items() if k != "model"},
                           [cm_tn_path], tags)
 
-    # ── SHAP on LightGBM ─────────────────────────────────────────────────────
+    # â”€â”€ SHAP on LightGBM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     # LightGBM chosen as SHAP reference: native TreeExplainer support,
     # best interpretability/speed tradeoff for 8-class problems.
     print("\nCalcul SHAP sur LightGBM (reference explainability)...")
@@ -655,7 +655,7 @@ def train_dso4(
     explainer   = shap.TreeExplainer(lgbm_d4)
     shap_values = explainer.shap_values(X_shap)
 
-    # shap_values is a list of arrays — one per class. Average across classes.
+    # shap_values is a list of arrays â€” one per class. Average across classes.
     if isinstance(shap_values, list):
         sv = np.mean(np.abs(np.stack(shap_values, axis=0)), axis=0)
     else:
@@ -672,7 +672,7 @@ def train_dso4(
     if "cluster_id" in shap_df["feature"].values:
         rang = shap_df["feature"].tolist().index("cluster_id") + 1
         val  = shap_df[shap_df["feature"] == "cluster_id"]["shap"].values[0]
-        print(f"\n   cluster_id: rang #{rang} — SHAP={val:.4f}")
+        print(f"\n   cluster_id: rang #{rang} â€” SHAP={val:.4f}")
     else:
         print("   cluster_id non trouve dans SHAP")
 
@@ -687,7 +687,7 @@ def train_dso4(
     bar_colors = [RED if f == "cluster_id" else BLUE for f in top20["feature"]]
     ax.barh(top20["feature"][::-1], top20["shap"][::-1], color=bar_colors[::-1])
     ax.set_xlabel("SHAP value (mean |importance|)", fontsize=11)
-    ax.set_title(" SHAP Feature Importance — LightGBM DSO4",
+    ax.set_title(" SHAP Feature Importance â€” LightGBM DSO4",
                  fontsize=12, fontweight="bold")
     if "cluster_id" in top20["feature"].values:
         xv = top20[top20["feature"] == "cluster_id"]["shap"].values[0]
@@ -697,7 +697,7 @@ def train_dso4(
     plt.savefig(shap_plot_path, bbox_inches="tight", facecolor="#0F1117")
     plt.close(fig)
 
-    # ── All-models CM grid (1 × N) ───────────────────────────────────────────
+    # â”€â”€ All-models CM grid (1 Ã— N) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     # Build list dynamically (deep models may be absent when skip_deep=True)
     models_cm = [
         ("XGBoost",       cm_xgb,  cm_xgb_pct,  y_pred_xgb,  "Blues"),
@@ -730,14 +730,14 @@ def train_dso4(
         ax.set_xlabel("Predit", fontsize=8)
         ax.set_ylabel("Reel",   fontsize=8)
 
-    plt.suptitle(" Toutes les Matrices de Confusion (%) — DSO4 (Type HO)",
+    plt.suptitle(" Toutes les Matrices de Confusion (%) â€” DSO4 (Type HO)",
                  fontsize=14, fontweight="bold", color="white", y=1.01)
     plt.tight_layout()
     cm_all_path = os.path.join(model_out_dir, "cm_all_dso4.png")
     plt.savefig(cm_all_path, bbox_inches="tight", facecolor="#0F1117")
     plt.close(fig)
 
-    # ── Dashboard: Accuracy & F1-weighted per model ──────────────────────────
+    # â”€â”€ Dashboard: Accuracy & F1-weighted per model â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     df_results  = pd.DataFrame(all_metrics).set_index("model")
     models_list = df_results.index.tolist()
     x           = np.arange(len(models_list))
@@ -749,7 +749,7 @@ def train_dso4(
                    label="F1-weighted", color=GREEN, alpha=0.85)
     ax.set_xticks(x)
     ax.set_xticklabels(models_list, rotation=15, ha="right")
-    ax.set_title(" DSO4 — Accuracy & F1-weighted par modele",
+    ax.set_title(" DSO4 â€” Accuracy & F1-weighted par modele",
                  fontweight="bold")
     ax.legend()
     ax.set_ylim(0, 1.1)
@@ -772,8 +772,8 @@ def train_dso4(
     plt.savefig(dash_path, bbox_inches="tight", facecolor="#0F1117")
     plt.close(fig)
 
-    # ── Summary ──────────────────────────────────────────────────────────────
-    print("\n=== RÉSULTATS DSO4 ===")
+    # â”€â”€ Summary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    print("\n=== RÃ‰SULTATS DSO4 ===")
     print(df_results.to_string())
 
     best = df_results["f1_macro"].idxmax()
@@ -815,6 +815,7 @@ def train_dso4(
     return results_enriched
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if __name__ == "__main__":
     train_dso4()
+

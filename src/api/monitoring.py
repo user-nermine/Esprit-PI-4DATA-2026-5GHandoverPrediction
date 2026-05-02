@@ -6,11 +6,9 @@ Python FastAPI service for cluster monitoring and metrics
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Optional
 from datetime import datetime, timedelta
 import random
-import json
-import asyncio
 from collections import defaultdict
 
 app = FastAPI(
@@ -239,7 +237,7 @@ async def get_system_health():
     
     # Keep only last 100 health records
     if len(system_health_history) > 100:
-        system_health_history = system_health_history[-100:]
+        system_health_history[-100:]
     
     return health
 

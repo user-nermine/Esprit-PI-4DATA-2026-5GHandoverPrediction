@@ -2,7 +2,6 @@
 Application principale FastAPI pour le backend Explainability DoNext 5G
 """
 
-import asyncio
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI

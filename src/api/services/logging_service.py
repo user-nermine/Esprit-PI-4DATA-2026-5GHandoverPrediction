@@ -5,7 +5,6 @@ Service de logging dynamique pour parcourir les clusters avec explainability
 import asyncio
 import logging
 from typing import Dict, List, Optional
-from datetime import datetime
 
 from src.api.config import settings
 from src.api.services.explainability_service import explainability_service

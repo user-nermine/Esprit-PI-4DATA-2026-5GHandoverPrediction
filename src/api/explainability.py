@@ -3,11 +3,10 @@ API endpoints pour l'explainability des clusters
 """
 
 from fastapi import APIRouter, HTTPException, Query
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict
 from pydantic import BaseModel
 
 from src.api.services.explainability_service import explainability_service
-from src.api.services.logging_service import dynamic_logging_service
 
 
 router = APIRouter(prefix="/api/v1/explainability", tags=["explainability"])

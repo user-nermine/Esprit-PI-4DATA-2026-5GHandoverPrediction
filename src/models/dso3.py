@@ -1,6 +1,6 @@
-# src/models/dso3.py
+﻿# src/models/dso3.py
 # Converted from NB4_DSO3_V2.ipynb
-# Task  : Multiclass classification — predict next best cell (Top-N)
+# Task  : Multiclass classification â€” predict next best cell (Top-N)
 # Input : PT_output/df_preprocessed.parquet  +  config.json
 #         FE_data/df_ho.parquet              (handover events for label)
 # Output: MODEL_output/DSO3/
@@ -15,7 +15,6 @@
 #           results_dso3.json
 
 import os
-import gc
 import json
 import pickle
 import subprocess
@@ -128,7 +127,7 @@ def _load_data(pt_out_dir: str, fe_data_dir: str,
     schema_cols = pf.schema_arrow.names
     COLS_X      = [c for c in config["cols_X"] if c in schema_cols]
 
-    print(f"Verifications:")
+    print("Verifications:")
     print(f"  cluster_id dans COLS_X : {'cluster_id' in COLS_X}")
     print(f"  Total features         : {len(COLS_X)}")
     assert "cluster_id" in COLS_X, \
@@ -142,7 +141,7 @@ def _load_data(pt_out_dir: str, fe_data_dir: str,
     df_filtered = df_filtered.loc[common_idx]
     X_all       = df_pre.loc[common_idx, COLS_X].values.astype(np.float32)
     y_all       = df_filtered["next_cell_enc"].values
-    del df_pre; gc.collect()
+    del df_pre
 
     # -- CI dry-run: slice before split ---------------------------------------
     if dry_run:
@@ -158,7 +157,7 @@ def _load_data(pt_out_dir: str, fe_data_dir: str,
         X_temp, y_temp,
         test_size=0.15 / 0.85, random_state=42, stratify=y_temp
     )
-    del X_temp, y_temp; gc.collect()
+    del X_temp, y_temp
 
     # -- Re-encode cleanly on y_train classes ---------------------------------
     le2     = LabelEncoder()
@@ -247,9 +246,9 @@ def train_dso3(
 ):
     os.makedirs(model_out_dir, exist_ok=True)
     assert os.path.exists(pt_out_dir), \
-        f"{pt_out_dir} not found — run preprocessing first!"
+        f"{pt_out_dir} not found â€” run preprocessing first!"
     assert os.path.exists(fe_data_dir), \
-        f"{fe_data_dir} not found — run feature_engineering first!"
+        f"{fe_data_dir} not found â€” run feature_engineering first!"
 
     # Optional MLflow
     try:
@@ -275,7 +274,7 @@ def train_dso3(
     all_metrics = []
 
     # -- M1 : XGBoost ---------------------------------------------------------
-    print("=" * 60 + "\n  M1 — XGBoost DSO3\n" + "=" * 60)
+    print("=" * 60 + "\n  M1 â€” XGBoost DSO3\n" + "=" * 60)
 
     xgb_params = dict(
         n_estimators=300, max_depth=6, learning_rate=0.1,
@@ -313,7 +312,7 @@ def train_dso3(
     cm_xgb_path = os.path.join(model_out_dir, "cm_xgb_dso3.png")
     _save_cm_top15(
         cm_xgb, cm_xgb_pct,
-        " Matrice de Confusion (%) — XGBoost DSO3 (Top-15 cellules)",
+        " Matrice de Confusion (%) â€” XGBoost DSO3 (Top-15 cellules)",
         cm_xgb_path, cell_labels, "Blues",
         metrics_xgb["accuracy"], metrics_xgb[f"top{TOP_K_EVAL}_acc"],
     )
@@ -324,7 +323,7 @@ def train_dso3(
                       [cm_xgb_path, pkl_xgb], tags)
 
     # -- M2 : LightGBM --------------------------------------------------------
-    print("=" * 60 + "\n  M2 — LightGBM DSO3\n" + "=" * 60)
+    print("=" * 60 + "\n  M2 â€” LightGBM DSO3\n" + "=" * 60)
 
     lgbm_params = dict(
         n_estimators=300, max_depth=7, learning_rate=0.1,
@@ -368,7 +367,7 @@ def train_dso3(
     cm_lgbm_path = os.path.join(model_out_dir, "cm_lgbm_dso3.png")
     _save_cm_top15(
         cm_lgbm, cm_lgbm_pct,
-        " Matrice de Confusion (%) — LightGBM DSO3 (Top-15)",
+        " Matrice de Confusion (%) â€” LightGBM DSO3 (Top-15)",
         cm_lgbm_path, cell_labels, "Greens",
         metrics_lgbm["accuracy"], metrics_lgbm[f"top{TOP_K_EVAL}_acc"],
     )
@@ -379,7 +378,7 @@ def train_dso3(
                       [cm_lgbm_path, pkl_lgbm], tags)
 
     # -- M3 : Random Forest ---------------------------------------------------
-    print("=" * 60 + "\n  M3 — Random Forest DSO3\n" + "=" * 60)
+    print("=" * 60 + "\n  M3 â€” Random Forest DSO3\n" + "=" * 60)
 
     rf_params = dict(
         n_estimators=200, max_depth=15, min_samples_leaf=10,
@@ -414,7 +413,7 @@ def train_dso3(
     cm_rf_path = os.path.join(model_out_dir, "cm_rf_dso3.png")
     _save_cm_top15(
         cm_rf, cm_rf_pct,
-        " Matrice de Confusion (%) — Random Forest DSO3 (Top-15)",
+        " Matrice de Confusion (%) â€” Random Forest DSO3 (Top-15)",
         cm_rf_path, cell_labels, "Oranges",
         metrics_rf["accuracy"], metrics_rf[f"top{TOP_K_EVAL}_acc"],
     )
@@ -426,7 +425,7 @@ def train_dso3(
 
     # -- M4 : BiLSTM Softmax --------------------------------------------------
     if not skip_deep:
-        print("=" * 60 + "\n  M4 — LSTM Softmax DSO3\n" + "=" * 60)
+        print("=" * 60 + "\n  M4 â€” LSTM Softmax DSO3\n" + "=" * 60)
 
         import tensorflow as tf
         from tensorflow.keras.callbacks import (
@@ -532,7 +531,7 @@ def train_dso3(
         cm_lstm_path = os.path.join(model_out_dir, "cm_lstm_dso3.png")
         _save_cm_top15(
             cm_lstm, cm_lstm_pct,
-            " Matrice de Confusion (%) — BiLSTM DSO3 (Top-15)",
+            " Matrice de Confusion (%) â€” BiLSTM DSO3 (Top-15)",
             cm_lstm_path, cell_labels, "Reds",
             metrics_lstm["accuracy"], metrics_lstm[f"top{TOP_K_EVAL}_acc"],
         )
@@ -545,7 +544,7 @@ def train_dso3(
 
     # -- M5 : TabNet ----------------------------------------------------------
     if not skip_deep:
-        print("=" * 60 + "\n  M5 — TabNet DSO3\n" + "=" * 60)
+        print("=" * 60 + "\n  M5 â€” TabNet DSO3\n" + "=" * 60)
 
         import torch
         from pytorch_tabnet.tab_model import TabNetClassifier
@@ -626,7 +625,7 @@ def train_dso3(
         cm_tn_path = os.path.join(model_out_dir, "cm_tabnet_dso3.png")
         _save_cm_top15(
             cm_tn, cm_tn_pct,
-            " Matrice de Confusion (%) — TabNet DSO3 (Top-15)",
+            " Matrice de Confusion (%) â€” TabNet DSO3 (Top-15)",
             cm_tn_path, cell_labels, "Purples",
             metrics_tn["accuracy"], metrics_tn[f"top{TOP_K_EVAL}_acc"],
         )
@@ -651,7 +650,7 @@ def train_dso3(
 
     explainer   = shap.TreeExplainer(lgbm_d3)
     shap_values = explainer.shap_values(X_shap)
-    # shap_values is a list of arrays (one per class) — average across classes
+    # shap_values is a list of arrays (one per class) â€” average across classes
     if isinstance(shap_values, list):
         sv = np.mean(np.abs(np.stack(shap_values, axis=0)), axis=0)
     else:
@@ -668,7 +667,7 @@ def train_dso3(
     if "cluster_id" in shap_df["feature"].values:
         rang = shap_df["feature"].tolist().index("cluster_id") + 1
         val  = shap_df[shap_df["feature"] == "cluster_id"]["shap"].values[0]
-        print(f"\n   cluster_id: rang #{rang} — SHAP={val:.4f}")
+        print(f"\n   cluster_id: rang #{rang} â€” SHAP={val:.4f}")
 
     shap_json_path = os.path.join(model_out_dir, "shap_lgbm_dso3.json")
     shap_df.to_json(shap_json_path, orient="records", indent=2)
@@ -680,7 +679,7 @@ def train_dso3(
     bar_colors = [RED if f == "cluster_id" else BLUE for f in top20["feature"]]
     ax.barh(top20["feature"][::-1], top20["shap"][::-1], color=bar_colors[::-1])
     ax.set_xlabel("SHAP value (mean |importance|)", fontsize=11)
-    ax.set_title(" SHAP Feature Importance — LightGBM DSO3",
+    ax.set_title(" SHAP Feature Importance â€” LightGBM DSO3",
                  fontsize=12, fontweight="bold")
     if "cluster_id" in top20["feature"].values:
         xv = top20[top20["feature"] == "cluster_id"]["shap"].values[0]
@@ -703,7 +702,7 @@ def train_dso3(
     ax.set_xticks(x)
     ax.set_xticklabels(models_list, rotation=15, ha="right")
     ax.set_title(
-        f" DSO3 — Accuracy Top-1 vs Top-{TOP_K_EVAL}",
+        f" DSO3 â€” Accuracy Top-1 vs Top-{TOP_K_EVAL}",
         fontweight="bold",
     )
     ax.legend()
@@ -750,7 +749,7 @@ def train_dso3(
         ax.set_xlabel("Predit", fontsize=7)
         ax.set_ylabel("Reel", fontsize=7)
         ax.tick_params(labelsize=5)
-    plt.suptitle(" Toutes les Matrices de Confusion (%) — DSO3 (Top-15)",
+    plt.suptitle(" Toutes les Matrices de Confusion (%) â€” DSO3 (Top-15)",
                  fontsize=12, fontweight="bold", color="white", y=1.02)
     plt.tight_layout()
     cm_all_path = os.path.join(model_out_dir, "cm_all_dso3.png")
@@ -758,7 +757,7 @@ def train_dso3(
     plt.close(fig)
 
     # -- Summary --------------------------------------------------------------
-    print("\n=== RÉSULTATS DSO3 ===")
+    print("\n=== RÃ‰SULTATS DSO3 ===")
     print(df_results.to_string())
 
     best = df_results["accuracy"].idxmax()
@@ -803,3 +802,4 @@ def train_dso3(
 # -----------------------------------------------------------------------------
 if __name__ == "__main__":
     train_dso3()
+

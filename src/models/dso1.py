@@ -1,6 +1,6 @@
-# src/models/dso1.py
+﻿# src/models/dso1.py
 # Converted from NB4_DSO1_v2.ipynb
-# Task  : Binary classification — predict handover (0 / 1)
+# Task  : Binary classification â€” predict handover (0 / 1)
 # Input : PT_output/df_preprocessed.parquet  +  idx / y .npy  +  config.json
 # Output: MODEL_output/DSO1/
 #           xgb_model.pkl        lgbm_model.pkl       rf_model.pkl
@@ -45,7 +45,7 @@ from xgboost import XGBClassifier
 
 warnings.filterwarnings("ignore")
 
-# ── Colour palette (matches notebook) ────────────────────────────────────────
+# â”€â”€ Colour palette (matches notebook) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 BLUE   = "#4FC3F7"
 GREEN  = "#69F0AE"
 ORANGE = "#FFB74D"
@@ -55,7 +55,7 @@ PURPLE = "#CE93D8"
 CM_LABELS       = ["No HO", "HO"]
 EXPERIMENT_NAME = "DSO1-Handover"
 
-# ── Plot style (dark theme, non-interactive) ──────────────────────────────────
+# â”€â”€ Plot style (dark theme, non-interactive) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 plt.rcParams.update({
     "figure.facecolor": "#0F1117", "axes.facecolor": "#1A1D27",
     "axes.edgecolor": "#3A3D4D",   "axes.labelcolor": "#E0E0E0",
@@ -67,9 +67,9 @@ plt.rcParams.update({
 })
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Helpers
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _load_data(pt_out_dir: str):
     """Load indices, labels, config and the parquet feature matrix."""
@@ -85,7 +85,7 @@ def _load_data(pt_out_dir: str):
     cols_x = config["cols_X"]
 
     #  Assert cluster_id present (NB3 correction)
-    print("Vérifications config NB3:")
+    print("VÃ©rifications config NB3:")
     print(f"  cluster_id dans COLS_X : {'cluster_id' in cols_x}")
     print(f"  has_no_leakage         : {config.get('has_no_leakage', '?')}")
     print(f"  Total features         : {len(cols_x)}")
@@ -93,7 +93,7 @@ def _load_data(pt_out_dir: str):
           f"{cols_x.index('cluster_id') if 'cluster_id' in cols_x else 'ABSENT'}")
 
     assert "cluster_id" in cols_x, \
-        " cluster_id absent! Relancer NB3 corrigé."
+        " cluster_id absent! Relancer NB3 corrigÃ©."
 
     # Load parquet (selected columns only)
     print("\nChargement df_preprocessed.parquet...")
@@ -103,10 +103,10 @@ def _load_data(pt_out_dir: str):
     )
     gc.collect()
 
-    X_train = df.loc[idx_train].values.astype(np.float32); gc.collect()
-    X_val   = df.loc[idx_val].values.astype(np.float32);   gc.collect()
+    X_train = df.loc[idx_train].values.astype(np.float32)
+    X_val   = df.loc[idx_val].values.astype(np.float32)
     X_test  = df.loc[idx_test].values.astype(np.float32)
-    del df; gc.collect()
+    del df
 
     ratio = int((1 - y_train.mean()) / max(y_train.mean(), 1e-6))
     print(f"\nX_train {X_train.shape}")
@@ -132,8 +132,8 @@ def _save_cm_pct(cm, title, path, labels, cmap="Blues"):
         cbar_kws={"label": "%"},
         vmin=0, vmax=100,
     )
-    ax.set_xlabel("Prédit", fontsize=11)
-    ax.set_ylabel("Réel", fontsize=11)
+    ax.set_xlabel("PrÃ©dit", fontsize=11)
+    ax.set_ylabel("RÃ©el", fontsize=11)
     ax.set_title(title, fontsize=12, fontweight="bold")
     plt.tight_layout()
     plt.savefig(path, bbox_inches="tight", facecolor="#0F1117")
@@ -153,9 +153,9 @@ def _metrics_binary(name, y_true, y_pred, y_prob):
     }
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Main training function
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def train_dso1(
     pt_out_dir:    str  = "PT_output",
@@ -164,7 +164,7 @@ def train_dso1(
 ):
     os.makedirs(model_out_dir, exist_ok=True)
     assert os.path.exists(pt_out_dir), \
-        f"{pt_out_dir} not found — run preprocessing first!"
+        f"{pt_out_dir} not found â€” run preprocessing first!"
 
     # Optional MLflow
     try:
@@ -187,8 +187,8 @@ def train_dso1(
 
     all_metrics = []
 
-    # ── M1 : XGBoost ─────────────────────────────────────────────────────────
-    print("=" * 60 + "\n  M1 — XGBoost\n" + "=" * 60)
+    # â”€â”€ M1 : XGBoost â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    print("=" * 60 + "\n  M1 â€” XGBoost\n" + "=" * 60)
 
     # cluster_id is inside X_train (NB3 corrected).
     # XGBoost handles negative integers natively (-2=static, -1=outlier, 0-204=cluster).
@@ -209,17 +209,17 @@ def train_dso1(
     print(classification_report(y_test, y_pred_xgb, target_names=CM_LABELS))
 
     metrics_xgb = _metrics_binary("XGBoost", y_test, y_pred_xgb, y_prob_xgb)
-    print(f"\n  XGBoost → F1={metrics_xgb['f1']} AUC-PR={metrics_xgb['auc_pr']}")
+    print(f"\n  XGBoost â†’ F1={metrics_xgb['f1']} AUC-PR={metrics_xgb['auc_pr']}")
     all_metrics.append(metrics_xgb)
 
     pkl_xgb = os.path.join(model_out_dir, "xgb_model.pkl")
     with open(pkl_xgb, "wb") as fh:
         pickle.dump(xgb_model, fh)
-    print(" xgb_model.pkl sauvegardé")
+    print(" xgb_model.pkl sauvegardÃ©")
 
     cm_xgb = confusion_matrix(y_test, y_pred_xgb)
     cm_xgb_path = os.path.join(model_out_dir, "cm_xgb_dso1_pct.png")
-    _save_cm_pct(cm_xgb, " Matrice de Confusion (%) — XGBoost (DSO1)",
+    _save_cm_pct(cm_xgb, " Matrice de Confusion (%) â€” XGBoost (DSO1)",
                  cm_xgb_path, CM_LABELS, "Blues")
 
     if mlflow_available:
@@ -227,8 +227,8 @@ def train_dso1(
                       {k: v for k, v in metrics_xgb.items() if k != "model"},
                       [cm_xgb_path, pkl_xgb], tags)
 
-    # ── M2 : LightGBM ────────────────────────────────────────────────────────
-    print("=" * 60 + "\n  M2 — LightGBM\n" + "=" * 60)
+    # â”€â”€ M2 : LightGBM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    print("=" * 60 + "\n  M2 â€” LightGBM\n" + "=" * 60)
 
     # LightGBM supports categorical features natively; cluster_id treated as int.
     lgbm_params = dict(
@@ -246,24 +246,24 @@ def train_dso1(
             lgb.log_evaluation(50),
         ],
     )
-    print(" LightGBM entraîné")
+    print(" LightGBM entraÃ®nÃ©")
 
     y_pred_lgbm = lgbm_model.predict(X_test)
     y_prob_lgbm = lgbm_model.predict_proba(X_test)[:, 1]
     print(classification_report(y_test, y_pred_lgbm, target_names=CM_LABELS))
 
     metrics_lgbm = _metrics_binary("LightGBM", y_test, y_pred_lgbm, y_prob_lgbm)
-    print(f"\n  LightGBM → F1={metrics_lgbm['f1']} AUC-PR={metrics_lgbm['auc_pr']}")
+    print(f"\n  LightGBM â†’ F1={metrics_lgbm['f1']} AUC-PR={metrics_lgbm['auc_pr']}")
     all_metrics.append(metrics_lgbm)
 
     pkl_lgbm = os.path.join(model_out_dir, "lgbm_model.pkl")
     with open(pkl_lgbm, "wb") as fh:
         pickle.dump(lgbm_model, fh)
-    print("lgbm_model.pkl sauvegardé")
+    print("lgbm_model.pkl sauvegardÃ©")
 
     cm_lgbm = confusion_matrix(y_test, y_pred_lgbm)
     cm_lgbm_path = os.path.join(model_out_dir, "cm_lgbm_dso1_pct.png")
-    _save_cm_pct(cm_lgbm, " Matrice de Confusion (%) — LightGBM (DSO1)",
+    _save_cm_pct(cm_lgbm, " Matrice de Confusion (%) â€” LightGBM (DSO1)",
                  cm_lgbm_path, CM_LABELS, "Greens")
 
     if mlflow_available:
@@ -271,8 +271,8 @@ def train_dso1(
                       {k: v for k, v in metrics_lgbm.items() if k != "model"},
                       [cm_lgbm_path, pkl_lgbm], tags)
 
-    # ── M3 : Random Forest ───────────────────────────────────────────────────
-    print("=" * 60 + "\n  M3 — Random Forest\n" + "=" * 60)
+    # â”€â”€ M3 : Random Forest â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    print("=" * 60 + "\n  M3 â€” Random Forest\n" + "=" * 60)
 
     rf_params = dict(
         n_estimators=300, max_depth=15, min_samples_leaf=20,
@@ -281,24 +281,24 @@ def train_dso1(
     )
     rf_model = RandomForestClassifier(**rf_params)
     rf_model.fit(X_train, y_train)
-    print(" Random Forest entraîné")
+    print(" Random Forest entraÃ®nÃ©")
 
     y_pred_rf = rf_model.predict(X_test)
     y_prob_rf = rf_model.predict_proba(X_test)[:, 1]
     print(classification_report(y_test, y_pred_rf, target_names=CM_LABELS))
 
     metrics_rf = _metrics_binary("Random Forest", y_test, y_pred_rf, y_prob_rf)
-    print(f"\n  RF → F1={metrics_rf['f1']} AUC-PR={metrics_rf['auc_pr']}")
+    print(f"\n  RF â†’ F1={metrics_rf['f1']} AUC-PR={metrics_rf['auc_pr']}")
     all_metrics.append(metrics_rf)
 
     pkl_rf = os.path.join(model_out_dir, "rf_model.pkl")
     with open(pkl_rf, "wb") as fh:
         pickle.dump(rf_model, fh)
-    print(" rf_model.pkl sauvegardé")
+    print(" rf_model.pkl sauvegardÃ©")
 
     cm_rf = confusion_matrix(y_test, y_pred_rf)
     cm_rf_path = os.path.join(model_out_dir, "cm_rf_dso1_pct.png")
-    _save_cm_pct(cm_rf, " Matrice de Confusion (%) — Random Forest (DSO1)",
+    _save_cm_pct(cm_rf, " Matrice de Confusion (%) â€” Random Forest (DSO1)",
                  cm_rf_path, CM_LABELS, "Oranges")
 
     if mlflow_available:
@@ -306,9 +306,9 @@ def train_dso1(
                       {k: v for k, v in metrics_rf.items() if k != "model"},
                       [cm_rf_path, pkl_rf], tags)
 
-    # ── M4 : BiLSTM ──────────────────────────────────────────────────────────
+    # â”€â”€ M4 : BiLSTM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if not skip_deep:
-        print("=" * 60 + "\n  M4 — BiLSTM\n" + "=" * 60)
+        print("=" * 60 + "\n  M4 â€” BiLSTM\n" + "=" * 60)
 
         import tensorflow as tf
         from tensorflow.keras.callbacks import (
@@ -320,16 +320,16 @@ def train_dso1(
         from tensorflow.keras.models import Model as KModel
         from tensorflow.keras.optimizers import Adam
 
-        #  BUG FIX: '_t-{k}' → '_T{k}' — NB2 generates rsrp_T1, rsrp_T2 ...
+        #  BUG FIX: '_t-{k}' â†’ '_T{k}' â€” NB2 generates rsrp_T1, rsrp_T2 ...
         WINDOW_COLS = [
             c for c in COLS_X
             if any(f"_T{k}" in c for k in range(1, 6))
         ]
-        print(f"  WINDOW_COLS trouvées : {len(WINDOW_COLS)}")
+        print(f"  WINDOW_COLS trouvÃ©es : {len(WINDOW_COLS)}")
         print(f"  Exemples : {WINDOW_COLS[:5]}")
-        # cluster_id is NOT in WINDOW_COLS — it is static (not temporal)
+        # cluster_id is NOT in WINDOW_COLS â€” it is static (not temporal)
         print(f"  cluster_id dans WINDOW_COLS: {'cluster_id' in WINDOW_COLS}")
-        print("  → Normal: cluster_id est statique, pas temporel")
+        print("  â†’ Normal: cluster_id est statique, pas temporel")
 
         T = 5 if WINDOW_COLS else 1
 
@@ -342,7 +342,7 @@ def train_dso1(
             X_va_3d = X_val[:,   w_idx].reshape(-1, T, F)
             X_te_3d = X_test[:,  w_idx].reshape(-1, T, F)
         else:
-            print("   WINDOW_COLS vide → fallback (T=1)")
+            print("   WINDOW_COLS vide â†’ fallback (T=1)")
             F       = X_train.shape[1]
             T       = 1
             X_tr_3d = X_train.reshape(-1, 1, F)
@@ -371,7 +371,7 @@ def train_dso1(
         )
 
         sw = np.where(y_train == 1, ratio, 1).astype(np.float32)
-        print("\n  Entraînement BiLSTM...")
+        print("\n  EntraÃ®nement BiLSTM...")
         lstm_model.fit(
             X_tr_3d, y_train,
             validation_data=(X_va_3d, y_val),
@@ -392,7 +392,7 @@ def train_dso1(
                 ),
             ],
         )
-        print("BiLSTM entraîné")
+        print("BiLSTM entraÃ®nÃ©")
 
         y_prob_lstm = lstm_model.predict(
             X_te_3d, batch_size=4096, verbose=0
@@ -401,15 +401,15 @@ def train_dso1(
         print(classification_report(y_test, y_pred_lstm, target_names=CM_LABELS))
 
         metrics_lstm = _metrics_binary("BiLSTM", y_test, y_pred_lstm, y_prob_lstm)
-        print(f"\n  BiLSTM → F1={metrics_lstm['f1']} AUC-PR={metrics_lstm['auc_pr']}")
+        print(f"\n  BiLSTM â†’ F1={metrics_lstm['f1']} AUC-PR={metrics_lstm['auc_pr']}")
         all_metrics.append(metrics_lstm)
 
         lstm_model.save(os.path.join(model_out_dir, "lstm_model.h5"))
-        print(" lstm_model.h5 sauvegardé")
+        print(" lstm_model.h5 sauvegardÃ©")
 
         cm_lstm = confusion_matrix(y_test, y_pred_lstm)
         cm_lstm_path = os.path.join(model_out_dir, "cm_lstm_dso1_pct.png")
-        _save_cm_pct(cm_lstm, " Matrice de Confusion (%) — BiLSTM (DSO1)",
+        _save_cm_pct(cm_lstm, " Matrice de Confusion (%) â€” BiLSTM (DSO1)",
                      cm_lstm_path, CM_LABELS, "Blues")
 
         if mlflow_available:
@@ -418,15 +418,15 @@ def train_dso1(
                           {k: v for k, v in metrics_lstm.items() if k != "model"},
                           [cm_lstm_path], tags)
 
-    # ── M5 : TabNet ──────────────────────────────────────────────────────────
+    # â”€â”€ M5 : TabNet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if not skip_deep:
-        print("=" * 60 + "\n  M5 — TabNet\n" + "=" * 60)
+        print("=" * 60 + "\n  M5 â€” TabNet\n" + "=" * 60)
 
         import torch
         from pytorch_tabnet.tab_model import TabNetClassifier
         from pytorch_tabnet.pretraining import TabNetPretrainer
 
-        # ── 1. Sampling ───────────────────────────────────────────────────────
+        # â”€â”€ 1. Sampling â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         N_TN       = 300_000
         idx_sample = np.random.choice(len(X_train), N_TN, replace=False)
         X_tr_tn    = X_train[idx_sample]
@@ -436,7 +436,7 @@ def train_dso1(
         print(f"Sample train : {len(X_tr_tn):,}")
 
         #  FIX: TabNetPretrainer defined BEFORE use
-        print("\nPré-entraînement non supervisé (TabNetPretrainer)...")
+        print("\nPrÃ©-entraÃ®nement non supervisÃ© (TabNetPretrainer)...")
         pretrainer = TabNetPretrainer(
             n_d=16, n_a=16, n_steps=3, gamma=1.5,
             n_independent=2, n_shared=2,
@@ -452,9 +452,9 @@ def train_dso1(
             batch_size=4096, virtual_batch_size=512,
             pretraining_ratio=0.8,
         )
-        print("Pré-entraînement terminé")
+        print("PrÃ©-entraÃ®nement terminÃ©")
 
-        # ── 2. Supervised model ───────────────────────────────────────────────
+        # â”€â”€ 2. Supervised model â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         tabnet_model = TabNetClassifier(
             n_d=16, n_a=16, n_steps=3, gamma=1.5,
             n_independent=2, n_shared=2,
@@ -471,9 +471,9 @@ def train_dso1(
             max_epochs=1, batch_size=512, virtual_batch_size=512,
         )
         tabnet_model.load_weights_from_unsupervised(pretrainer)
-        print(" Poids pretrainer transférés")
+        print(" Poids pretrainer transfÃ©rÃ©s")
 
-        # ── 3. Real supervised training ───────────────────────────────────────
+        # â”€â”€ 3. Real supervised training â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         tabnet_model.verbose = 10
         tabnet_model.fit(
             X_train=X_tr_tn,
@@ -484,22 +484,22 @@ def train_dso1(
             batch_size=4096, virtual_batch_size=512,
             weights=1,
         )
-        print("TabNet entraîné")
+        print("TabNet entraÃ®nÃ©")
 
         y_pred_tn = tabnet_model.predict(X_te_tn)
         y_prob_tn = tabnet_model.predict_proba(X_te_tn)[:, 1]
         print(classification_report(y_test, y_pred_tn, target_names=CM_LABELS))
 
         metrics_tn = _metrics_binary("TabNet", y_test, y_pred_tn, y_prob_tn)
-        print(f"\n  TabNet → F1={metrics_tn['f1']} AUC-PR={metrics_tn['auc_pr']}")
+        print(f"\n  TabNet â†’ F1={metrics_tn['f1']} AUC-PR={metrics_tn['auc_pr']}")
         all_metrics.append(metrics_tn)
 
         tabnet_model.save_model(os.path.join(model_out_dir, "tabnet_model"))
-        print(" tabnet_model sauvegardé")
+        print(" tabnet_model sauvegardÃ©")
 
         cm_tn = confusion_matrix(y_test, y_pred_tn)
         cm_tn_path = os.path.join(model_out_dir, "cm_tabnet_dso1_pct.png")
-        _save_cm_pct(cm_tn, " Matrice de Confusion (%) — TabNet (DSO1)",
+        _save_cm_pct(cm_tn, " Matrice de Confusion (%) â€” TabNet (DSO1)",
                      cm_tn_path, CM_LABELS, "Blues")
 
         if mlflow_available:
@@ -508,8 +508,8 @@ def train_dso1(
                           {k: v for k, v in metrics_tn.items() if k != "model"},
                           [cm_tn_path], tags)
 
-    # ── SHAP on LightGBM ─────────────────────────────────────────────────────
-    print("\nCalcul SHAP sur LightGBM (meilleur modèle)...")
+    # â”€â”€ SHAP on LightGBM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    print("\nCalcul SHAP sur LightGBM (meilleur modÃ¨le)...")
     try:
         import shap
     except ImportError:
@@ -537,13 +537,13 @@ def train_dso1(
     if "cluster_id" in shap_df["feature"].values:
         rang = shap_df["feature"].tolist().index("cluster_id") + 1
         val  = shap_df[shap_df["feature"] == "cluster_id"]["shap"].values[0]
-        print(f"\n   cluster_id: rang #{rang} — SHAP={val:.4f}")
+        print(f"\n   cluster_id: rang #{rang} â€” SHAP={val:.4f}")
     else:
-        print("   cluster_id non trouvé dans SHAP")
+        print("   cluster_id non trouvÃ© dans SHAP")
 
     shap_json_path = os.path.join(model_out_dir, "shap_lgbm_dso1.json")
     shap_df.to_json(shap_json_path, orient="records", indent=2)
-    print(" shap_lgbm_dso1.json sauvegardé")
+    print(" shap_lgbm_dso1.json sauvegardÃ©")
 
     # SHAP bar chart
     shap_plot_path = os.path.join(model_out_dir, "shap_dso1.png")
@@ -552,17 +552,17 @@ def train_dso1(
     bar_colors = [RED if f == "cluster_id" else BLUE for f in top20["feature"]]
     ax.barh(top20["feature"][::-1], top20["shap"][::-1], color=bar_colors[::-1])
     ax.set_xlabel("SHAP value (mean |importance|)", fontsize=11)
-    ax.set_title(" SHAP Feature Importance — LightGBM DSO1",
+    ax.set_title(" SHAP Feature Importance â€” LightGBM DSO1",
                  fontsize=12, fontweight="bold")
     if "cluster_id" in top20["feature"].values:
         xv  = top20[top20["feature"] == "cluster_id"]["shap"].values[0]
         yv  = top20["feature"].tolist()[::-1].index("cluster_id")
-        ax.annotate("← cluster_id (zone NB2)", xy=(xv, yv), fontsize=9, color=RED)
+        ax.annotate("â† cluster_id (zone NB2)", xy=(xv, yv), fontsize=9, color=RED)
     plt.tight_layout()
     plt.savefig(shap_plot_path, bbox_inches="tight", facecolor="#0F1117")
     plt.close(fig)
 
-    # ── All confusion matrices side-by-side ──────────────────────────────────
+    # â”€â”€ All confusion matrices side-by-side â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     # Build the list dynamically (deep models may be absent when skip_deep=True)
     models_cm = [
         ("XGBoost",       cm_xgb,  y_pred_xgb),
@@ -591,16 +591,16 @@ def train_dso1(
         )
         ax.set_title(f"{name}\nAcc={acc:.1f}% F1={f1:.3f}",
                      fontsize=10, fontweight="bold")
-        ax.set_xlabel("Prédit")
-        ax.set_ylabel("Réel")
-    plt.suptitle(" Toutes les Matrices de Confusion (%) — DSO1",
+        ax.set_xlabel("PrÃ©dit")
+        ax.set_ylabel("RÃ©el")
+    plt.suptitle(" Toutes les Matrices de Confusion (%) â€” DSO1",
                  fontsize=14, fontweight="bold", color="white", y=1.02)
     plt.tight_layout()
     cm_all_path = os.path.join(model_out_dir, "cm_all_dso1.png")
     plt.savefig(cm_all_path, bbox_inches="tight", facecolor="#0F1117")
     plt.close(fig)
 
-    # ── Dashboard ROC + PR ───────────────────────────────────────────────────
+    # â”€â”€ Dashboard ROC + PR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     models_list = [m[0] for m in models_cm]
     probs_list  = [y_prob_xgb, y_prob_lgbm, y_prob_rf]
     if not skip_deep:
@@ -621,16 +621,16 @@ def train_dso1(
         )
     axes[1].set_title("Precision-Recall", fontweight="bold")
 
-    plt.suptitle(" DSO1 — Dashboard Final",
+    plt.suptitle(" DSO1 â€” Dashboard Final",
                  fontsize=14, fontweight="bold", color="white")
     plt.tight_layout()
     dash_path = os.path.join(model_out_dir, "dashboard_dso1.png")
     plt.savefig(dash_path, bbox_inches="tight", facecolor="#0F1117")
     plt.close(fig)
 
-    # ── Summary ──────────────────────────────────────────────────────────────
+    # â”€â”€ Summary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     df_results = pd.DataFrame(all_metrics).set_index("model")
-    print("\n=== RÉSULTATS DSO1 ===")
+    print("\n=== RÃ‰SULTATS DSO1 ===")
     print(df_results.to_string())
 
     best = df_results["f1"].idxmax()
@@ -656,7 +656,7 @@ def train_dso1(
     with open(json_path, "w") as fh:
         json.dump(results_enriched, fh, indent=2)
 
-    print("\nresults_dso1.json sauvegardé")
+    print("\nresults_dso1.json sauvegardÃ©")
     print(f"   best_model    : {best}")
     print(f"   best_f1       : {results_enriched['best_f1']}")
     print(f"   has_cluster_id: {results_enriched['has_cluster_id']}")
@@ -666,6 +666,7 @@ def train_dso1(
     return results_enriched
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if __name__ == "__main__":
     train_dso1()
+

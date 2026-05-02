@@ -6,11 +6,9 @@ Python FastAPI service for cluster predictions with 4 targets
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Optional
 from datetime import datetime, timedelta
 import random
-import json
-import numpy as np
 from collections import defaultdict
 
 app = FastAPI(

@@ -3,7 +3,6 @@ SystÃ¨me de logging structurÃ© pour l'explainability des clusters
 """
 
 import json
-import logging
 import structlog
 from datetime import datetime
 from typing import Dict, Any, Optional, List

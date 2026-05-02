@@ -1,6 +1,6 @@
-# src/models/dso2.py
+﻿# src/models/dso2.py
 # Converted from NB4_DSO2_v2.ipynb
-# Task  : Binary classification — predict RSRP drop > 6 dBm in next 5 measures
+# Task  : Binary classification â€” predict RSRP drop > 6 dBm in next 5 measures
 # Input : PT_output/df_preprocessed.parquet  +  idx / y .npy  +  config.json
 #         FE_output/df_final_fe.parquet       (raw RSRP for label construction)
 # Output: MODEL_output/DSO2/
@@ -80,7 +80,7 @@ plt.rcParams.update({
 def _build_rsrp_drop_label(fe_out_dir: str) -> pd.Series:
     """
     Build rsrp_drop binary label from raw RSRP in df_final_fe.parquet.
-    Must use raw RSRP (NB2 output) — NOT normalised values from NB3.
+    Must use raw RSRP (NB2 output) â€” NOT normalised values from NB3.
     rsrp_drop = 1  if  min(rsrp[t+1..t+5]) - rsrp[t] < -6 dBm
     """
     print("Chargement rsrp brut depuis df_final_fe.parquet...")
@@ -158,7 +158,7 @@ def _load_data(pt_out_dir: str, fe_out_dir: str, dry_run: bool = False):
         if c in df.columns and c != "rsrp_drop"
     ]
 
-    print(f"Verifications:")
+    print("Verifications:")
     print(f"  cluster_id dans COLS_X : {'cluster_id' in COLS_X}")
     print(f"  Total features         : {len(COLS_X)}")
     assert "cluster_id" in COLS_X, \
@@ -168,10 +168,10 @@ def _load_data(pt_out_dir: str, fe_out_dir: str, dry_run: bool = False):
     y_val   = df.loc[idx_val,   "rsrp_drop"].values
     y_test  = df.loc[idx_test,  "rsrp_drop"].values
 
-    X_train = df.loc[idx_train, COLS_X].values.astype(np.float32); gc.collect()
-    X_val   = df.loc[idx_val,   COLS_X].values.astype(np.float32); gc.collect()
+    X_train = df.loc[idx_train, COLS_X].values.astype(np.float32)
+    X_val   = df.loc[idx_val,   COLS_X].values.astype(np.float32)
     X_test  = df.loc[idx_test,  COLS_X].values.astype(np.float32)
-    del df; gc.collect()
+    del df
 
     ratio = int((1 - y_train.mean()) / max(y_train.mean(), 1e-6))
     print(f"\nX_train {X_train.shape}")
@@ -230,9 +230,9 @@ def train_dso2(
 ):
     os.makedirs(model_out_dir, exist_ok=True)
     assert os.path.exists(pt_out_dir), \
-        f"{pt_out_dir} not found — run preprocessing first!"
+        f"{pt_out_dir} not found â€” run preprocessing first!"
     assert os.path.exists(fe_out_dir), \
-        f"{fe_out_dir} not found — run feature_engineering first!"
+        f"{fe_out_dir} not found â€” run feature_engineering first!"
 
     # Optional MLflow
     try:
@@ -258,7 +258,7 @@ def train_dso2(
     all_metrics = []
 
     # -- M1 : XGBoost ---------------------------------------------------------
-    print("=" * 60 + "\n  M1 — XGBoost DSO2\n" + "=" * 60)
+    print("=" * 60 + "\n  M1 â€” XGBoost DSO2\n" + "=" * 60)
 
     xgb_params = dict(
         n_estimators=500, max_depth=6, learning_rate=0.05,
@@ -286,7 +286,7 @@ def train_dso2(
 
     cm_xgb      = confusion_matrix(y_test, y_pred_xgb)
     cm_xgb_path = os.path.join(model_out_dir, "cm_xgb_dso2_pct.png")
-    _save_cm_pct(cm_xgb, " Matrice de Confusion (%) — XGBoost (DSO2)",
+    _save_cm_pct(cm_xgb, " Matrice de Confusion (%) â€” XGBoost (DSO2)",
                  cm_xgb_path, CM_LABELS, "Blues")
 
     if mlflow_available:
@@ -295,7 +295,7 @@ def train_dso2(
                       [cm_xgb_path, pkl_xgb], tags)
 
     # -- M2 : LightGBM --------------------------------------------------------
-    print("=" * 60 + "\n  M2 — LightGBM DSO2\n" + "=" * 60)
+    print("=" * 60 + "\n  M2 â€” LightGBM DSO2\n" + "=" * 60)
 
     lgbm_params = dict(
         n_estimators=500, max_depth=7, learning_rate=0.05,
@@ -328,7 +328,7 @@ def train_dso2(
 
     cm_lgbm      = confusion_matrix(y_test, y_pred_lgbm)
     cm_lgbm_path = os.path.join(model_out_dir, "cm_lgbm_dso2_pct.png")
-    _save_cm_pct(cm_lgbm, " Matrice de Confusion (%) — LightGBM (DSO2)",
+    _save_cm_pct(cm_lgbm, " Matrice de Confusion (%) â€” LightGBM (DSO2)",
                  cm_lgbm_path, CM_LABELS, "Greens")
 
     if mlflow_available:
@@ -337,7 +337,7 @@ def train_dso2(
                       [cm_lgbm_path, pkl_lgbm], tags)
 
     # -- M3 : Random Forest ---------------------------------------------------
-    print("=" * 60 + "\n  M3 — Random Forest DSO2\n" + "=" * 60)
+    print("=" * 60 + "\n  M3 â€” Random Forest DSO2\n" + "=" * 60)
 
     rf_params = dict(
         n_estimators=300, max_depth=15, min_samples_leaf=20,
@@ -362,7 +362,7 @@ def train_dso2(
 
     cm_rf      = confusion_matrix(y_test, y_pred_rf)
     cm_rf_path = os.path.join(model_out_dir, "cm_rf_dso2_pct.png")
-    _save_cm_pct(cm_rf, " Matrice de Confusion (%) — Random Forest (DSO2)",
+    _save_cm_pct(cm_rf, " Matrice de Confusion (%) â€” Random Forest (DSO2)",
                  cm_rf_path, CM_LABELS, "Oranges")
 
     if mlflow_available:
@@ -372,7 +372,7 @@ def train_dso2(
 
     # -- M4 : BiLSTM ----------------------------------------------------------
     if not skip_deep:
-        print("=" * 60 + "\n  M4 — BiLSTM DSO2\n" + "=" * 60)
+        print("=" * 60 + "\n  M4 â€” BiLSTM DSO2\n" + "=" * 60)
 
         import tensorflow as tf
         from tensorflow.keras.callbacks import (
@@ -384,7 +384,7 @@ def train_dso2(
         from tensorflow.keras.models import Model as KModel
         from tensorflow.keras.optimizers import Adam
 
-        # BUG FIX: '_t-{k}' -> '_T{k}' — NB2 generates rsrp_T1, rsrp_T2 ...
+        # BUG FIX: '_t-{k}' -> '_T{k}' â€” NB2 generates rsrp_T1, rsrp_T2 ...
         WINDOW_COLS = [
             c for c in COLS_X
             if any(f"_T{k}" in c for k in range(1, 6))
@@ -460,7 +460,7 @@ def train_dso2(
 
         cm_lstm      = confusion_matrix(y_test, y_pred_lstm)
         cm_lstm_path = os.path.join(model_out_dir, "cm_lstm_dso2_pct.png")
-        _save_cm_pct(cm_lstm, " Matrice de Confusion (%) — BiLSTM (DSO2)",
+        _save_cm_pct(cm_lstm, " Matrice de Confusion (%) â€” BiLSTM (DSO2)",
                      cm_lstm_path, CM_LABELS, "Blues")
 
         if mlflow_available:
@@ -471,7 +471,7 @@ def train_dso2(
 
     # -- M5 : TabNet ----------------------------------------------------------
     if not skip_deep:
-        print("=" * 60 + "\n  M5 — TabNet DSO2\n" + "=" * 60)
+        print("=" * 60 + "\n  M5 â€” TabNet DSO2\n" + "=" * 60)
 
         import torch
         from pytorch_tabnet.tab_model import TabNetClassifier
@@ -542,7 +542,7 @@ def train_dso2(
 
         cm_tn      = confusion_matrix(y_test, y_pred_tn)
         cm_tn_path = os.path.join(model_out_dir, "cm_tabnet_dso2_pct.png")
-        _save_cm_pct(cm_tn, " Matrice de Confusion (%) — TabNet (DSO2)",
+        _save_cm_pct(cm_tn, " Matrice de Confusion (%) â€” TabNet (DSO2)",
                      cm_tn_path, CM_LABELS, "Blues")
 
         if mlflow_available:
@@ -578,7 +578,7 @@ def train_dso2(
     if "cluster_id" in shap_df["feature"].values:
         rang = shap_df["feature"].tolist().index("cluster_id") + 1
         val  = shap_df[shap_df["feature"] == "cluster_id"]["shap"].values[0]
-        print(f"\n   cluster_id: rang #{rang} — SHAP={val:.4f}")
+        print(f"\n   cluster_id: rang #{rang} â€” SHAP={val:.4f}")
 
     shap_json_path = os.path.join(model_out_dir, "shap_lgbm_dso2.json")
     shap_df.to_json(shap_json_path, orient="records", indent=2)
@@ -590,7 +590,7 @@ def train_dso2(
     bar_colors = [RED if f == "cluster_id" else BLUE for f in top20["feature"]]
     ax.barh(top20["feature"][::-1], top20["shap"][::-1], color=bar_colors[::-1])
     ax.set_xlabel("SHAP value (mean |importance|)", fontsize=11)
-    ax.set_title(" SHAP Feature Importance — LightGBM DSO2",
+    ax.set_title(" SHAP Feature Importance â€” LightGBM DSO2",
                  fontsize=12, fontweight="bold")
     if "cluster_id" in top20["feature"].values:
         xv = top20[top20["feature"] == "cluster_id"]["shap"].values[0]
@@ -630,7 +630,7 @@ def train_dso2(
                      fontsize=10, fontweight="bold")
         ax.set_xlabel("Predit")
         ax.set_ylabel("Reel")
-    plt.suptitle(" Toutes les Matrices de Confusion (%) — DSO2 (RSRP Drop)",
+    plt.suptitle(" Toutes les Matrices de Confusion (%) â€” DSO2 (RSRP Drop)",
                  fontsize=14, fontweight="bold", color="white", y=1.02)
     plt.tight_layout()
     cm_all_path = os.path.join(model_out_dir, "cm_all_dso2.png")
@@ -649,16 +649,16 @@ def train_dso2(
         RocCurveDisplay.from_predictions(
             y_test, prob, name=name, ax=axes[0], color=color
         )
-    axes[0].set_title("Courbes ROC — DSO2", fontweight="bold")
+    axes[0].set_title("Courbes ROC â€” DSO2", fontweight="bold")
     axes[0].plot([0, 1], [0, 1], "--", color="gray", lw=0.8)
 
     for name, prob, color in zip(models_list, probs_list, colors_list):
         PrecisionRecallDisplay.from_predictions(
             y_test, prob, name=name, ax=axes[1], color=color
         )
-    axes[1].set_title("Precision-Recall — DSO2", fontweight="bold")
+    axes[1].set_title("Precision-Recall â€” DSO2", fontweight="bold")
 
-    plt.suptitle(" DSO2 — Dashboard Final",
+    plt.suptitle(" DSO2 â€” Dashboard Final",
                  fontsize=14, fontweight="bold", color="white")
     plt.tight_layout()
     dash_path = os.path.join(model_out_dir, "dashboard_dso2.png")
@@ -667,7 +667,7 @@ def train_dso2(
 
     # -- Summary --------------------------------------------------------------
     df_results = pd.DataFrame(all_metrics).set_index("model")
-    print("\n=== RÉSULTATS DSO2 ===")
+    print("\n=== RÃ‰SULTATS DSO2 ===")
     print(df_results.to_string())
 
     best = df_results["f1"].idxmax()
@@ -708,3 +708,4 @@ def train_dso2(
 # -----------------------------------------------------------------------------
 if __name__ == "__main__":
     train_dso2()
+

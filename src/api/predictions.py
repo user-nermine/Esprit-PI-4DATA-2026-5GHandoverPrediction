@@ -231,7 +231,6 @@ async def get_predictions_summary():
     Obtenir un rÃ©sumÃ© des prÃ©dictions sur tous les clusters analysÃ©s
     """
     try:
-        from src.api.utils.data_loader import data_loader
         from src.api.config import settings
         
         # Obtenir les logs dynamiques rÃ©cents
