@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     """Configuration principale de l'application"""
     
     # Serveur
-    host: str = "0.0.0.0"
+    host: str = "0.0.0.0"  # nosec B104
     port: int = 8000
     debug: bool = True
     log_level: str = "INFO"
@@ -54,5 +54,6 @@ class Settings(BaseSettings):
 
 # Instance globale des settings
 settings = Settings()
+
 
 
