@@ -13,7 +13,7 @@ path = snapshot_download(
 )
 print(f"Downloaded to: {path}")
 
-for folder in ["PT_output", "FE_data", "FE_output"]:
+for folder in ["PT_output", "FE_data", "FE_output", "MODEL_output"]:
     src = os.path.join(path, folder)
     if os.path.exists(src):
         shutil.copytree(src, folder, dirs_exist_ok=True)
