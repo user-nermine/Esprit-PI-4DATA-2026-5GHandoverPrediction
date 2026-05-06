@@ -273,7 +273,7 @@ def train_dso2(
 
     y_pred_xgb = xgb_d2.predict(X_test)
     y_prob_xgb = xgb_d2.predict_proba(X_test)[:, 1]
-    print(classification_report(y_test, y_pred_xgb, target_names=CM_LABELS))
+    print(classification_report(y_test, y_pred_xgb, target_names=CM_LABELS, labels=[0, 1], zero_division=0))
 
     metrics_xgb = _metrics_binary("XGBoost", y_test, y_pred_xgb, y_prob_xgb)
     print(f"\n  XGBoost -> F1={metrics_xgb['f1']} AUC-PR={metrics_xgb['auc_pr']}")
@@ -315,7 +315,7 @@ def train_dso2(
 
     y_pred_lgbm = lgbm_d2.predict(X_test)
     y_prob_lgbm = lgbm_d2.predict_proba(X_test)[:, 1]
-    print(classification_report(y_test, y_pred_lgbm, target_names=CM_LABELS))
+    print(classification_report(y_test, y_pred_lgbm, target_names=CM_LABELS, labels=[0, 1], zero_division=0))
 
     metrics_lgbm = _metrics_binary("LightGBM", y_test, y_pred_lgbm, y_prob_lgbm)
     print(f"\n  LightGBM -> F1={metrics_lgbm['f1']} AUC-PR={metrics_lgbm['auc_pr']}")
@@ -349,7 +349,7 @@ def train_dso2(
 
     y_pred_rf = rf_d2.predict(X_test)
     y_prob_rf = rf_d2.predict_proba(X_test)[:, 1]
-    print(classification_report(y_test, y_pred_rf, target_names=CM_LABELS))
+    print(classification_report(y_test, y_pred_rf, target_names=CM_LABELS, labels=[0, 1], zero_division=0))
 
     metrics_rf = _metrics_binary("Random Forest", y_test, y_pred_rf, y_prob_rf)
     print(f"\n  RF -> F1={metrics_rf['f1']} AUC-PR={metrics_rf['auc_pr']}")
@@ -449,7 +449,7 @@ def train_dso2(
 
         y_prob_lstm = lstm_d2.predict(X_te_3d, batch_size=4096, verbose=0).flatten()
         y_pred_lstm = (y_prob_lstm > 0.5).astype(int)
-        print(classification_report(y_test, y_pred_lstm, target_names=CM_LABELS))
+        print(classification_report(y_test, y_pred_lstm, target_names=CM_LABELS, labels=[0, 1], zero_division=0))
 
         metrics_lstm = _metrics_binary("BiLSTM", y_test, y_pred_lstm, y_prob_lstm)
         print(f"\n  BiLSTM -> F1={metrics_lstm['f1']} AUC-PR={metrics_lstm['auc_pr']}")
@@ -531,7 +531,7 @@ def train_dso2(
 
         y_pred_tn = tabnet_d2.predict(X_te_tn)
         y_prob_tn = tabnet_d2.predict_proba(X_te_tn)[:, 1]
-        print(classification_report(y_test, y_pred_tn, target_names=CM_LABELS))
+        print(classification_report(y_test, y_pred_tn, target_names=CM_LABELS, labels=[0, 1], zero_division=0))
 
         metrics_tn = _metrics_binary("TabNet", y_test, y_pred_tn, y_prob_tn)
         print(f"\n  TabNet -> F1={metrics_tn['f1']} AUC-PR={metrics_tn['auc_pr']}")

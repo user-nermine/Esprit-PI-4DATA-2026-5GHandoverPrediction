@@ -43,7 +43,7 @@ with DAG(
 
     lint = BashOperator(
         task_id="lint_ruff",
-        bash_command=f"cd {PROJECT_DIR} && python -m ruff check src/ --output-format=text",
+        bash_command=f"cd {PROJECT_DIR} && python -m ruff check src/",
     )
 
     security = BashOperator(
