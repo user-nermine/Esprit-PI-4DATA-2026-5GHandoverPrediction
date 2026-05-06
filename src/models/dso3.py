@@ -55,6 +55,7 @@ PURPLE = "#CE93D8"
 EXPERIMENT_NAME = "DSO3-Next-Cell"
 TOP_N_CELLS     = 50
 TOP_K_EVAL      = 3
+N_JOBS = int(os.environ.get("N_JOBS", "4"))
 CONFIGS         = {"static": "session_id", "mobile": "device", "hbahn": "device"}
 
 # -- Plot style ---------------------------------------------------------------
@@ -287,7 +288,7 @@ def train_dso3(
         subsample=0.8, colsample_bytree=0.8,
         objective="multi:softmax", num_class=N_CLASSES,
         eval_metric="mlogloss", early_stopping_rounds=20,
-        tree_method="hist", random_state=42, n_jobs=-1,
+        tree_method="hist", random_state=42, n_jobs=N_JOBS,
         use_label_encoder=False,
     )
     xgb_d3 = XGBClassifier(**xgb_params)
@@ -336,7 +337,7 @@ def train_dso3(
         num_leaves=63, subsample=0.8, colsample_bytree=0.8,
         objective="multiclass", num_class=N_CLASSES,
         metric="multi_logloss", class_weight="balanced",
-        random_state=42, n_jobs=-1, verbose=-1,
+        random_state=42, n_jobs=N_JOBS, verbose=-1,
     )
     lgbm_d3 = LGBMClassifier(**lgbm_params)
     lgbm_d3.fit(
@@ -389,7 +390,7 @@ def train_dso3(
     rf_params = dict(
         n_estimators=200, max_depth=15, min_samples_leaf=10,
         max_features="sqrt", class_weight="balanced_subsample",
-        max_samples=0.3, random_state=42, n_jobs=-1, verbose=1,
+        max_samples=0.3, random_state=42, n_jobs=N_JOBS, verbose=1,
     )
     rf_d3 = RandomForestClassifier(**rf_params)
     rf_d3.fit(X_train, y_train)
@@ -808,6 +809,3 @@ def train_dso3(
 # -----------------------------------------------------------------------------
 if __name__ == "__main__":
     train_dso3()
-
-
-

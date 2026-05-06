@@ -53,6 +53,7 @@ RED    = "#EF5350"
 PURPLE = "#CE93D8"
 
 CM_LABELS       = ["No HO", "HO"]
+N_JOBS = int(os.environ.get("N_JOBS", "4")) 
 EXPERIMENT_NAME = "DSO1-Handover"
 
 # â”€â”€ Plot style (dark theme, non-interactive) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -155,17 +156,24 @@ def _save_cm_pct(cm, title, path, labels, cmap="Blues"):
     plt.tight_layout()
     plt.savefig(path, bbox_inches="tight", facecolor="#0F1117")
     plt.close(fig)
-    print(f"VN: {cm_pct[0, 0]:.2f}% | FP: {cm_pct[0, 1]:.2f}%")
-    print(f"FN: {cm_pct[1, 0]:.2f}% | VP: {cm_pct[1, 1]:.2f}%")
-
+    if cm.shape == (2, 2):
+        print(f"VN: {cm_pct[0, 0]:.2f}% | FP: {cm_pct[0, 1]:.2f}%")
+        print(f"FN: {cm_pct[1, 0]:.2f}% | VP: {cm_pct[1, 1]:.2f}%")
+    else:
+        print(f"(matrice {cm.shape} — une seule classe)")
 
 def _metrics_binary(name, y_true, y_pred, y_prob):
+    # zero_division=0 prevents crash when a class is absent in CI splits
+    try:
+        auc_roc = round(roc_auc_score(y_true, y_prob), 4)
+    except ValueError:
+        auc_roc = 0.0  # only one class present in y_true
     return {
         "model":     name,
-        "f1":        round(f1_score(y_true, y_pred), 4),
-        "precision": round(precision_score(y_true, y_pred), 4),
-        "recall":    round(recall_score(y_true, y_pred), 4),
-        "auc_roc":   round(roc_auc_score(y_true, y_prob), 4),
+        "f1":        round(f1_score(y_true, y_pred, zero_division=0), 4),
+        "precision": round(precision_score(y_true, y_pred, zero_division=0), 4),
+        "recall":    round(recall_score(y_true, y_pred, zero_division=0), 4),
+        "auc_roc":   auc_roc,
         "auc_pr":    round(average_precision_score(y_true, y_prob), 4),
     }
 
@@ -214,16 +222,21 @@ def train_dso1(
         subsample=0.8, colsample_bytree=0.8,
         scale_pos_weight=ratio,
         eval_metric="aucpr", early_stopping_rounds=30,
-        tree_method="hist", random_state=42, n_jobs=-1,
+        tree_method="hist", random_state=42, n_jobs=N_JOBS,
         use_label_encoder=False,
     )
     xgb_model = XGBClassifier(**xgb_params)
     xgb_model.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=50)
     print(f" best_iteration={xgb_model.best_iteration}")
 
-    y_pred_xgb = xgb_model.predict(X_test)
+    CI_MODE = os.environ.get("CI", "false").lower() == "true"
+    threshold = 0.1 if CI_MODE else 0.5  # lower in CI: extreme class imbalance
     y_prob_xgb = xgb_model.predict_proba(X_test)[:, 1]
-    print(classification_report(y_test, y_pred_xgb, target_names=CM_LABELS))
+    y_pred_xgb = (y_prob_xgb >= threshold).astype(int)
+    print(classification_report(
+        y_test, y_pred_xgb,
+        labels=[0, 1], target_names=CM_LABELS, zero_division=0,
+    ))
 
     metrics_xgb = _metrics_binary("XGBoost", y_test, y_pred_xgb, y_prob_xgb)
     print(f"\n  XGBoost â†’ F1={metrics_xgb['f1']} AUC-PR={metrics_xgb['auc_pr']}")
@@ -252,7 +265,7 @@ def train_dso1(
         n_estimators=500, max_depth=7, learning_rate=0.05,
         num_leaves=63, subsample=0.8, colsample_bytree=0.8,
         is_unbalance=True, metric="average_precision",
-        random_state=42, n_jobs=-1, verbose=-1,
+        random_state=42, n_jobs=N_JOBS, verbose=-1,
     )
     lgbm_model = LGBMClassifier(**lgbm_params)
     lgbm_model.fit(
@@ -265,9 +278,12 @@ def train_dso1(
     )
     print(" LightGBM entraÃ®nÃ©")
 
-    y_pred_lgbm = lgbm_model.predict(X_test)
     y_prob_lgbm = lgbm_model.predict_proba(X_test)[:, 1]
-    print(classification_report(y_test, y_pred_lgbm, target_names=CM_LABELS))
+    y_pred_lgbm = (y_prob_lgbm >= threshold).astype(int)  # same CI threshold
+    print(classification_report(
+        y_test, y_pred_lgbm,
+        labels=[0, 1], target_names=CM_LABELS, zero_division=0,
+    ))
 
     metrics_lgbm = _metrics_binary("LightGBM", y_test, y_pred_lgbm, y_prob_lgbm)
     print(f"\n  LightGBM â†’ F1={metrics_lgbm['f1']} AUC-PR={metrics_lgbm['auc_pr']}")
@@ -294,15 +310,18 @@ def train_dso1(
     rf_params = dict(
         n_estimators=300, max_depth=15, min_samples_leaf=20,
         max_features="sqrt", class_weight="balanced_subsample",
-        max_samples=0.2, random_state=42, n_jobs=-1, verbose=1,
+        max_samples=0.2, random_state=42, n_jobs=N_JOBS, verbose=1,
     )
     rf_model = RandomForestClassifier(**rf_params)
     rf_model.fit(X_train, y_train)
     print(" Random Forest entraÃ®nÃ©")
 
-    y_pred_rf = rf_model.predict(X_test)
     y_prob_rf = rf_model.predict_proba(X_test)[:, 1]
-    print(classification_report(y_test, y_pred_rf, target_names=CM_LABELS))
+    y_pred_rf = (y_prob_rf >= threshold).astype(int)  # same CI threshold
+    print(classification_report(
+        y_test, y_pred_rf,
+        labels=[0, 1], target_names=CM_LABELS, zero_division=0,
+    ))
 
     metrics_rf = _metrics_binary("Random Forest", y_test, y_pred_rf, y_prob_rf)
     print(f"\n  RF â†’ F1={metrics_rf['f1']} AUC-PR={metrics_rf['auc_pr']}")
@@ -415,7 +434,10 @@ def train_dso1(
             X_te_3d, batch_size=4096, verbose=0
         ).flatten()
         y_pred_lstm = (y_prob_lstm > 0.5).astype(int)
-        print(classification_report(y_test, y_pred_lstm, target_names=CM_LABELS))
+        print(classification_report(
+            y_test, y_pred_lstm,
+            labels=[0, 1], target_names=CM_LABELS, zero_division=0,
+        ))
 
         metrics_lstm = _metrics_binary("BiLSTM", y_test, y_pred_lstm, y_prob_lstm)
         print(f"\n  BiLSTM â†’ F1={metrics_lstm['f1']} AUC-PR={metrics_lstm['auc_pr']}")
@@ -505,7 +527,10 @@ def train_dso1(
 
         y_pred_tn = tabnet_model.predict(X_te_tn)
         y_prob_tn = tabnet_model.predict_proba(X_te_tn)[:, 1]
-        print(classification_report(y_test, y_pred_tn, target_names=CM_LABELS))
+        print(classification_report(
+            y_test, y_pred_tn,
+            labels=[0, 1], target_names=CM_LABELS, zero_division=0,
+        ))
 
         metrics_tn = _metrics_binary("TabNet", y_test, y_pred_tn, y_prob_tn)
         print(f"\n  TabNet â†’ F1={metrics_tn['f1']} AUC-PR={metrics_tn['auc_pr']}")
@@ -686,9 +711,3 @@ def train_dso1(
 # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if __name__ == "__main__":
     train_dso1()
-
-
-
-
-
-

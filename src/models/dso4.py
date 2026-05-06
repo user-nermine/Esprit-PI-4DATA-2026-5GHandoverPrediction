@@ -64,7 +64,7 @@ HO_TYPE_NAMES = [
 ]
 
 HO_TYPE_MAPPING = {name: i for i, name in enumerate(HO_TYPE_NAMES)}
-
+N_JOBS = int(os.environ.get("N_JOBS", "4"))
 # â”€â”€ Plot style (dark theme, non-interactive) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 plt.rcParams.update({
     "figure.facecolor": "#0F1117", "axes.facecolor": "#1A1D27",
@@ -297,7 +297,7 @@ def train_dso4(
         subsample=0.8, colsample_bytree=0.8,
         objective="multi:softmax", num_class=N_CLASSES,
         eval_metric="mlogloss", early_stopping_rounds=25,
-        tree_method="hist", random_state=42, n_jobs=-1,
+        tree_method="hist", random_state=42, n_jobs=N_JOBS,
         use_label_encoder=False,
     )
     xgb_d4 = XGBClassifier(**xgb_params)
@@ -347,7 +347,7 @@ def train_dso4(
         num_leaves=127, subsample=0.8, colsample_bytree=0.8,
         objective="multiclass", num_class=N_CLASSES,
         metric="multi_logloss", class_weight="balanced",
-        random_state=42, n_jobs=-1, verbose=-1,
+        random_state=42, n_jobs=N_JOBS, verbose=-1,
     )
     lgbm_d4 = LGBMClassifier(**lgbm_params)
     lgbm_d4.fit(
@@ -397,7 +397,7 @@ def train_dso4(
     rf_params = dict(
         n_estimators=250, max_depth=18, min_samples_leaf=5,
         max_features="sqrt", class_weight="balanced_subsample",
-        max_samples=0.4, random_state=42, n_jobs=-1, verbose=1,
+        max_samples=0.4, random_state=42, n_jobs=N_JOBS, verbose=1,
     )
     rf_d4 = RandomForestClassifier(**rf_params)
     rf_d4.fit(X_train, y_train)
@@ -825,5 +825,3 @@ def train_dso4(
 # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if __name__ == "__main__":
     train_dso4()
-
-
