@@ -294,7 +294,7 @@ async def ingest_cluster_kpi(cluster_id: int, kpi: ClusterKPI):
     return {"status": "ok", "cluster_id": cluster_id}
 
 
-# ── Explainability endpoints ───────────────────────────────────────────────────
+# ── Explainability endpoints ──────────────────────────────────  ─────────────────
 
 @app.get("/api/v1/explainability/cluster/{cluster_id}", response_model=ClusterExplainability)
 async def get_cluster_explainability(cluster_id: int):
