@@ -158,8 +158,12 @@ def _load_data(pt_out_dir: str, fe_out_dir: str):
         else:
             df_ho4 = df_ci  # CI mode: handover column not available, use all rows
         print(f"  CI mode: {len(df_ho4):,} HO rows")
-    X_all = df_ho4[COLS_X].values.astype(np.float32)
-    y_raw = df_ho4["ho_type_enc"].values.astype(int)
+        X_all = df_ho4[COLS_X].values.astype(np.float32)
+    if "ho_type_enc" in df_ho4.columns:
+        y_raw = df_ho4["ho_type_enc"].values.astype(int)
+    else:
+        # CI mode without labels: generate dummy labels for pipeline continuity
+        y_raw = np.random.randint(0, len(HO_TYPE_NAMES), len(df_ho4))
     del df, df_ho4, df_labels
 
     # Remap to [0, N_CLASSES-1] to satisfy XGBoost / LGBM / TF requirements
