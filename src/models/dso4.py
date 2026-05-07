@@ -668,7 +668,7 @@ def train_dso4(
     else:
         sv = np.abs(shap_values)
 
-    mean_shap = sv.mean(axis=0)
+    mean_shap = sv.mean(axis=0).flatten()
     shap_df   = pd.DataFrame({"feature": COLS_X, "shap": mean_shap}).sort_values(
         "shap", ascending=False
     )
