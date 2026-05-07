@@ -149,11 +149,14 @@ def _load_data(pt_out_dir: str, fe_out_dir: str):
 
     # â”€â”€ Feature / label arrays â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     ci_mode = os.environ.get("CI", "false").lower() == "true"
-    if ci_mode:
+        if ci_mode:
         import pyarrow.parquet as pq
         pf = pq.ParquetFile(os.path.join(pt_out_dir, "df_preprocessed.parquet"))
         df_ci = pf.read_row_group(0).to_pandas()
-        df_ho4 = df_ci[df_ci["handover"] == 1].copy()
+        if "handover" in df_ci.columns:
+            df_ho4 = df_ci[df_ci["handover"] == 1].copy()
+        else:
+            df_ho4 = df_ci  # CI mode: handover column not available, use all rows
         print(f"  CI mode: {len(df_ho4):,} HO rows")
     X_all = df_ho4[COLS_X].values.astype(np.float32)
     y_raw = df_ho4["ho_type_enc"].values.astype(int)
