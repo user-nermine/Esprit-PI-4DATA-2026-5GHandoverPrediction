@@ -149,7 +149,7 @@ def _load_data(pt_out_dir: str, fe_out_dir: str):
 
     # â”€â”€ Feature / label arrays â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     ci_mode = os.environ.get("CI", "false").lower() == "true"
-        if ci_mode:
+    if ci_mode:
         import pyarrow.parquet as pq
         pf = pq.ParquetFile(os.path.join(pt_out_dir, "df_preprocessed.parquet"))
         df_ci = pf.read_row_group(0).to_pandas()
