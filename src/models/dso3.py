@@ -658,7 +658,7 @@ def train_dso3(
     explainer   = shap.TreeExplainer(lgbm_d3)
     shap_values = explainer.shap_values(X_shap)
     # shap_values is a list of arrays (one per class) â€” average across classes
-        if isinstance(shap_values, list):
+    if isinstance(shap_values, list):
         sv = np.mean(np.abs(np.stack(shap_values, axis=0)), axis=0)
     else:
         sv = np.abs(shap_values)

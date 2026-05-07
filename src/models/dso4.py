@@ -663,10 +663,10 @@ def train_dso4(
     shap_values = explainer.shap_values(X_shap)
 
     # shap_values is a list of arrays â€” one per class. Average across classes.
-        if isinstance(shap_values, list):
+    if isinstance(shap_values, list):
         sv = np.mean(np.abs(np.stack(shap_values, axis=0)), axis=0)
     else:
-        sv = np.abs(shap_values)
+          sv = np.abs(shap_values)
 
     mean_shap = sv.mean(axis=0)
     # Ensure mean_shap is 1D and matches COLS_X length
