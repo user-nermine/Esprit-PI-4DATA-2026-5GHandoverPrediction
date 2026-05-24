@@ -1,0 +1,105 @@
+<!-- Zone Selection - Design Néon -->
+<div style="background: #ffffff; border: 1px solid rgba(30, 64, 175, 0.3); border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(10px); transition: all 0.3s ease; position: relative; overflow: hidden; margin-bottom: 2rem; box-shadow: 0 4px 20px rgba(30, 64, 175, 0.1);">
+  <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #1e40af, #2563EB, #7C3AED, #FF4D9D);"></div>
+  <div style="margin-bottom: 1.5rem;">
+    <h3 style="font-size: 1.5rem; font-weight: 700; background: linear-gradient(90deg, #1e40af, #2563EB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Zone Selection</h3>
+  </div>
+  <div style="display: flex; align-items: center; gap: 1rem;">
+    <label style="color: #1e40af; font-weight: 600;">Select Zone:</label>
+    <select [(ngModel)]="selectedZone" (change)="onZoneChange($event)" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.1), rgba(37, 99, 235, 0.1)); border: 1px solid rgba(30, 64, 175, 0.2); color: #1e40af; padding: 0.5rem 1rem; border-radius: 10px; font-weight: 600; backdrop-filter: blur(10px);">
+      <option value="">All Zones</option>
+      <option *ngFor="let zone of availableZones" [value]="zone">{{ zone }}</option>
+    </select>
+    <button (click)="refreshZoneData()" style="background: linear-gradient(135deg, #1e40af, #2563EB); border: 1px solid #1e40af; color: black; padding: 0.5rem 1rem; border-radius: 15px; font-weight: 600; backdrop-filter: blur(10px); transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 64, 175, 0.2);">
+      <i class="fa fa-refresh" style="margin-right: 0.5rem;"></i> Refresh
+    </button>
+  </div>
+  <div style="margin-top: 1rem; color: #6c757d; font-size: 0.9rem;">
+    <strong>Currently displaying:</strong> {{ selectedZone || 'All Zones' }}
+    <span style="margin-left: 1rem; color: #1e40af;">
+      Last updated: {{ lastUpdateTime }}
+    </span>
+  </div>
+</div>
+
+<!-- Zone Table - 9 Zones Uniques -->
+<div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(37, 99, 235, 0.05)); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(10px); position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(30, 64, 175, 0.1);">
+  <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #1e40af, #2563EB, #7C3AED, #FF4D9D);"></div>
+
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse;">
+      <tbody>
+        <tr *ngFor="let cell of getFilteredCells()" style="border-bottom: 1px solid rgba(255, 77, 157, 0.1); transition: all 0.3s ease;">
+          <td style="padding: 1rem;"><strong style="color: #1e40af;">{{ cell.clusterId }}</strong></td>
+          <td style="padding: 1rem;"><span style="background: linear-gradient(135deg, #1e40af, #2563EB); color: black; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600;">{{ cell.zone }}</span></td>
+          <td style="padding: 1rem; color: #1a1a1a;">{{ cell.rsrp }} dBm</td>
+          <td style="padding: 1rem; color: #1a1a1a;">{{ cell.sinr }} dB</td>
+          <td style="padding: 1rem;"><span style="background: linear-gradient(135deg, #7C3AED, #FF4D9D); color: black; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600;">{{ cell.ho }}</span></td>
+          <td style="padding: 1rem;"><span style="background: linear-gradient(135deg, #10B981, #059669); color: black; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600;">{{ (cell.coverage * 100).toFixed(0) }}%</span></td>
+          <td style="padding: 1rem; color: #1a1a1a;">{{ cell.ues }}</td>
+          <td style="padding: 1rem;"><span style="background: linear-gradient(135deg, #7C3AED, #FF4D9D); color: black; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600;">{{ cell.cellStatus }}</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Report buttons removed due to compilation errors -->
+<!-- Diagnosis Charts - Design Néon -->
+<div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(37, 99, 235, 0.05)); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(10px); position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(30, 64, 175, 0.1);">
+  <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #1e40af, #2563EB, #7C3AED, #FF4D9D);"></div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+    <div>
+      <h4 style="font-size: 1.2rem; font-weight: 600; color: #1e40af; margin-bottom: 1rem;">HO Instability Analysis</h4>
+      <div style="position:relative;height:200px;background:rgba(30,64,175,0.05);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+        <canvas id="chartDiag1" style="max-height:180px;"></canvas>
+      </div>
+    </div>
+    <div>
+      <h4 style="font-size: 1.2rem; font-weight: 600; color: #1e40af; margin-bottom: 1rem;">Signal Stability Metrics</h4>
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div style="margin-bottom:1rem;">
+          <div style="color:#1e40af;font-weight:600;margin-bottom:0.5rem;">RSRP Stability</div>
+          <div style="background:rgba(30,64,175,0.1);border-radius:10px;height:8px;overflow:hidden;">
+            <div [style]="'width:' + diagnosisMetrics.rsrpStability + '%;background:linear-gradient(90deg,#1e40af,#2563EB);height:100%;transition:width 0.3s ease;'"></div>
+          </div>
+          <div style="color:#1e40af;font-size:0.9rem;margin-top:0.25rem;">{{ diagnosisMetrics.rsrpStability.toFixed(1) }}%</div>
+        </div>
+        <div style="margin-bottom:1rem;">
+          <div style="color:#1e40af;font-weight:600;margin-bottom:0.5rem;">SINR Stability</div>
+          <div style="background:rgba(30,64,175,0.1);border-radius:10px;height:8px;overflow:hidden;">
+            <div [style]="'width:' + diagnosisMetrics.sinrStability + '%;background:linear-gradient(90deg,#2563EB,#7C3AED);height:100%;transition:width 0.3s ease;'"></div>
+          </div>
+          <div style="color:#1e40af;font-size:0.9rem;margin-top:0.25rem;">{{ diagnosisMetrics.sinrStability.toFixed(1) }}%</div>
+        </div>
+        <div style="margin-bottom:1rem;">
+          <div style="color:#1e40af;font-weight:600;margin-bottom:0.5rem;">HO Consistency</div>
+          <div style="background:rgba(30,64,175,0.1);border-radius:10px;height:8px;overflow:hidden;">
+            <div [style]="'width:' + diagnosisMetrics.hoConsistency + '%;background:linear-gradient(90deg,#7C3AED,#FF4D9D);height:100%;transition:width 0.3s ease;'"></div>
+          </div>
+          <div style="color:#1e40af;font-size:0.9rem;margin-top:0.25rem;">{{ diagnosisMetrics.hoConsistency.toFixed(1) }}%</div>
+        </div>
+        <div style="margin-bottom:1rem;">
+          <div style="color:#FF4D9D;font-weight:600;margin-bottom:0.5rem;">RSRP Drop Risk</div>
+          <div style="background:rgba(255,77,157,0.1);border-radius:10px;height:8px;overflow:hidden;">
+            <div [style]="'width:' + diagnosisMetrics.rsrpDropRisk + '%;background:linear-gradient(90deg,#FF4D9D,#DC2626);height:100%;transition:width 0.3s ease;'"></div>
+          </div>
+          <div style="color:#FF4D9D;font-size:0.9rem;margin-top:0.25rem;">{{ diagnosisMetrics.rsrpDropRisk.toFixed(1) }}%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HO Type Distribution Chart - Design Néon -->
+<div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(37, 99, 235, 0.05)); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(10px); position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(30, 64, 175, 0.1);">
+  <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #1e40af, #2563EB, #7C3AED, #FF4D9D);"></div>
+  <div>
+    <h4 style="font-size: 1.2rem; font-weight: 600; color: #1e40af; margin-bottom: 1rem;">HO Type Distribution</h4>
+    <div style="position:relative;height:200px;background:rgba(30,64,175,0.05);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+      <canvas id="chartHOType" style="max-height:180px;"></canvas>
+    </div>
+  </div>
+</div>
+
+

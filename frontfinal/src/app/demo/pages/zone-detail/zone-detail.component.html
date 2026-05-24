@@ -1,0 +1,259 @@
+<!-- Loading State -->
+<div class="row" *ngIf="loading" style="min-height: 100vh; background: linear-gradient(135deg, #f8fafc, #e2e8f0); display: flex; align-items: center; justify-content: center;">
+  <div class="col-12 text-center">
+    <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 20px; padding: 3rem; backdrop-filter: blur(10px);">
+      <div style="width: 60px; height: 60px; border: 4px solid rgba(59, 130, 246, 0.3); border-top: 4px solid #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 2rem;"></div>
+      <h4 style="color: #1e40af; font-weight: 600; margin-bottom: 1rem;">Chargement des données de zone...</h4>
+      <p style="color: #64748b; margin: 0;">Récupération des informations depuis le backend</p>
+    </div>
+  </div>
+</div>
+
+<!-- Error State -->
+<div class="row" *ngIf="errorMessage && !loading" style="min-height: 100vh; background: linear-gradient(135deg, #f8fafc, #e2e8f0); display: flex; align-items: center; justify-content: center;">
+  <div class="col-12 text-center">
+    <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 20px; padding: 3rem; backdrop-filter: blur(10px);">
+      <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
+      <h4 style="color: #dc2626; font-weight: 600; margin-bottom: 1rem;">Erreur de chargement</h4>
+      <p style="color: #64748b; margin-bottom: 2rem;">{{ errorMessage }}</p>
+      <a [routerLink]="['/dashboard']" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 0.75rem 1.5rem; border-radius: 12px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+        ← Retour au Dashboard
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="row" *ngIf="zone && !loading && !errorMessage">
+
+  <!-- HEADER MODE LIGHT -->
+  <div class="col-12 mb-4">
+    <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(29, 78, 216, 0.05)); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 16px; padding: 2rem; backdrop-filter: blur(10px); position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);">
+      <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #3b82f6, #1d4ed8, #7c3aed, #ec4899);"></div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(90deg, #3b82f6, #1d4ed8, #7c3aed, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0;">
+            {{ zone.name }} — Zone Details
+          </h3>
+          <p style="color: #64748b; margin: 0.5rem 0 0 0; font-size: 1.1rem;">
+            Network Operations Center — real-time network health monitoring and alert management
+          </p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <span style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2);">
+            ⚡ Live
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATISTIQUES GÉNÉRALES DE LA ZONE -->
+  <div class="col-12 mb-3">
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h5 style="color: #1e293b; font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">Network Statistics — {{ zone.name }}</h5>
+      </div>
+
+      <!-- STATS ZONE -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <span style="font-size: 13px; color: #64748b; font-weight: 500;">Total gNBs</span>
+          <span style="font-size: 14px; font-weight: 700; color: #1e293b;">{{ zone.totalGnbs }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <span style="font-size: 13px; color: #64748b; font-weight: 500;">Active UEs</span>
+          <span style="font-size: 14px; font-weight: 700; color: #1e293b;">{{ zone.activeUes }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <span style="font-size: 13px; color: #64748b; font-weight: 500;">HO Success</span>
+          <span style="font-size: 14px; font-weight: 700; color: #1e293b;">{{ zone.hoSuccess }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <span style="font-size: 13px; color: #64748b; font-weight: 500;">Throughput</span>
+          <span style="font-size: 14px; font-weight: 700; color: #1e293b;">{{ zone.throughput }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <span style="font-size: 13px; color: #64748b; font-weight: 500;">Alarms</span>
+          <span style="font-size: 14px; font-weight: 700; color: #1e293b;">{{ zone.alarms }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- LOG CHRONOLOGIQUE -->
+<div class="col-12 mb-3">
+  <div style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+    <div style="padding: 0.5rem;">
+
+      <h5 style="color: #1e293b; font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem;">Log Chronologique</h5>
+
+      <div class="zdb-timeline">
+
+        <div class="zdb-timeline-row">
+          <div class="zdb-timeline-left">
+            <div class="zdb-circle zdb-circle-red"></div>
+            <div class="zdb-line"></div>
+          </div>
+          <div class="zdb-content zdb-content-red">
+            <p class="zdb-log-time text-danger">14:24:21 CRITIQUE</p>
+            <p class="zdb-content-sub">HO Failure Rate 14.5% · gNB-004 · cell 211→334</p>
+          </div>
+        </div>
+
+        <div class="zdb-timeline-row">
+          <div class="zdb-timeline-left">
+            <div class="zdb-circle zdb-circle-amber"></div>
+            <div class="zdb-line"></div>
+          </div>
+          <div class="zdb-content zdb-content-amber">
+            <p class="zdb-log-time text-warning">14:23:45 WARNING</p>
+            <p class="zdb-content-sub">RSRP dégradé · gNB-002 · rsrp_drop_flag=1</p>
+          </div>
+        </div>
+
+        <div class="zdb-timeline-row">
+          <div class="zdb-timeline-left">
+            <div class="zdb-circle zdb-circle-red"></div>
+            <div class="zdb-line"></div>
+          </div>
+          <div class="zdb-content zdb-content-red">
+            <p class="zdb-log-time text-danger">14:22:10 CRITIQUE</p>
+            <p class="zdb-content-sub">Interférence EARFCN 1800 · sinr 1.8 dB</p>
+          </div>
+        </div>
+
+        <div class="zdb-timeline-row">
+          <div class="zdb-timeline-left">
+            <div class="zdb-circle zdb-circle-blue"></div>
+            <div class="zdb-line"></div>
+          </div>
+          <div class="zdb-content zdb-content-blue">
+            <p class="zdb-log-time" style="color:#3b82f6;">14:21:33 INFO</p>
+            <p class="zdb-content-sub">Congestion gNB-006 · cluster_risk 0.51</p>
+          </div>
+        </div>
+
+        <div class="zdb-timeline-row">
+          <div class="zdb-timeline-left">
+            <div class="zdb-circle zdb-circle-amber"></div>
+            <div class="zdb-line"></div>
+          </div>
+          <div class="zdb-content zdb-content-amber">
+            <p class="zdb-log-time text-warning">14:20:55 WARNING</p>
+            <p class="zdb-content-sub">Latence 52ms · gNB-008 · pkt_loss 3.2%</p>
+          </div>
+        </div>
+
+        <div class="zdb-timeline-row">
+          <div class="zdb-timeline-left">
+            <div class="zdb-circle zdb-circle-amber"></div>
+            <div class="zdb-line"></div>
+          </div>
+          <div class="zdb-content zdb-content-amber">
+            <p class="zdb-log-time text-warning">14:19:12 WARNING</p>
+            <p class="zdb-content-sub">Velocity spike 124.5 km/h · hbahn · gNB-004</p>
+          </div>
+        </div>
+
+        <div class="zdb-timeline-row">
+          <div class="zdb-timeline-left">
+            <div class="zdb-circle zdb-circle-purple"></div>
+            <div class="zdb-line"></div>
+          </div>
+          <div class="zdb-content zdb-content-purple">
+            <p class="zdb-log-time" style="color:#7c3aed;">14:17:44 TRANSITION</p>
+            <p class="zdb-content-sub">inter_RAT_NR détecté · earfcn change · MNC=1</p>
+          </div>
+        </div>
+
+        <div class="zdb-timeline-row">
+          <div class="zdb-timeline-left">
+            <div class="zdb-circle zdb-circle-green"></div>
+            <div class="zdb-line"></div>
+          </div>
+          <div class="zdb-content zdb-content-green">
+            <p class="zdb-log-time" style="color:#16a34a;">14:15:30 RÉSOLU</p>
+            <p class="zdb-content-sub">gNB-007 restauré · rsrp −84.6 · nominal</p>
+          </div>
+        </div>
+
+        <div class="zdb-timeline-row">
+          <div class="zdb-timeline-left">
+            <div class="zdb-circle zdb-circle-amber"></div>
+            <div class="zdb-line"></div>
+          </div>
+          <div class="zdb-content zdb-content-amber">
+            <p class="zdb-log-time text-warning">14:10:00 WARNING</p>
+            <p class="zdb-content-sub">inter_freq surge Zone C · 34.1% (norm 21.7%)</p>
+          </div>
+        </div>
+
+        <div class="zdb-timeline-row">
+          <div class="zdb-timeline-left">
+            <div class="zdb-circle zdb-circle-blue"></div>
+            <div class="zdb-line"></div>
+          </div>
+          <div class="zdb-content zdb-content-blue">
+            <p class="zdb-log-time" style="color:#3b82f6;">14:05:00 DRIFT</p>
+            <p class="zdb-content-sub">PSI score >0.25 · rsrp_gap feature · retrain</p>
+          </div>
+        </div>
+
+        <div class="zdb-timeline-row">
+          <div class="zdb-timeline-left">
+            <div class="zdb-circle zdb-circle-green"></div>
+          </div>
+          <div class="zdb-content zdb-content-green">
+            <p class="zdb-log-time" style="color:#16a34a;">13:58:00 RÉSOLU</p>
+            <p class="zdb-content-sub">Zone Nord dégradation résolue · HO stable</p>
+          </div>
+        </div>
+
+      </div>
+
+     <!-- ACTIONS RECOMMANDÉES -->
+<div class="col-12 mb-3">
+  <div class="card noc-section-card">
+    <div class="card-body">
+
+      <p class="zdb-section-title mb-3">Actions Recommandées Automatiques</p>
+
+      <div class="zda-grid">
+
+        <div class="zda-card zda-urgent">
+          <p class="zda-label">Urgent</p>
+          <p class="zda-title">Intervention rapide</p>
+          <p class="zda-sub">Réajuster tilt et puissance · gNB-004 · Zone C</p>
+          <button class="zda-btn zda-btn-red" (click)="onAction('intervenir')">Exécuter</button>
+        </div>
+
+        <div class="zda-card zda-warn">
+          <p class="zda-label">Escalade</p>
+          <p class="zda-title">Escalade équipe RAN</p>
+          <p class="zda-sub">Interférence EARFCN 1800 · Zone C</p>
+          <button class="zda-btn zda-btn-amber" (click)="onAction('escalader')">Escalader</button>
+        </div>
+
+        <div class="zda-card zda-info">
+          <p class="zda-label">Surveillance</p>
+          <p class="zda-title">Prévention panne</p>
+          <p class="zda-sub">Surveiller gNB-002 · RSRP en chute</p>
+          <button class="zda-btn zda-btn-blue" (click)="onAction('surveiller')">Surveiller</button>
+        </div>
+
+        <div class="zda-card zda-ml">
+          <p class="zda-label">ML</p>
+          <p class="zda-title">Notif. équipe technique</p>
+          <p class="zda-sub">Optimiser handover · Zone C → Zone B</p>
+          <button class="zda-btn zda-btn-purple" (click)="onAction('notifier')">Notifier</button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

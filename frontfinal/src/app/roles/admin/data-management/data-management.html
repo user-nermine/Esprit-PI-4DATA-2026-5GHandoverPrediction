@@ -1,0 +1,135 @@
+<div class="row">
+
+  <!-- Metrics Row -->
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body">
+        <p class="text-muted mb-1">Total Storage</p>
+        <h3 class="fw-bold">2.4 TB</h3>
+        <small class="text-muted">MinIO cluster</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body">
+        <p class="text-muted mb-1">Datasets</p>
+        <h3 class="fw-bold">18</h3>
+        <small class="text-muted">Active datasets</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body">
+        <p class="text-muted mb-1">Data Integrity</p>
+        <h3 class="fw-bold text-success">99.98%</h3>
+        <small class="text-success">All checks pass</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center">
+      <div class="card-body">
+        <p class="text-muted mb-1">Access Logs (24h)</p>
+        <h3 class="fw-bold">1,247</h3>
+        <small class="text-muted">API calls</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dataset Storage + Data Access Control -->
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h5>Dataset Storage (MinIO)</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>DATASET</th>
+                <th>SIZE</th>
+                <th>SAMPLES</th>
+                <th>ACCESS</th>
+                <th>LAST UPDATED</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let ds of datasets">
+                <td>{{ ds.name }}</td>
+                <td>{{ ds.size }}</td>
+                <td>{{ ds.samples }}</td>
+                <td><span class="badge" [ngClass]="ds.accessColor">{{ ds.access }}</span></td>
+                <td>{{ ds.lastUpdated }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h5>Data Access Control</h5>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label">Select Dataset</label>
+          <select class="form-control" [(ngModel)]="selectedDataset">
+            <option>HO Training Data (30d)</option>
+            <option>HO Training Data (60d)</option>
+            <option>Anomaly Labels</option>
+            <option>Production Logs</option>
+            <option>Model Files (pkl)</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Grant Access To</label>
+          <select class="form-control" [(ngModel)]="grantAccessTo">
+            <option>Data Scientist</option>
+            <option>RAN Engineer</option>
+            <option>NOC Engineer</option>
+            <option>All Roles</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Permission Level</label>
+          <select class="form-control" [(ngModel)]="permissionLevel">
+            <option>Read Only</option>
+            <option>Read/Write</option>
+            <option>Full Control</option>
+          </select>
+        </div>
+        <button class="btn btn-primary w-100" (click)="updatePermissions()">
+          Update Permissions
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Integrity Checks -->
+  <div class="col-sm-12">
+    <div class="card">
+      <div class="card-header">
+        <h5>Data Integrity Checks</h5>
+      </div>
+      <div class="card-body">
+        <div *ngFor="let check of integrityChecks"
+             class="d-flex justify-content-between align-items-center p-3 mb-2 border rounded">
+          <div>
+            <div class="fw-500">{{ check.name }}</div>
+            <small class="text-muted">{{ check.result }}</small>
+          </div>
+          <span class="badge" [ngClass]="check.status === 'pass' ? 'bg-success' : 'bg-warning'">
+            {{ check.status === 'pass' ? '✓ Pass' : '⚠ Review' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,79 @@
+<div class="row">
+  <div class="col-sm-12">
+    <div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(29, 78, 216, 0.05)); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 20px; padding: 2rem; backdrop-filter: blur(10px); position: relative; overflow: hidden; box-shadow: 0 8px 32px rgba(30, 64, 175, 0.1);">
+      <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #1e40af, #1d4ed8, #7C3AED, #FF4D9D);"></div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h5 style="color: #000000; font-size: 1.5rem; font-weight: 700; margin: 0;">Roles & Permissions</h5>
+        <span style="background: linear-gradient(135deg, #22c55e, #16a34a); color: black; padding: 0.5rem 1rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);">
+          🔐 Security Management
+        </span>
+      </div>
+      <div style="padding: 0.5rem;">
+        <div class="row">
+          <div class="col-md-6 mb-4" *ngFor="let role of roles">
+            <div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(29, 78, 216, 0.05)); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 16px; padding: 1.5rem; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(30, 64, 175, 0.1); height: 100%;">
+              <div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.1), rgba(29, 78, 216, 0.1)); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;" [style.background]="role.color === 'bg-primary' ? 'linear-gradient(135deg, rgba(30, 64, 175, 0.2), rgba(29, 78, 216, 0.2))' : role.color === 'bg-success' ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.2))' : role.color === 'bg-warning' ? 'linear-gradient(135deg, rgba(251, 146, 60, 0.2), rgba(245, 158, 11, 0.2))' : role.color === 'bg-danger' ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2))' : 'linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(109, 40, 217, 0.2))'">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <h6 style="color: #000000; font-size: 1.1rem; font-weight: 700; margin: 0;" [style.color]="role.color === 'bg-primary' ? '#1e40af' : role.color === 'bg-success' ? '#22c55e' : role.color === 'bg-warning' ? '#FB923C' : role.color === 'bg-danger' ? '#EF4444' : '#7C3AED'">{{ role.name }}</h6>
+                  <span style="background: rgba(0, 0, 0, 0.2); color: black; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; backdrop-filter: blur(10px);">{{ role.usersCount }} users</span>
+                </div>
+              </div>
+              <div style="padding: 0.5rem;">
+                <p style="color: #6c757d; font-size: 0.85rem; margin-bottom: 1rem;">{{ role.description }}</p>
+                <h6 style="color: #1e40af; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem;">Permissions:</h6>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                  <li *ngFor="let permission of role.permissions" style="margin-bottom: 0.5rem; display: flex; align-items: center;">
+                    <i class="feather icon-check-circle" style="color: #22c55e; margin-right: 0.5rem; font-size: 14px;"></i>
+                    <span style="color: #000000; font-size: 0.85rem;">{{ permission }}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Role Permissions Matrix -->
+        <div style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.05), rgba(109, 40, 217, 0.05)); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 16px; padding: 1.5rem; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(124, 58, 237, 0.1); margin-top: 1.5rem;">
+          <div style="padding: 0.5rem;">
+            <h6 style="color: #000000; font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem;">Role Permissions Matrix</h6>
+            <div style="background: rgba(0, 0, 0, 0.05); border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 12px; overflow: hidden; backdrop-filter: blur(10px);">
+              <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(109, 40, 217, 0.1));">
+                    <th style="padding: 1rem; color: #7C3AED; font-weight: 600; text-align: left; border-bottom: 1px solid rgba(124, 58, 237, 0.2);">FEATURE</th>
+                    <th style="padding: 1rem; color: #7C3AED; font-weight: 600; text-align: center; border-bottom: 1px solid rgba(124, 58, 237, 0.2);">RAN</th>
+                    <th style="padding: 1rem; color: #7C3AED; font-weight: 600; text-align: center; border-bottom: 1px solid rgba(124, 58, 237, 0.2);">PERF</th>
+                    <th style="padding: 1rem; color: #7C3AED; font-weight: 600; text-align: center; border-bottom: 1px solid rgba(124, 58, 237, 0.2);">NOC</th>
+                    <th style="padding: 1rem; color: #7C3AED; font-weight: 600; text-align: center; border-bottom: 1px solid rgba(124, 58, 237, 0.2);">DS</th>
+                    <th style="padding: 1rem; color: #7C3AED; font-weight: 600; text-align: center; border-bottom: 1px solid rgba(124, 58, 237, 0.2);">ADMIN</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let feature of permissionsMatrix" style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s ease;">
+                    <td style="padding: 1rem; color: #ffffff; font-weight: 500; text-align: left;">{{ feature.name }}</td>
+                    <td style="padding: 1rem; text-align: center;">
+                      <i class="feather" [ngClass]="feature.ran ? 'icon-check-square' : 'icon-x'" [style.color]="feature.ran ? '#22c55e' : '#EF4444'" [style.font-size]="'16px'"></i>
+                    </td>
+                    <td style="padding: 1rem; text-align: center;">
+                      <i class="feather" [ngClass]="feature.perf ? 'icon-check-square' : 'icon-x'" [style.color]="feature.perf ? '#22c55e' : '#EF4444'" [style.font-size]="'16px'"></i>
+                    </td>
+                    <td style="padding: 1rem; text-align: center;">
+                      <i class="feather" [ngClass]="feature.noc ? 'icon-check-square' : 'icon-x'" [style.color]="feature.noc ? '#22c55e' : '#EF4444'" [style.font-size]="'16px'"></i>
+                    </td>
+                    <td style="padding: 1rem; text-align: center;">
+                      <i class="feather" [ngClass]="feature.ds ? 'icon-check-square' : 'icon-x'" [style.color]="feature.ds ? '#22c55e' : '#EF4444'" [style.font-size]="'16px'"></i>
+                    </td>
+                    <td style="padding: 1rem; text-align: center;">
+                      <i class="feather" [ngClass]="feature.admin ? 'icon-check-square' : 'icon-x'" [style.color]="feature.admin ? '#22c55e' : '#EF4444'" [style.font-size]="'16px'"></i>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

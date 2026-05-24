@@ -1,0 +1,230 @@
+<div class="page">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div>
+      <div class="page-title">Retraining Trigger</div>
+      <div class="breadcrumb-rt">Data Scientist / <span>Retraining</span></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card c1">
+      <div class="kpi-icon"><i class="feather icon-box"></i></div>
+      <div class="kpi-lbl">Active model</div>
+      <div class="kpi-val cyan">TabNet</div>
+      <div class="kpi-sub">DSO1 &middot; deployed 12 days ago</div>
+    </div>
+    <div class="kpi-card c2">
+      <div class="kpi-icon"><i class="feather icon-trending-up"></i></div>
+      <div class="kpi-lbl">Current F1</div>
+      <div class="kpi-val warn">0.791</div>
+      <div class="kpi-sub">&#8595; 0.031 vs baseline 0.822</div>
+    </div>
+    <div class="kpi-card c3">
+      <div class="kpi-icon"><i class="feather icon-alert-triangle"></i></div>
+      <div class="kpi-lbl">Drift status</div>
+      <div class="kpi-val danger">Critical</div>
+      <div class="kpi-sub">PSI(RSRP) = 0.82 &gt; 0.20</div>
+    </div>
+    <div class="kpi-card c4">
+      <div class="kpi-icon"><i class="feather icon-clock"></i></div>
+      <div class="kpi-lbl">Last retrain</div>
+      <div class="kpi-val ok">23 days ago</div>
+      <div class="kpi-sub">XGBoost &#8594; TabNet</div>
+    </div>
+  </div>
+
+  <!-- Drift + Config -->
+  <div class="two-col">
+
+    <!-- Drift Detection -->
+    <div class="ncard">
+      <div class="ncard-title">
+        Drift Detection Status
+        <button class="btn-sec" style="width:auto;padding:4px 12px;font-size:11px">
+          <i class="feather icon-refresh-cw"></i> Refresh
+        </button>
+      </div>
+      <div class="tab-row">
+        <button class="tab" [class.active]="activeTab === 'features'" (click)="activeTab = 'features'">Features</button>
+        <button class="tab" [class.active]="activeTab === 'labels'"   (click)="activeTab = 'labels'">Labels</button>
+        <button class="tab" [class.active]="activeTab === 'psi'"      (click)="activeTab = 'psi'">PSI</button>
+      </div>
+
+      <div class="drift-row">
+        <div class="drift-meta">
+          <span class="drift-name">Feature Drift Score</span>
+          <div class="drift-right">
+            <span class="drift-val" style="color:#f59e0b">0.72</span>
+            <span class="dbadge warn">Warning</span>
+          </div>
+        </div>
+        <div class="track"><div class="fill f-orange" style="width:72%"></div></div>
+      </div>
+      <div class="drift-row">
+        <div class="drift-meta">
+          <span class="drift-name">Label Drift Score</span>
+          <div class="drift-right">
+            <span class="drift-val" style="color:#34d399">0.45</span>
+            <span class="dbadge ok">Normal</span>
+          </div>
+        </div>
+        <div class="track"><div class="fill f-green" style="width:45%"></div></div>
+      </div>
+      <div class="drift-row">
+        <div class="drift-meta">
+          <span class="drift-name">PSI (RSRP)</span>
+          <div class="drift-right">
+            <span class="drift-val" style="color:#f87171">0.82</span>
+            <span class="dbadge danger">Critical</span>
+          </div>
+        </div>
+        <div class="track"><div class="fill f-red" style="width:82%"></div></div>
+      </div>
+      <div class="drift-row">
+        <div class="drift-meta">
+          <span class="drift-name">PSI (SINR)</span>
+          <div class="drift-right">
+            <span class="drift-val" style="color:#34d399">0.38</span>
+            <span class="dbadge ok">Normal</span>
+          </div>
+        </div>
+        <div class="track"><div class="fill f-green" style="width:38%"></div></div>
+      </div>
+      <div class="drift-row">
+        <div class="drift-meta">
+          <span class="drift-name">PSI (tx_power)</span>
+          <div class="drift-right">
+            <span class="drift-val" style="color:#f59e0b">0.61</span>
+            <span class="dbadge warn">Warning</span>
+          </div>
+        </div>
+        <div class="track"><div class="fill f-orange" style="width:61%"></div></div>
+      </div>
+
+      <div class="alert-box alert-danger">
+        <i class="feather icon-alert-triangle" style="font-size:14px;flex-shrink:0;margin-top:1px"></i>
+        PSI for RSRP exceeds threshold 0.20. Retraining strongly recommended within 48h.
+      </div>
+      <div class="alert-box alert-info" style="margin-top:6px">
+        <i class="feather icon-info" style="font-size:14px;flex-shrink:0;margin-top:1px"></i>
+        Feature drift detected on tx_power_T1 — likely caused by network config changes in environment <strong>hbahn</strong>.
+      </div>
+    </div>
+
+    <!-- Retraining Configuration -->
+    <div class="ncard2">
+      <div class="ncard-title2">Retraining Configuration</div>
+
+      <div class="form-group">
+        <label class="form-label">Trigger Mode</label>
+        <select [(ngModel)]="triggerMode">
+          <option>Manual</option>
+          <option>Automatic (PSI threshold)</option>
+          <option>Scheduled</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Target DSO</label>
+        <select [(ngModel)]="targetDso">
+          <option>DSO1 — HO Prediction (TabNet)</option>
+          <option>DSO2 — Signal Degradation (XGBoost)</option>
+          <option>DSO3 — Next Best Cell (XGBoost)</option>
+          <option>DSO4 — HO Type (LightGBM)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Training Dataset</label>
+        <select [(ngModel)]="datasetSize">
+          <option>Last 30 days (48,320 samples)</option>
+          <option>Last 60 days (96,640 samples)</option>
+          <option>Full dataset (12.6M rows)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Model Architecture</label>
+        <select [(ngModel)]="modelArch">
+          <option>TabNet (current best)</option>
+          <option>XGBoost</option>
+          <option>LightGBM</option>
+          <option>Random Forest</option>
+          <option>BiLSTM</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Retraining Rationale</label>
+        <textarea [(ngModel)]="rationale"
+          placeholder="Document the reason: drift type, performance degradation, new data..."></textarea>
+      </div>
+
+      <button class="btn-trigger" (click)="triggerRetraining()">
+        <i class="feather icon-zap"></i> Trigger Retraining
+      </button>
+      <div class="action-row">
+        <button class="btn-sec"><i class="feather icon-calendar"></i> Schedule</button>
+        <button class="btn-sec"><i class="feather icon-activity"></i> Dry Run</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Grid -->
+  <div class="bottom-grid">
+
+    <!-- Performance Degradation -->
+    <div class="bcard">
+      <div class="bcard-title">Performance Degradation</div>
+      <div class="perf-compare">
+        <div class="perf-box">
+          <div class="perf-box-title base">Baseline (deploy)</div>
+          <div class="prow"><span>F1</span><span>0.822</span></div>
+          <div class="prow"><span>AUC-PR</span><span>0.923</span></div>
+          <div class="prow"><span>Recall</span><span>97.5%</span></div>
+          <div class="prow"><span>FP rate</span><span>11.8%</span></div>
+        </div>
+        <div class="perf-box">
+          <div class="perf-box-title live">Current (live)</div>
+          <div class="prow"><span>F1</span><span class="down">0.791 &#8595;</span></div>
+          <div class="prow"><span>AUC-PR</span><span class="down">0.887 &#8595;</span></div>
+          <div class="prow"><span>Recall</span><span class="down">94.1% &#8595;</span></div>
+          <div class="prow"><span>FP rate</span><span class="up-bad">15.3% &#8593;</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Retraining History -->
+    <div class="bcard2">
+      <div class="bcard2-title">Retraining History</div>
+      <div class="hist-row">
+        <div class="hdot" style="background:#34d399"></div>
+        <div class="hdate">Apr 17, 2026</div>
+        <div class="hmodel">XGBoost &#8594; TabNet (DSO1)</div>
+        <div class="hdelta ok">F1 +0.077</div>
+      </div>
+      <div class="hist-row">
+        <div class="hdot" style="background:#34d399"></div>
+        <div class="hdate">Mar 02, 2026</div>
+        <div class="hmodel">LightGBM &#8594; XGBoost (DSO3)</div>
+        <div class="hdelta ok">Acc +0.024</div>
+      </div>
+      <div class="hist-row">
+        <div class="hdot" style="background:#f59e0b"></div>
+        <div class="hdate">Jan 15, 2026</div>
+        <div class="hmodel">RF &#8594; LightGBM (DSO4)</div>
+        <div class="hdelta warn">F1 +0.009</div>
+      </div>
+      <div class="hist-row">
+        <div class="hdot" style="background:#f87171"></div>
+        <div class="hdate">Dec 03, 2025</div>
+        <div class="hmodel">BiLSTM (DSO1) — rolled back</div>
+        <div class="hdelta bad">F1 &#8595;0.74</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

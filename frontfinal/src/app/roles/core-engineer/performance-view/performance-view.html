@@ -1,0 +1,70 @@
+<!-- Header -->
+<div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(37, 99, 235, 0.05)); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 20px; padding: 2rem; margin-bottom: 2rem; backdrop-filter: blur(10px); position: relative; overflow: hidden; box-shadow: 0 8px 32px rgba(30, 64, 175, 0.1);">
+  <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #1e40af, #2563EB, #7C3AED, #FF4D9D);"></div>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h1 style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(90deg, #1e40af, #2563EB, #7C3AED, #FF4D9D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0;">Core Engineer</h1>
+      <p style="color: #6c757d; margin: 0.5rem 0 0 0; font-size: 1.1rem;">Performance visualization</p>
+    </div>
+  </div>
+  <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+    <span style="background: rgba(30, 64, 175, 0.1); color: #1e40af; padding: 0.3rem 1rem; border-radius: 20px; font-weight: 500; font-size: 0.85rem;">Performance View</span>
+    <span style="background: transparent; color: #6c757d; padding: 0.3rem 1rem; border-radius: 20px; font-weight: 500; font-size: 0.85rem;">Explainability</span>
+  </div>
+  <!-- Zone Selector -->
+  <div style="margin-top: 1rem;">
+    <label style="color: #1e40af; font-weight: 600; font-size: 1rem;">Select Zone:</label>
+    <span style="color: #000; font-weight: 600; margin-left: 0.5rem;">Zone_77</span>
+  </div>
+</div>
+
+<!-- HO Statistics -->
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+  <!-- Total HO Samples -->
+  <div style="background: rgba(30, 64, 175, 0.05); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 15px; padding: 1.5rem;">
+    <h4 style="color: #1e40af; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">Total HO Samples</h4>
+    <h2 style="color: #000; font-size: 2rem; font-weight: 700; margin: 0;">7 740 000</h2>
+    <p style="color: #6c757d; font-size: 0.85rem; margin-top: 0.5rem;">Last 30 days</p>
+  </div>
+
+  <!-- Successful HO -->
+  <div style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: 15px; padding: 1.5rem;">
+    <h4 style="color: #2563EB; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">Successful HO</h4>
+    <h2 style="color: #000; font-size: 2rem; font-weight: 700; margin: 0;">7 140 000</h2>
+    <p style="color: #6c757d; font-size: 0.85rem; margin-top: 0.5rem;">Success rate: 92.3%</p>
+  </div>
+
+  <!-- Failed HO -->
+  <div style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 15px; padding: 1.5rem;">
+    <h4 style="color: #7C3AED; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">Failed HO</h4>
+    <h2 style="color: #000; font-size: 2rem; font-weight: 700; margin: 0;">600 000</h2>
+    <p style="color: #6c757d; font-size: 0.85rem; margin-top: 0.5rem;">Failure rate: 7.7%</p>
+  </div>
+</div>
+
+<!-- API Performance -->
+<div>
+  <h3 style="color: #1e40af; margin-bottom: 1rem;">API Performance</h3>
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+    <!-- Latence Inférence -->
+    <div style="background: rgba(30, 64, 175, 0.05); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 15px; padding: 1.5rem;">
+      <h4 style="color: #1e40af; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">Latence Inférence</h4>
+      <p style="color: #6c757d; font-size: 0.8rem; margin: 0 0 0.5rem 0;">Average /predict</p>
+      <h2 style="color: #000; font-size: 2rem; font-weight: 700; margin: 0;">-- ms</h2>
+    </div>
+
+    <!-- Throughput -->
+    <div style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: 15px; padding: 1.5rem;">
+      <h4 style="color: #2563EB; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">Throughput</h4>
+      <p style="color: #6c757d; font-size: 0.8rem; margin: 0 0 0.5rem 0;">Requests / second</p>
+      <h2 style="color: #000; font-size: 2rem; font-weight: 700; margin: 0;">-- req/s</h2>
+    </div>
+
+    <!-- Error Rate -->
+    <div style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 15px; padding: 1.5rem;">
+      <h4 style="color: #7C3AED; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">Error Rate</h4>
+      <p style="color: #6c757d; font-size: 0.8rem; margin: 0 0 0.5rem 0;">Failed requests</p>
+      <h2 style="color: #000; font-size: 2rem; font-weight: 700; margin: 0;">0 %</h2>
+    </div>
+  </div>
+</div>

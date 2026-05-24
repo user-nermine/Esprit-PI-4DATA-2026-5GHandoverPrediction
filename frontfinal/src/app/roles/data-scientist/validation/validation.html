@@ -1,0 +1,169 @@
+<div class="page">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div>
+      <div class="page-title">Pre-Deployment Validation</div>
+      <div class="breadcrumb-v">Data Scientist / <span>Validation</span></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card c1">
+      <div class="kpi-icon"><i class="feather icon-box"></i></div>
+      <div class="kpi-lbl">Production model</div>
+      <div class="kpi-val cyan">XGBoost v2.3</div>
+      <div class="kpi-sub">HO Prediction &middot; deployed 23d ago</div>
+    </div>
+    <div class="kpi-card c2">
+      <div class="kpi-icon"><i class="feather icon-star"></i></div>
+      <div class="kpi-lbl">Candidate model</div>
+      <div class="kpi-val purple">TabNet v1.0</div>
+      <div class="kpi-sub">Retrained &middot; pending validation</div>
+    </div>
+    <div class="kpi-card c3">
+      <div class="kpi-icon"><i class="feather icon-trending-up"></i></div>
+      <div class="kpi-lbl">F1 improvement</div>
+      <div class="kpi-val green">+0.077</div>
+      <div class="kpi-sub">0.745 &#8594; 0.822</div>
+    </div>
+    <div class="kpi-card c4">
+      <div class="kpi-icon"><i class="feather icon-shield"></i></div>
+      <div class="kpi-lbl">Validation status</div>
+      <div class="kpi-val warn">Pending</div>
+      <div class="kpi-sub">Awaiting approval</div>
+    </div>
+  </div>
+
+  <!-- Model Selector -->
+  <div style="margin-bottom:10px">
+    <div class="model-selector-label">Select Model</div>
+    <div class="dso-selector">
+      <button class="dso-btn" *ngFor="let m of models"
+        [class.active]="selectedModel === m"
+        (click)="selectedModel = m">{{ m }}</button>
+    </div>
+  </div>
+
+  <!-- Decision Note -->
+  <div class="note-card">
+    <div class="note-header">
+      <i class="feather icon-edit-2"></i> Validation Decision Note
+    </div>
+    <textarea [(ngModel)]="decisionNote"
+      placeholder="Document your validation decision: approve, request further testing, concerns..."></textarea>
+  </div>
+
+  <!-- Model Comparison Table -->
+  <div class="comp-card">
+    <div class="comp-title">Model Comparison: XGBoost v2.3 (Production) vs TabNet v1.0 (Candidate)</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>XGBoost v2.3 (Prod)</th>
+          <th>TabNet v1.0 (New)</th>
+          <th>Delta</th>
+          <th>Decision</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>AUC-ROC</td>
+          <td class="prod-val">0.943</td>
+          <td class="new-val">0.951</td>
+          <td><span class="delta-up">&#8593; +0.008</span></td>
+          <td><span class="dec-badge dec-approve"><i class="feather icon-check" style="font-size:10px"></i> Approve</span></td>
+        </tr>
+        <tr>
+          <td>F1-Score</td>
+          <td class="prod-val">0.745</td>
+          <td class="new-val">0.822</td>
+          <td><span class="delta-up">&#8593; +0.077</span></td>
+          <td><span class="dec-badge dec-approve"><i class="feather icon-check" style="font-size:10px"></i> Approve</span></td>
+        </tr>
+        <tr>
+          <td>Recall (HO)</td>
+          <td class="prod-val">0.739</td>
+          <td class="new-val">0.975</td>
+          <td><span class="delta-up">&#8593; +0.236</span></td>
+          <td><span class="dec-badge dec-approve"><i class="feather icon-check" style="font-size:10px"></i> Approve</span></td>
+        </tr>
+        <tr>
+          <td>Precision</td>
+          <td class="prod-val">0.751</td>
+          <td class="new-val" style="color:#f59e0b">0.710</td>
+          <td><span class="delta-down">&#8595; &minus;0.041</span></td>
+          <td><span class="dec-badge dec-warn"><i class="feather icon-alert-triangle" style="font-size:10px"></i> Monitor</span></td>
+        </tr>
+        <tr>
+          <td>AUC-PR</td>
+          <td class="prod-val">0.882</td>
+          <td class="new-val">0.923</td>
+          <td><span class="delta-up">&#8593; +0.041</span></td>
+          <td><span class="dec-badge dec-approve"><i class="feather icon-check" style="font-size:10px"></i> Approve</span></td>
+        </tr>
+        <tr>
+          <td>False Positive Rate</td>
+          <td class="prod-val">7.25%</td>
+          <td class="new-val" style="color:#f59e0b">11.8%</td>
+          <td><span class="delta-down">&#8593; +4.55%</span></td>
+          <td><span class="dec-badge dec-warn"><i class="feather icon-alert-triangle" style="font-size:10px"></i> Monitor</span></td>
+        </tr>
+        <tr>
+          <td>Inference time</td>
+          <td class="prod-val">12 ms</td>
+          <td class="new-val" style="color:#f59e0b">28 ms</td>
+          <td><span class="delta-down">&#8593; +16 ms</span></td>
+          <td><span class="dec-badge dec-warn"><i class="feather icon-alert-triangle" style="font-size:10px"></i> Monitor</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="alert-box alert-ok">
+      <i class="feather icon-check-circle" style="font-size:14px;flex-shrink:0;margin-top:1px"></i>
+      5/7 metrics improved. Candidate model shows significant gain on Recall (+0.236) and F1 (+0.077) — critical KPIs for 5G handover detection.
+    </div>
+    <div class="alert-box alert-warn">
+      <i class="feather icon-alert-triangle" style="font-size:14px;flex-shrink:0;margin-top:1px"></i>
+      Precision and inference time degraded. Monitor false positive rate closely post-deployment.
+    </div>
+  </div>
+
+  <!-- Verdict -->
+  <div class="verdict-card">
+    <div class="verdict-title">Validation Verdict</div>
+    <div class="verdict-grid">
+      <div class="vbox">
+        <div style="font-size:22px;color:#34d399;margin-bottom:6px"><i class="feather icon-check-circle"></i></div>
+        <div class="vbox-label">Metrics passed</div>
+        <div class="vbox-val">5 / 7</div>
+      </div>
+      <div class="vbox">
+        <div style="font-size:22px;color:#f59e0b;margin-bottom:6px"><i class="feather icon-eye"></i></div>
+        <div class="vbox-label">To monitor</div>
+        <div class="vbox-val">2 / 7</div>
+      </div>
+      <div class="vbox">
+        <div style="font-size:22px;color:#818cf8;margin-bottom:6px"><i class="feather icon-trending-up"></i></div>
+        <div class="vbox-label">Overall improvement</div>
+        <div class="vbox-val">+8.7%</div>
+      </div>
+    </div>
+    <div class="action-row">
+      <button class="btn-approve" (click)="approve()">
+        <i class="feather icon-zap"></i> Approve &amp; Deploy
+      </button>
+      <button class="btn-more" (click)="runAbTest()">
+        <i class="feather icon-activity"></i> Run A/B Test
+      </button>
+      <button class="btn-reject" (click)="reject()">
+        <i class="feather icon-x"></i> Reject
+      </button>
+    </div>
+  </div>
+
+</div>

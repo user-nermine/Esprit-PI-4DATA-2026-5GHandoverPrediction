@@ -1,0 +1,328 @@
+BASE URL: http://localhost:8081
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 1 — REGISTER
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/register
+HEADERS: Content-Type: application/json
+BODY:
+{
+  "fullName": "Nermine Rahalli",
+  "email": "nermine@esprit.tn",
+  "password": "Test1234!",
+  "role": "RAN_ENGINEER"
+}
+EXPECTED: 201 Created
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 2 — REGISTER (second user)
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/register
+HEADERS: Content-Type: application/json
+BODY:
+{
+  "fullName": "Manel Aloui",
+  "email": "manel@esprit.tn",
+  "password": "Test1234!",
+  "role": "DATA_SCIENTIST"
+}
+EXPECTED: 201 Created
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 3 — REGISTER (duplicate email → error)
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/register
+HEADERS: Content-Type: application/json
+BODY:
+{
+  "fullName": "Nermine Rahalli",
+  "email": "nermine@esprit.tn",
+  "password": "Test1234!",
+  "role": "RAN_ENGINEER"
+}
+EXPECTED: 500 "Email already exists"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 4 — REGISTER (validation error)
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/register
+HEADERS: Content-Type: application/json
+BODY:
+{
+  "fullName": "",
+  "email": "notanemail",
+  "password": "short",
+  "role": "RAN_ENGINEER"
+}
+EXPECTED: 400 Bad Request
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 5 — LOGIN (success) ← COPY THE TOKEN
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/login
+HEADERS: Content-Type: application/json
+BODY:
+{
+  "email": "nermine@esprit.tn",
+  "password": "Test1234!"
+}
+EXPECTED: 200 OK + token in response
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 6 — LOGIN (wrong password → error)
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/login
+HEADERS: Content-Type: application/json
+BODY:
+{
+  "email": "nermine@esprit.tn",
+  "password": "WrongPass!"
+}
+EXPECTED: 500 "Invalid email or password"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 7 — LOGIN (unknown email → error)
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/login
+HEADERS: Content-Type: application/json
+BODY:
+{
+  "email": "ghost@esprit.tn",
+  "password": "Test1234!"
+}
+EXPECTED: 500 "Invalid email or password"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 8 — GET ALL USERS
+METHOD:  GET
+URL:     http://localhost:8081/api/users
+HEADERS: Authorization: Bearer <token>
+EXPECTED: 200 OK — array of users
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 9 — GET ALL USERS (no token → blocked)
+METHOD:  GET
+URL:     http://localhost:8081/api/users
+HEADERS: (none)
+EXPECTED: 403 Forbidden
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 10 — GET ALL USERS (fake token → blocked)
+METHOD:  GET
+URL:     http://localhost:8081/api/users
+HEADERS: Authorization: Bearer thisisafaketoken
+EXPECTED: 403 or 500
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 11 — GET USER BY ID
+METHOD:  GET
+URL:     http://localhost:8081/api/users/1
+HEADERS: Authorization: Bearer <token>
+EXPECTED: 200 OK — single user object
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 12 — GET USER BY ID (not found)
+METHOD:  GET
+URL:     http://localhost:8081/api/users/999
+HEADERS: Authorization: Bearer <token>
+EXPECTED: 500 "User not found with id: 999"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 13 — CREATE USER (admin)
+METHOD:  POST
+URL:     http://localhost:8081/api/users
+HEADERS: Authorization: Bearer <token>
+         Content-Type: application/json
+BODY:
+{
+  "fullName": "Wiem Tanazefti",
+  "email": "wiem@esprit.tn",
+  "password": "Test1234!",
+  "role": "NOC_ENGINEER",
+  "status": "ACTIVE"
+}
+EXPECTED: 201 Created
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 14 — UPDATE USER (with password)
+METHOD:  PUT
+URL:     http://localhost:8081/api/users/2
+HEADERS: Authorization: Bearer <token>
+         Content-Type: application/json
+BODY:
+{
+  "fullName": "Nermine Rahalli Updated",
+  "email": "nermine@esprit.tn",
+  "password": "NewPass1234!",
+  "role": "NOC_ENGINEER",
+  "status": "ACTIVE"
+}
+EXPECTED: 200 OK
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 15 — UPDATE USER (without password — requires @NotBlank fix)
+METHOD:  PUT
+URL:     http://localhost:8081/api/users/2
+HEADERS: Authorization: Bearer <token>
+         Content-Type: application/json
+BODY:
+{
+  "fullName": "Nermine Rahalli Final",
+  "email": "nermine@esprit.tn",
+  "role": "RAN_ENGINEER",
+  "status": "ACTIVE"
+}
+EXPECTED: 200 OK (fails with 400 before the fix)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 16 — TOGGLE STATUS → SUSPENDED
+METHOD:  PATCH
+URL:     http://localhost:8081/api/users/2/toggle-status
+HEADERS: Authorization: Bearer <token>
+BODY:    (none)
+EXPECTED: 200 OK — status: "SUSPENDED"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 17 — TOGGLE STATUS → ACTIVE (call again)
+METHOD:  PATCH
+URL:     http://localhost:8081/api/users/2/toggle-status
+HEADERS: Authorization: Bearer <token>
+BODY:    (none)
+EXPECTED: 200 OK — status: "ACTIVE"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 18 — DELETE USER
+METHOD:  DELETE
+URL:     http://localhost:8081/api/users/3
+HEADERS: Authorization: Bearer <token>
+BODY:    (none)
+EXPECTED: 204 No Content
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 19 — DELETE USER (verify deleted)
+METHOD:  GET
+URL:     http://localhost:8081/api/users/3
+HEADERS: Authorization: Bearer <token>
+EXPECTED: 500 "User not found with id: 3"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 20 — DELETE USER (not found)
+METHOD:  DELETE
+URL:     http://localhost:8081/api/users/999
+HEADERS: Authorization: Bearer <token>
+EXPECTED: 500 "User not found with id: 999"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 21 — FORGOT PASSWORD ← COPY THE UUID TOKEN
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/forgot-password
+HEADERS: Content-Type: application/json
+BODY:
+{
+  "email": "nermine@esprit.tn"
+}
+EXPECTED: 200 OK — "Reset link sent to: nermine@esprit.tn | Token: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 22 — RESET PASSWORD
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/reset-password
+HEADERS: Content-Type: application/json
+BODY:
+{
+  "token": "<uuid-from-test-21>",
+  "newPassword": "Reset1234!"
+}
+EXPECTED: 200 OK — "Password reset successfully!"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 23 — LOGIN with NEW password (verify reset worked)
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/login
+HEADERS: Content-Type: application/json
+BODY:
+{
+  "email": "nermine@esprit.tn",
+  "password": "Reset1234!"
+}
+EXPECTED: 200 OK + new token
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 24 — LOGIN with OLD password (verify old pass rejected)
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/login
+HEADERS: Content-Type: application/json
+BODY:
+{
+  "email": "nermine@esprit.tn",
+  "password": "Test1234!"
+}
+EXPECTED: 500 "Invalid email or password"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 25 — RESET PASSWORD (expired/invalid token)
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/reset-password
+HEADERS: Content-Type: application/json
+BODY:
+{
+  "token": "00000000-0000-0000-0000-000000000000",
+  "newPassword": "Reset1234!"
+}
+EXPECTED: 500 "Invalid reset token"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 26 — GET AUDIT LOGS (all)
+METHOD:  GET
+URL:     http://localhost:8081/api/audit-logs
+HEADERS: Authorization: Bearer <token>
+EXPECTED: 200 OK — array (may be empty)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 27 — GET AUDIT LOGS BY USERNAME
+METHOD:  GET
+URL:     http://localhost:8081/api/audit-logs/user/Nermine
+HEADERS: Authorization: Bearer <token>
+EXPECTED: 200 OK — filtered array
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 28 — GET AUDIT LOGS BY ROLE
+METHOD:  GET
+URL:     http://localhost:8081/api/audit-logs/role/RAN_ENGINEER
+HEADERS: Authorization: Bearer <token>
+EXPECTED: 200 OK — filtered array
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VALID ROLES:
+  SYSTEM_ADMIN | DATA_SCIENTIST | RAN_ENGINEER | NOC_ENGINEER
+
+VALID STATUS:
+  ACTIVE | SUSPENDED

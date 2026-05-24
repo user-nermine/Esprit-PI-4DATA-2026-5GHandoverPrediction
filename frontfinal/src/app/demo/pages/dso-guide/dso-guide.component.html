@@ -1,0 +1,154 @@
+<!-- ═══════════════════════════ HEADER ═══════════════════════════ -->
+<div style="background: linear-gradient(135deg, rgba(30,64,175,0.05), rgba(124,58,237,0.05)); border: 1px solid rgba(30,64,175,0.2); border-radius: 20px; padding: 2rem; backdrop-filter: blur(10px); position: relative; overflow: hidden; box-shadow: 0 8px 32px rgba(30,64,175,0.1); margin-bottom: 2rem;">
+  <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #1e40af, #1d4ed8, #7c3aed, #ec4899);"></div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #1e40af, #7c3aed); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <i class="feather icon-book" style="font-size: 22px; color: black;"></i>
+      </div>
+      <div>
+        <h2 style="font-size: 2rem; font-weight: 800; background: linear-gradient(90deg, #1e40af, #1d4ed8, #7c3aed, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0;">
+          Prediction objectives – technical guide
+        </h2>
+        <p style="color: #6c757d; margin: 0.25rem 0 0; font-size: 1rem;">
+          Labels · features · thresholds · 3GPP references – objectives 1 to 4
+        </p>
+      </div>
+    </div>
+    <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
+      <span style="background: linear-gradient(135deg, #1e40af, #1d4ed8); color: black; padding: 0.35rem 0.85rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">Obj 1</span>
+      <span style="background: linear-gradient(135deg, #d97706, #b45309); color: black; padding: 0.35rem 0.85rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">Obj 2</span>
+      <span style="background: linear-gradient(135deg, #16a34a, #15803d); color: black; padding: 0.35rem 0.85rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">Obj 3</span>
+      <span style="background: linear-gradient(135deg, #7c3aed, #6d28d9); color: black; padding: 0.35rem 0.85rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">Obj 4</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ DSO SECTIONS ═══════════════════════════ -->
+<ng-container *ngFor="let dso of dsos; let i = index">
+
+  <div style="border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(10px); position: relative; overflow: hidden; margin-bottom: 1.5rem;"
+       [style.background]="'linear-gradient(135deg, rgba(' + dso.r + ', 0.05), rgba(' + dso.r + ', 0.03))'"
+       [style.border]="'1px solid rgba(' + dso.r + ', 0.2)'"
+       [style.boxShadow]="'0 4px 20px rgba(' + dso.r + ', 0.1)'">
+
+    <!-- Colored top accent bar -->
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px;"
+         [style.background]="'linear-gradient(90deg, ' + dso.c1 + ', ' + dso.c2 + ')'"></div>
+
+    <!-- DSO Header -->
+    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-top: 0.5rem;">
+      <div style="width: 44px; height: 44px; border-radius: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"
+           [style.background]="'linear-gradient(135deg, ' + dso.c1 + ', ' + dso.c2 + ')'">
+        <i [class]="'feather ' + dso.icon" style="font-size: 20px; color: black;"></i>
+      </div>
+      <div style="flex: 1;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #000000;">{{ dso.title }}</h4>
+          <span style="font-size: 0.72rem; color: #6c757d; background: rgba(108,117,125,0.1); border: 1px solid rgba(108,117,125,0.2); border-radius: 20px; padding: 0.2rem 0.75rem;">{{ dso.tag }}</span>
+        </div>
+      </div>
+      <span style="font-size: 0.7rem; font-weight: 700; padding: 0.3rem 0.9rem; border-radius: 20px; font-family: monospace; letter-spacing: 0.5px; color: black; flex-shrink: 0;"
+            [style.background]="'linear-gradient(135deg, ' + dso.c1 + ', ' + dso.c2 + ')'">{{ dso.num }}</span>
+    </div>
+
+    <!-- 3 Columns -->
+    <div class="row">
+
+      <!-- ─── Label ─── -->
+      <div class="col-xl-4 col-md-12 mb-3">
+        <div style="background: rgba(255,255,255,0.75); border: 1px solid rgba(226,232,240,0.9); border-radius: 16px; padding: 1.25rem; height: 100%; backdrop-filter: blur(10px);">
+
+          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem;">
+            <div style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center;"
+                 [style.background]="'rgba(' + dso.r + ', 0.15)'">
+              <i class="feather icon-tag" style="font-size: 14px;" [style.color]="dso.c1"></i>
+            </div>
+            <span style="font-size: 0.68rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Label definition</span>
+          </div>
+
+          <div style="background: rgba(248,250,252,0.9); border-radius: 10px; padding: 1rem; margin-bottom: 0.75rem; border-left: 3px solid;"
+               [style.borderLeftColor]="dso.c1">
+            <div style="font-size: 0.85rem; font-weight: 600; color: #0f172a; margin-bottom: 0.75rem;">{{ dso.label.title }}</div>
+            <pre style="font-family: monospace; font-size: 0.7rem; color: #64748b; margin: 0; line-height: 1.7; white-space: pre;">{{ dso.label.code }}</pre>
+          </div>
+
+          <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+            <span *ngFor="let c of dso.label.classes"
+                  style="font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.65rem; border-radius: 20px; border: 1px solid;"
+                  [style.background]="c.startsWith('+') ? '#f1f5f9' : 'rgba(' + dso.r + ', 0.1)'"
+                  [style.borderColor]="c.startsWith('+') ? '#e2e8f0' : 'rgba(' + dso.r + ', 0.3)'"
+                  [style.color]="c.startsWith('+') ? '#64748b' : dso.c1">{{ c }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Features ─── -->
+      <div class="col-xl-4 col-md-12 mb-3">
+        <div style="background: rgba(255,255,255,0.75); border: 1px solid rgba(226,232,240,0.9); border-radius: 16px; padding: 1.25rem; height: 100%; backdrop-filter: blur(10px);">
+
+          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem;">
+            <div style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center;"
+                 [style.background]="'rgba(' + dso.r + ', 0.15)'">
+              <i class="feather icon-bar-chart-2" style="font-size: 14px;" [style.color]="dso.c1"></i>
+            </div>
+            <span style="font-size: 0.68rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Key features</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+            <div *ngFor="let f of dso.features"
+                 style="display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.6rem; background: rgba(248,250,252,0.9); border-radius: 8px;">
+              <span style="font-size: 0.65rem; font-weight: 700; color: #94a3b8; min-width: 14px; text-align: center;">{{ f.r }}</span>
+              <span style="font-family: monospace; font-size: 0.7rem; font-weight: 700; color: #0f172a; min-width: 82px;">{{ f.name }}</span>
+              <div style="flex: 1; height: 4px; background: rgba(226,232,240,0.8); border-radius: 2px; overflow: hidden;">
+                <div style="height: 100%; border-radius: 2px;"
+                     [style.width.%]="f.pct"
+                     [style.background]="'linear-gradient(90deg, ' + dso.c1 + ', ' + dso.c2 + ')'"></div>
+              </div>
+              <span style="font-size: 0.65rem; color: #94a3b8; min-width: 56px; text-align: right;">{{ f.desc }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Thresholds ─── -->
+      <div class="col-xl-4 col-md-12 mb-3">
+        <div style="background: rgba(255,255,255,0.75); border: 1px solid rgba(226,232,240,0.9); border-radius: 16px; padding: 1.25rem; height: 100%; backdrop-filter: blur(10px);">
+
+          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem;">
+            <div style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center;"
+                 [style.background]="'rgba(' + dso.r + ', 0.15)'">
+              <i class="feather icon-sliders" style="font-size: 14px;" [style.color]="dso.c1"></i>
+            </div>
+            <span style="font-size: 0.68rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Thresholds &amp; 3GPP</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <div *ngFor="let thr of dso.thresholds"
+                 style="display: grid; grid-template-columns: 8px 1fr; gap: 0.65rem; padding: 0.65rem 0.8rem; border-radius: 10px; border: 1px solid; align-items: start;"
+                 [style.background]="t(thr.level).bg"
+                 [style.borderColor]="t(thr.level).border">
+              <div style="width: 8px; height: 8px; border-radius: 50%; margin-top: 4px;"
+                   [style.background]="t(thr.level).dot"></div>
+              <div>
+                <div style="font-family: monospace; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.2rem;"
+                     [style.color]="t(thr.level).val">{{ thr.val }}</div>
+                <div style="font-size: 0.72rem; color: #64748b; line-height: 1.4;">{{ thr.label }}</div>
+                <span style="display: inline-block; font-family: monospace; font-size: 0.63rem; padding: 0.15rem 0.5rem; border-radius: 20px; margin-top: 0.3rem;"
+                      [style.background]="t(thr.level).ref"
+                      [style.color]="t(thr.level).val">{{ thr.ref }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="font-family: monospace; font-size: 0.68rem; color: #94a3b8; margin-top: 0.85rem; padding-top: 0.75rem; border-top: 1px solid #e2e8f0; line-height: 1.7;">
+            {{ dso.note }}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</ng-container>

@@ -1,0 +1,565 @@
+<!-- Back Bar -->
+<div style="background: white; padding: 1rem 0; border-bottom: 1px solid #e2e8f0;">
+  <div class="page-block">
+    <button class="back-btn" (click)="goBack()">
+      <i class="feather icon-arrow-left"></i>
+      Retour ML Lifecycle
+    </button>
+  </div>
+</div>
+
+<div class="page-block">
+  <div class="dso-page">
+
+    <!-- ── DSO1 : HO Prediction ── -->
+    <ng-container *ngIf="dsoId === 'dso1'">
+
+      <div class="dso-header">
+        <div class="header-left">
+          <div class="badge-num">1</div>
+          <div class="title-block">
+            <h1>HO Prediction — Detailed Report</h1>
+            <p>DSO1 &middot; Binary classification &middot; DoNext 5G dataset &middot; 12.6M rows &middot; Test set: 1.89M</p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="model-badge">
+            <i class="feather icon-box" style="font-size:14px"></i>
+            Best: TabNet
+          </div>
+          <button class="export-btn" (click)="exportReport()">
+            <i class="feather icon-download"></i> Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Metrics -->
+      <div class="section-title">Best model metrics (TabNet)</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="label">F1-Score</div>
+          <div class="value">0.822</div>
+          <div class="sub">HO class</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">AUC-PR</div>
+          <div class="value">0.923</div>
+          <div class="sub">Precision-Recall curve</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">Recall (HO)</div>
+          <div class="value">97.5%</div>
+          <div class="sub">TP / (TP + FN)</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">Accuracy</div>
+          <div class="value">90%</div>
+          <div class="sub">Overall test set</div>
+        </div>
+      </div>
+
+      <!-- Confusion Matrix + SHAP -->
+      <div class="two-col">
+
+        <div class="card">
+          <div class="section-title" style="margin-bottom:12px">Confusion matrix (%)</div>
+          <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:4px;align-items:center;margin-bottom:8px">
+            <div></div>
+            <div style="text-align:center;font-size:11px;color:#64748b;font-weight:500">Predicted: No HO</div>
+            <div style="text-align:center;font-size:11px;color:#64748b;font-weight:500">Predicted: HO</div>
+          </div>
+          <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:4px;align-items:center">
+            <div style="font-size:11px;color:#64748b;font-weight:500;writing-mode:vertical-lr;transform:rotate(180deg);padding:4px">Actual: No HO</div>
+            <div class="cm-cell cm-tn"><div class="cm-pct">88.2%</div><div class="cm-lbl">True Negative</div></div>
+            <div class="cm-cell cm-fp"><div class="cm-pct">11.8%</div><div class="cm-lbl">False Positive</div></div>
+            <div style="font-size:11px;color:#64748b;font-weight:500;writing-mode:vertical-lr;transform:rotate(180deg);padding:4px">Actual: HO</div>
+            <div class="cm-cell cm-fn"><div class="cm-pct">2.5%</div><div class="cm-lbl">False Negative</div></div>
+            <div class="cm-cell cm-tp"><div class="cm-pct">97.5%</div><div class="cm-lbl">True Positive</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title" style="margin-bottom:12px">Top SHAP features (LightGBM)</div>
+          <div class="shap-row"><div class="shap-feat">network_enc</div><div class="shap-track"><div class="shap-fill" style="width:100%;background:#0ea5e9"></div></div><div class="shap-val">0.683</div></div>
+          <div class="shap-row"><div class="shap-feat">tx_power_T1</div><div class="shap-track"><div class="shap-fill" style="width:95%;background:#0ea5e9"></div></div><div class="shap-val">0.651</div></div>
+          <div class="shap-row"><div class="shap-feat">nr_ri</div><div class="shap-track"><div class="shap-fill" style="width:79%;background:#38bdf8"></div></div><div class="shap-val">0.537</div></div>
+          <div class="shap-row"><div class="shap-feat">device_enc</div><div class="shap-track"><div class="shap-fill" style="width:70%;background:#38bdf8"></div></div><div class="shap-val">0.478</div></div>
+          <div class="shap-row"><div class="shap-feat">is_5g</div><div class="shap-track"><div class="shap-fill" style="width:66%;background:#7dd3fc"></div></div><div class="shap-val">0.451</div></div>
+          <div class="shap-row"><div class="shap-feat">rsrp_T1</div><div class="shap-track"><div class="shap-fill" style="width:54%;background:#7dd3fc"></div></div><div class="shap-val">0.367</div></div>
+          <div class="shap-row"><div class="shap-feat">cluster_id</div><div class="shap-track"><div class="shap-fill" style="width:32%;background:#bae6fd"></div></div><div class="shap-val">0.218</div></div>
+        </div>
+
+      </div>
+
+      <!-- Models Comparison Table -->
+      <div class="full-card">
+        <div class="section-title" style="margin-bottom:12px">All models comparison</div>
+        <table class="models-table">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Type</th>
+              <th>F1</th>
+              <th>Precision</th>
+              <th>Recall</th>
+              <th>AUC-ROC</th>
+              <th>AUC-PR</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="best">
+              <td><span class="crown">★</span>TabNet</td>
+              <td><span class="tag tag-dl">Deep Learning</span></td>
+              <td>0.822</td><td>0.710</td><td>0.975</td><td>—</td><td>0.923</td>
+            </tr>
+            <tr>
+              <td>Random Forest</td>
+              <td><span class="tag tag-en">Ensemble</span></td>
+              <td>0.745</td><td>0.751</td><td>0.739</td><td>0.942</td><td>0.882</td>
+            </tr>
+            <tr>
+              <td>LightGBM</td>
+              <td><span class="tag tag-gb">Gradient Boosting</span></td>
+              <td>0.720</td><td>0.696</td><td>0.745</td><td>0.926</td><td>0.867</td>
+            </tr>
+            <tr>
+              <td>XGBoost</td>
+              <td><span class="tag tag-gb">Gradient Boosting</span></td>
+              <td>0.710</td><td>0.678</td><td>0.744</td><td>0.943</td><td>0.883</td>
+            </tr>
+            <tr>
+              <td>BiLSTM</td>
+              <td><span class="tag tag-dl">Deep Learning</span></td>
+              <td style="color:#f87171">0.080</td><td>0.116</td><td>0.062</td><td>0.789</td><td>0.542</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- F1 Bar Chart -->
+      <div class="full-card">
+        <div class="section-title" style="margin-bottom:12px">F1 score comparison</div>
+        <div class="bar-row"><div class="bar-label">TabNet</div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><div class="bar-val">0.822</div></div>
+        <div class="bar-row"><div class="bar-label">Random Forest</div><div class="bar-track"><div class="bar-fill" style="width:90.6%;opacity:0.85"></div></div><div class="bar-val">0.745</div></div>
+        <div class="bar-row"><div class="bar-label">LightGBM</div><div class="bar-track"><div class="bar-fill" style="width:87.6%;opacity:0.7"></div></div><div class="bar-val">0.720</div></div>
+        <div class="bar-row"><div class="bar-label">XGBoost</div><div class="bar-track"><div class="bar-fill" style="width:86.4%;opacity:0.6"></div></div><div class="bar-val">0.710</div></div>
+        <div class="bar-row"><div class="bar-label">BiLSTM</div><div class="bar-track"><div class="bar-fill" style="width:9.7%;background:#f87171"></div></div><div class="bar-val" style="color:#f87171">0.080</div></div>
+      </div>
+
+      <!-- Insight -->
+      <div class="insight-box">
+        <p>
+          <strong>Telecom interpretation:</strong> TabNet achieves a recall of 97.5% on the HO class —
+          only 2.5% of real handovers go undetected (false negatives). In a 5G context, a false negative
+          means a dropped session. The false positive rate (11.8%) generates unnecessary alerts but remains
+          acceptable. <strong>Recommendation:</strong> deploy TabNet for detection, with XGBoost as fallback
+          for explainability.
+        </p>
+      </div>
+
+
+    </ng-container>
+
+    <!-- ── DSO2 : Signal Degradation ── -->
+    <ng-container *ngIf="dsoId === 'dso2'">
+
+      <div class="dso-header">
+        <div class="header-left">
+          <div class="badge-num" style="background:#8b5cf6">2</div>
+          <div class="title-block">
+            <h1>Signal Degradation — Detailed Report</h1>
+            <p>DSO2 &middot; Binary classification &middot; DoNext 5G dataset &middot; 12.6M rows &middot; Test set: 1.89M</p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="model-badge" style="background:#2d1a4a;color:#c4b5fd">
+            <i class="feather icon-box" style="font-size:14px"></i>
+            Best: Random Forest
+          </div>
+          <button class="export-btn" (click)="exportReport()">
+            <i class="feather icon-download"></i> Export
+          </button>
+        </div>
+      </div>
+
+      <div class="section-title">Best model metrics (Random Forest)</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="label">F1-Score</div>
+          <div class="value" style="color:#8b5cf6">0.326</div>
+          <div class="sub">Degradation class</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">AUC-ROC</div>
+          <div class="value" style="color:#8b5cf6">0.9515</div>
+          <div class="sub">ROC curve</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">Precision</div>
+          <div class="value" style="color:#8b5cf6">0.512</div>
+          <div class="sub">TP / (TP + FP)</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">Recall</div>
+          <div class="value" style="color:#8b5cf6">0.239</div>
+          <div class="sub">TP / (TP + FN)</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+
+        <div class="card">
+          <div class="section-title" style="margin-bottom:12px">Confusion matrix (%)</div>
+          <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:4px;align-items:center;margin-bottom:8px">
+            <div></div>
+            <div style="text-align:center;font-size:11px;color:#64748b;font-weight:500">Predicted: No Deg.</div>
+            <div style="text-align:center;font-size:11px;color:#64748b;font-weight:500">Predicted: Deg.</div>
+          </div>
+          <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:4px;align-items:center">
+            <div style="font-size:11px;color:#64748b;font-weight:500;writing-mode:vertical-lr;transform:rotate(180deg);padding:4px">Actual: No Deg.</div>
+            <div class="cm-cell cm-tn"><div class="cm-pct">93.1%</div><div class="cm-lbl">True Negative</div></div>
+            <div class="cm-cell cm-fp"><div class="cm-pct">6.9%</div><div class="cm-lbl">False Positive</div></div>
+            <div style="font-size:11px;color:#64748b;font-weight:500;writing-mode:vertical-lr;transform:rotate(180deg);padding:4px">Actual: Deg.</div>
+            <div class="cm-cell cm-fn"><div class="cm-pct">76.1%</div><div class="cm-lbl">False Negative</div></div>
+            <div class="cm-cell cm-tp"><div class="cm-pct">23.9%</div><div class="cm-lbl">True Positive</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title" style="margin-bottom:12px">Top SHAP features (Random Forest)</div>
+          <div class="shap-row"><div class="shap-feat">rsrp_delta</div><div class="shap-track"><div class="shap-fill" style="width:100%;background:#8b5cf6"></div></div><div class="shap-val">0.712</div></div>
+          <div class="shap-row"><div class="shap-feat">sinr_drop</div><div class="shap-track"><div class="shap-fill" style="width:88%;background:#8b5cf6"></div></div><div class="shap-val">0.628</div></div>
+          <div class="shap-row"><div class="shap-feat">interference</div><div class="shap-track"><div class="shap-fill" style="width:74%;background:#a78bfa"></div></div><div class="shap-val">0.529</div></div>
+          <div class="shap-row"><div class="shap-feat">tx_power_T1</div><div class="shap-track"><div class="shap-fill" style="width:65%;background:#a78bfa"></div></div><div class="shap-val">0.463</div></div>
+          <div class="shap-row"><div class="shap-feat">cell_load</div><div class="shap-track"><div class="shap-fill" style="width:55%;background:#c4b5fd"></div></div><div class="shap-val">0.391</div></div>
+          <div class="shap-row"><div class="shap-feat">nr_cqi</div><div class="shap-track"><div class="shap-fill" style="width:42%;background:#c4b5fd"></div></div><div class="shap-val">0.299</div></div>
+          <div class="shap-row"><div class="shap-feat">cluster_id</div><div class="shap-track"><div class="shap-fill" style="width:27%;background:#ddd6fe"></div></div><div class="shap-val">0.193</div></div>
+        </div>
+
+      </div>
+
+      <div class="full-card">
+        <div class="section-title" style="margin-bottom:12px">All models comparison</div>
+        <table class="models-table">
+          <thead>
+            <tr><th>Model</th><th>Type</th><th>F1</th><th>Precision</th><th>Recall</th><th>AUC-ROC</th><th>AUC-PR</th></tr>
+          </thead>
+          <tbody>
+            <tr class="best">
+              <td><span class="crown">★</span>Random Forest</td>
+              <td><span class="tag tag-en">Ensemble</span></td>
+              <td>0.326</td><td>0.512</td><td>0.239</td><td>0.9515</td><td>0.741</td>
+            </tr>
+            <tr>
+              <td>XGBoost</td>
+              <td><span class="tag tag-gb">Gradient Boosting</span></td>
+              <td>0.298</td><td>0.487</td><td>0.214</td><td>0.943</td><td>0.718</td>
+            </tr>
+            <tr>
+              <td>LightGBM</td>
+              <td><span class="tag tag-gb">Gradient Boosting</span></td>
+              <td>0.284</td><td>0.461</td><td>0.206</td><td>0.937</td><td>0.703</td>
+            </tr>
+            <tr>
+              <td>Logistic Reg.</td>
+              <td><span class="tag tag-en">Linear</span></td>
+              <td>0.201</td><td>0.389</td><td>0.137</td><td>0.891</td><td>0.612</td>
+            </tr>
+            <tr>
+              <td>SVM</td>
+              <td><span class="tag tag-dl">Kernel</span></td>
+              <td style="color:#f87171">0.148</td><td>0.312</td><td>0.095</td><td>0.847</td><td>0.534</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="full-card">
+        <div class="section-title" style="margin-bottom:12px">F1 score comparison</div>
+        <div class="bar-row"><div class="bar-label">Random Forest</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#8b5cf6"></div></div><div class="bar-val">0.326</div></div>
+        <div class="bar-row"><div class="bar-label">XGBoost</div><div class="bar-track"><div class="bar-fill" style="width:91%;background:#8b5cf6;opacity:0.85"></div></div><div class="bar-val">0.298</div></div>
+        <div class="bar-row"><div class="bar-label">LightGBM</div><div class="bar-track"><div class="bar-fill" style="width:87%;background:#a78bfa;opacity:0.8"></div></div><div class="bar-val">0.284</div></div>
+        <div class="bar-row"><div class="bar-label">Logistic Reg.</div><div class="bar-track"><div class="bar-fill" style="width:62%;background:#c4b5fd;opacity:0.7"></div></div><div class="bar-val">0.201</div></div>
+        <div class="bar-row"><div class="bar-label">SVM</div><div class="bar-track"><div class="bar-fill" style="width:45%;background:#f87171"></div></div><div class="bar-val" style="color:#f87171">0.148</div></div>
+      </div>
+
+      <div class="insight-box" style="border-left-color:#8b5cf6">
+        <p>
+          <strong>Telecom interpretation:</strong> The low F1 (0.326) despite a high AUC-ROC (0.9515) reflects
+          strong class imbalance — signal degradation events are rare. Random Forest ranks degraded cells
+          correctly (discrimination is good) but the decision threshold needs tuning to improve recall.
+          <strong>Recommendation:</strong> apply threshold optimization or SMOTE oversampling to boost recall
+          above 0.6 before production deployment.
+        </p>
+      </div>
+
+    </ng-container>
+
+    <!-- ── DSO3 : Next Best Cell ── -->
+    <ng-container *ngIf="dsoId === 'dso3'">
+
+      <div class="dso-header">
+        <div class="header-left">
+          <div class="badge-num" style="background:#f59e0b">3</div>
+          <div class="title-block">
+            <h1>Next Best Cell — Detailed Report</h1>
+            <p>DSO3 &middot; Multi-class classification &middot; DoNext 5G dataset &middot; 12.6M rows &middot; Test set: 1.89M</p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="model-badge" style="background:#2d200a;color:#fcd34d">
+            <i class="feather icon-box" style="font-size:14px"></i>
+            Best: Neural Network
+          </div>
+          <button class="export-btn" (click)="exportReport()">
+            <i class="feather icon-download"></i> Export
+          </button>
+        </div>
+      </div>
+
+      <div class="section-title">Best model metrics (Neural Network)</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="label">Accuracy</div>
+          <div class="value" style="color:#f59e0b">0.7848</div>
+          <div class="sub">Top-1 overall</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">Top-3 Accuracy</div>
+          <div class="value" style="color:#f59e0b">0.9732</div>
+          <div class="sub">Cell in top 3 candidates</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">F1-macro</div>
+          <div class="value" style="color:#f59e0b">0.721</div>
+          <div class="sub">Across all cells</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">MRR</div>
+          <div class="value" style="color:#f59e0b">0.831</div>
+          <div class="sub">Mean Reciprocal Rank</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+
+        <div class="card">
+          <div class="section-title" style="margin-bottom:12px">Top-K accuracy by threshold</div>
+          <div class="bar-row"><div class="bar-label">Top-1</div><div class="bar-track"><div class="bar-fill" style="width:78%;background:#f59e0b"></div></div><div class="bar-val">78.5%</div></div>
+          <div class="bar-row"><div class="bar-label">Top-2</div><div class="bar-track"><div class="bar-fill" style="width:89%;background:#f59e0b"></div></div><div class="bar-val">89.2%</div></div>
+          <div class="bar-row"><div class="bar-label">Top-3</div><div class="bar-track"><div class="bar-fill" style="width:97%;background:#f59e0b"></div></div><div class="bar-val">97.3%</div></div>
+          <div class="bar-row"><div class="bar-label">Top-5</div><div class="bar-track"><div class="bar-fill" style="width:99%;background:#fbbf24"></div></div><div class="bar-val">99.1%</div></div>
+          <div style="margin-top:14px;padding-top:12px;border-top:0.5px solid #e2e8f0">
+            <div class="section-title" style="margin-bottom:8px">Per-zone accuracy</div>
+            <div class="bar-row"><div class="bar-label">Zone 77-79</div><div class="bar-track"><div class="bar-fill" style="width:82%;background:#f59e0b"></div></div><div class="bar-val">82.1%</div></div>
+            <div class="bar-row"><div class="bar-label">Zone 80-82</div><div class="bar-track"><div class="bar-fill" style="width:76%;background:#fbbf24"></div></div><div class="bar-val">76.4%</div></div>
+            <div class="bar-row"><div class="bar-label">Zone 83-85</div><div class="bar-track"><div class="bar-fill" style="width:74%;background:#fcd34d"></div></div><div class="bar-val">74.3%</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title" style="margin-bottom:12px">Top SHAP features (Neural Network)</div>
+          <div class="shap-row"><div class="shap-feat">rsrp_neighbor</div><div class="shap-track"><div class="shap-fill" style="width:100%;background:#f59e0b"></div></div><div class="shap-val">0.741</div></div>
+          <div class="shap-row"><div class="shap-feat">sinr_neighbor</div><div class="shap-track"><div class="shap-fill" style="width:91%;background:#f59e0b"></div></div><div class="shap-val">0.674</div></div>
+          <div class="shap-row"><div class="shap-feat">distance_cell</div><div class="shap-track"><div class="shap-fill" style="width:79%;background:#fbbf24"></div></div><div class="shap-val">0.585</div></div>
+          <div class="shap-row"><div class="shap-feat">cell_load</div><div class="shap-track"><div class="shap-fill" style="width:67%;background:#fbbf24"></div></div><div class="shap-val">0.498</div></div>
+          <div class="shap-row"><div class="shap-feat">network_enc</div><div class="shap-track"><div class="shap-fill" style="width:55%;background:#fcd34d"></div></div><div class="shap-val">0.407</div></div>
+          <div class="shap-row"><div class="shap-feat">nr_ri</div><div class="shap-track"><div class="shap-fill" style="width:44%;background:#fcd34d"></div></div><div class="shap-val">0.326</div></div>
+          <div class="shap-row"><div class="shap-feat">is_5g</div><div class="shap-track"><div class="shap-fill" style="width:30%;background:#fde68a"></div></div><div class="shap-val">0.221</div></div>
+        </div>
+
+      </div>
+
+      <div class="full-card">
+        <div class="section-title" style="margin-bottom:12px">All models comparison</div>
+        <table class="models-table">
+          <thead>
+            <tr><th>Model</th><th>Type</th><th>Top-1 Acc</th><th>Top-3 Acc</th><th>F1-macro</th><th>MRR</th><th>Latency (ms)</th></tr>
+          </thead>
+          <tbody>
+            <tr class="best">
+              <td><span class="crown">★</span>Neural Network</td>
+              <td><span class="tag tag-dl">Deep Learning</span></td>
+              <td>0.7848</td><td>0.9732</td><td>0.721</td><td>0.831</td><td>12.4</td>
+            </tr>
+            <tr>
+              <td>LightGBM</td>
+              <td><span class="tag tag-gb">Gradient Boosting</span></td>
+              <td>0.741</td><td>0.952</td><td>0.693</td><td>0.807</td><td>3.2</td>
+            </tr>
+            <tr>
+              <td>Random Forest</td>
+              <td><span class="tag tag-en">Ensemble</span></td>
+              <td>0.718</td><td>0.941</td><td>0.672</td><td>0.789</td><td>8.7</td>
+            </tr>
+            <tr>
+              <td>XGBoost</td>
+              <td><span class="tag tag-gb">Gradient Boosting</span></td>
+              <td>0.709</td><td>0.937</td><td>0.661</td><td>0.781</td><td>4.1</td>
+            </tr>
+            <tr>
+              <td>KNN</td>
+              <td><span class="tag tag-en">Instance-based</span></td>
+              <td style="color:#f87171">0.521</td><td>0.789</td><td>0.487</td><td>0.634</td><td>47.3</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="full-card">
+        <div class="section-title" style="margin-bottom:12px">Top-1 accuracy comparison</div>
+        <div class="bar-row"><div class="bar-label">Neural Network</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#f59e0b"></div></div><div class="bar-val">0.785</div></div>
+        <div class="bar-row"><div class="bar-label">LightGBM</div><div class="bar-track"><div class="bar-fill" style="width:94%;background:#f59e0b;opacity:0.85"></div></div><div class="bar-val">0.741</div></div>
+        <div class="bar-row"><div class="bar-label">Random Forest</div><div class="bar-track"><div class="bar-fill" style="width:91%;background:#fbbf24;opacity:0.8"></div></div><div class="bar-val">0.718</div></div>
+        <div class="bar-row"><div class="bar-label">XGBoost</div><div class="bar-track"><div class="bar-fill" style="width:90%;background:#fcd34d;opacity:0.7"></div></div><div class="bar-val">0.709</div></div>
+        <div class="bar-row"><div class="bar-label">KNN</div><div class="bar-track"><div class="bar-fill" style="width:66%;background:#f87171"></div></div><div class="bar-val" style="color:#f87171">0.521</div></div>
+      </div>
+
+      <div class="insight-box" style="border-left-color:#f59e0b">
+        <p>
+          <strong>Telecom interpretation:</strong> The Neural Network achieves 97.3% Top-3 accuracy —
+          in practice, the RAN system selects from the top-3 candidates, making this model highly reliable
+          for real-time cell steering. LightGBM offers a strong trade-off (74.1% Top-1, 3.2ms latency)
+          for latency-critical deployments.
+          <strong>Recommendation:</strong> deploy Neural Network for batch steering decisions,
+          LightGBM for real-time HO with strict latency constraints.
+        </p>
+      </div>
+
+    </ng-container>
+
+    <!-- ── DSO4 : Handover Type ── -->
+    <ng-container *ngIf="dsoId === 'dso4'">
+
+      <div class="dso-header">
+        <div class="header-left">
+          <div class="badge-num" style="background:#ef4444">4</div>
+          <div class="title-block">
+            <h1>Handover Type — Detailed Report</h1>
+            <p>DSO4 &middot; Multi-class classification (4 classes) &middot; DoNext 5G dataset &middot; 12.6M rows &middot; Test set: 1.89M</p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="model-badge" style="background:#2d0a0a;color:#fca5a5">
+            <i class="feather icon-box" style="font-size:14px"></i>
+            Best: SVM
+          </div>
+          <button class="export-btn" (click)="exportReport()">
+            <i class="feather icon-download"></i> Export
+          </button>
+        </div>
+      </div>
+
+      <div class="section-title">Best model metrics (SVM)</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="label">F1-macro</div>
+          <div class="value" style="color:#ef4444">0.3727</div>
+          <div class="sub">Across 4 HO types</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">Accuracy</div>
+          <div class="value" style="color:#ef4444">0.681</div>
+          <div class="sub">Overall test set</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">Precision-macro</div>
+          <div class="value" style="color:#ef4444">0.418</div>
+          <div class="sub">Avg. across classes</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">Recall-macro</div>
+          <div class="value" style="color:#ef4444">0.349</div>
+          <div class="sub">Avg. across classes</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+
+        <div class="card">
+          <div class="section-title" style="margin-bottom:12px">F1 per HO type (SVM)</div>
+          <div class="bar-row"><div class="bar-label">Intra-freq</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#ef4444"></div></div><div class="bar-val">0.641</div></div>
+          <div class="bar-row"><div class="bar-label">Inter-freq</div><div class="bar-track"><div class="bar-fill" style="width:72%;background:#ef4444;opacity:0.85"></div></div><div class="bar-val">0.462</div></div>
+          <div class="bar-row"><div class="bar-label">Inter-RAT</div><div class="bar-track"><div class="bar-fill" style="width:38%;background:#f87171;opacity:0.8"></div></div><div class="bar-val">0.244</div></div>
+          <div class="bar-row"><div class="bar-label">X2-based</div><div class="bar-track"><div class="bar-fill" style="width:28%;background:#fca5a5;opacity:0.7"></div></div><div class="bar-val">0.178</div></div>
+          <div style="margin-top:14px;padding-top:12px;border-top:0.5px solid #e2e8f0">
+            <div class="section-title" style="margin-bottom:8px">Class distribution (test set)</div>
+            <div class="bar-row"><div class="bar-label">Intra-freq</div><div class="bar-track"><div class="bar-fill" style="width:68%;background:#94a3b8"></div></div><div class="bar-val">68.2%</div></div>
+            <div class="bar-row"><div class="bar-label">Inter-freq</div><div class="bar-track"><div class="bar-fill" style="width:21%;background:#94a3b8"></div></div><div class="bar-val">21.1%</div></div>
+            <div class="bar-row"><div class="bar-label">Inter-RAT</div><div class="bar-track"><div class="bar-fill" style="width:7%;background:#94a3b8"></div></div><div class="bar-val">7.3%</div></div>
+            <div class="bar-row"><div class="bar-label">X2-based</div><div class="bar-track"><div class="bar-fill" style="width:4%;background:#94a3b8"></div></div><div class="bar-val">3.4%</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title" style="margin-bottom:12px">Top SHAP features (SVM)</div>
+          <div class="shap-row"><div class="shap-feat">freq_band</div><div class="shap-track"><div class="shap-fill" style="width:100%;background:#ef4444"></div></div><div class="shap-val">0.698</div></div>
+          <div class="shap-row"><div class="shap-feat">rat_type</div><div class="shap-track"><div class="shap-fill" style="width:93%;background:#ef4444"></div></div><div class="shap-val">0.649</div></div>
+          <div class="shap-row"><div class="shap-feat">network_enc</div><div class="shap-track"><div class="shap-fill" style="width:77%;background:#f87171"></div></div><div class="shap-val">0.537</div></div>
+          <div class="shap-row"><div class="shap-feat">x2_interface</div><div class="shap-track"><div class="shap-fill" style="width:63%;background:#f87171"></div></div><div class="shap-val">0.441</div></div>
+          <div class="shap-row"><div class="shap-feat">rsrp_T1</div><div class="shap-track"><div class="shap-fill" style="width:52%;background:#fca5a5"></div></div><div class="shap-val">0.363</div></div>
+          <div class="shap-row"><div class="shap-feat">sinr_T1</div><div class="shap-track"><div class="shap-fill" style="width:41%;background:#fca5a5"></div></div><div class="shap-val">0.287</div></div>
+          <div class="shap-row"><div class="shap-feat">device_enc</div><div class="shap-track"><div class="shap-fill" style="width:27%;background:#fecaca"></div></div><div class="shap-val">0.189</div></div>
+        </div>
+
+      </div>
+
+      <div class="full-card">
+        <div class="section-title" style="margin-bottom:12px">All models comparison</div>
+        <table class="models-table">
+          <thead>
+            <tr><th>Model</th><th>Type</th><th>F1-macro</th><th>Precision</th><th>Recall</th><th>Accuracy</th><th>AUC-ROC</th></tr>
+          </thead>
+          <tbody>
+            <tr class="best">
+              <td><span class="crown">★</span>SVM</td>
+              <td><span class="tag tag-dl">Kernel</span></td>
+              <td>0.3727</td><td>0.418</td><td>0.349</td><td>0.681</td><td>0.812</td>
+            </tr>
+            <tr>
+              <td>LightGBM</td>
+              <td><span class="tag tag-gb">Gradient Boosting</span></td>
+              <td>0.351</td><td>0.403</td><td>0.321</td><td>0.667</td><td>0.798</td>
+            </tr>
+            <tr>
+              <td>XGBoost</td>
+              <td><span class="tag tag-gb">Gradient Boosting</span></td>
+              <td>0.338</td><td>0.391</td><td>0.307</td><td>0.654</td><td>0.784</td>
+            </tr>
+            <tr>
+              <td>Random Forest</td>
+              <td><span class="tag tag-en">Ensemble</span></td>
+              <td>0.312</td><td>0.367</td><td>0.281</td><td>0.641</td><td>0.771</td>
+            </tr>
+            <tr>
+              <td>Neural Network</td>
+              <td><span class="tag tag-dl">Deep Learning</span></td>
+              <td style="color:#f87171">0.241</td><td>0.298</td><td>0.214</td><td>0.589</td><td>0.723</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="full-card">
+        <div class="section-title" style="margin-bottom:12px">F1-macro comparison</div>
+        <div class="bar-row"><div class="bar-label">SVM</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#ef4444"></div></div><div class="bar-val">0.373</div></div>
+        <div class="bar-row"><div class="bar-label">LightGBM</div><div class="bar-track"><div class="bar-fill" style="width:94%;background:#ef4444;opacity:0.85"></div></div><div class="bar-val">0.351</div></div>
+        <div class="bar-row"><div class="bar-label">XGBoost</div><div class="bar-track"><div class="bar-fill" style="width:91%;background:#f87171;opacity:0.8"></div></div><div class="bar-val">0.338</div></div>
+        <div class="bar-row"><div class="bar-label">Random Forest</div><div class="bar-track"><div class="bar-fill" style="width:84%;background:#fca5a5;opacity:0.7"></div></div><div class="bar-val">0.312</div></div>
+        <div class="bar-row"><div class="bar-label">Neural Network</div><div class="bar-track"><div class="bar-fill" style="width:65%;background:#f87171"></div></div><div class="bar-val" style="color:#f87171">0.241</div></div>
+      </div>
+
+      <div class="insight-box" style="border-left-color:#ef4444">
+        <p>
+          <strong>Telecom interpretation:</strong> The low F1-macro (0.3727) is driven by severe class imbalance —
+          Intra-freq HO represents 68% of events while X2-based only 3.4%. SVM correctly handles the dominant
+          class (F1: 0.641) but struggles with rare Inter-RAT and X2-based types.
+          <strong>Recommendation:</strong> apply class-weighted loss or one-vs-rest strategy with SMOTE on
+          minority classes before production. Consider hierarchical classification (binary first, then type).
+        </p>
+      </div>
+
+    </ng-container>
+
+  </div>
+</div>

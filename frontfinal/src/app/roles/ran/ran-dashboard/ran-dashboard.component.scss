@@ -1,0 +1,219 @@
+/* 5G Handover ML Platform Styles */
+:root {
+  --brand: #1E4FC2;
+  --brand-light: #E8F0FE;
+  --brand-mid: #4A7CF5;
+  --sidebar-w: 240px;
+  --success: #1B7C3A;
+  --success-bg: #E6F4EB;
+  --warn: #B45309;
+  --warn-bg: #FEF3C7;
+  --danger: #B91C1C;
+  --danger-bg: #FEE2E2;
+  --info: #0E5FA8;
+  --info-bg: #DBEAFE;
+  --purple: #5B21B6;
+  --purple-bg: #EDE9FE;
+  --bg: #F4F6FA;
+  --surface: #FFFFFF;
+  --border: #E5E7EB;
+  --border2: #D1D5DB;
+  --text1: #111827;
+  --text2: #6B7280;
+  --text3: #9CA3AF;
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+
+.page-header {
+  margin-bottom: 20px;
+}
+
+.page-header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text1);
+}
+
+.page-header p {
+  font-size: 13px;
+  color: var(--text2);
+  margin-top: 3px;
+}
+
+/* CARDS & METRICS */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.metric {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+}
+
+.metric-label {
+  font-size: 11px;
+  color: var(--text2);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.metric-val {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text1);
+  line-height: 1;
+}
+
+.metric-sub {
+  font-size: 11px;
+  margin-top: 5px;
+}
+
+.up {
+  color: var(--success);
+}
+
+.down {
+  color: var(--danger);
+}
+
+.neutral {
+  color: var(--text2);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  transition: transform 0.2s;
+  &:hover { transform: translateY(-2px); }
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text1);
+}
+
+.card-sub {
+  font-size: 11px;
+  color: var(--text2);
+  margin-top: 2px;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* BADGES */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.badge-blue {
+  background: var(--info-bg);
+  color: var(--info);
+}
+
+.badge-green {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.badge-red {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.badge-orange {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+
+.badge-purple {
+  background: var(--purple-bg);
+  color: var(--purple);
+}
+
+.badge-gray {
+  background: #F3F4F6;
+  color: #6B7280;
+}
+
+/* TABLES */
+.tbl-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+th {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text1);
+  font-size: 12.5px;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover td {
+  background: #FAFAFA;
+}
+
+/* Legacy styles for compatibility */
+.avtar {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bg-light-primary { background-color: rgba(99, 102, 241, 0.15); }
+.bg-light-success  { background-color: rgba(34, 197, 94, 0.15); }
+.bg-light-warning  { background-color: rgba(245, 158, 11, 0.15); }
+.bg-light-info     { background-color: rgba(6, 182, 212, 0.15); }
+
+.f-20 { font-size: 20px; }
+.f-40 { font-size: 40px; }

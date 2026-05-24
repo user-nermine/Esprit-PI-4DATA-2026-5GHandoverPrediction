@@ -1,0 +1,49 @@
+<div class="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg viewBox="0 0 24 24" fill="white" width="24" height="24">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:var(--text1)">5G Handover ML</div>
+        <div style="font-size:11px;color:var(--text2)">INVICTUS Platform</div>
+      </div>
+    </div>
+    <div class="login-title">Welcome back</div>
+    <div class="login-sub">Select your role to continue</div>
+    <div class="role-select-grid">
+      <div 
+        *ngFor="let roleKey of getRoleKeys()" 
+        class="role-card" 
+        [class.selected]="selectedRole === roleKey"
+        (click)="selectRole(roleKey)"
+        [style.grid-column]="roleKey === 'admin' ? '1/-1' : ''"
+      >
+        <div class="rc-icon">{{ getRole(roleKey).icon }}</div>
+        <div class="rc-name">{{ getRole(roleKey).name }}</div>
+        <div class="rc-desc">{{ getRole(roleKey).description }}</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input 
+        class="form-input" 
+        type="email" 
+        placeholder="name@company.com" 
+        [(ngModel)]="email"
+      >
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input 
+        class="form-input" 
+        type="password" 
+        placeholder="••••••••" 
+        [(ngModel)]="password"
+      >
+    </div>
+    <button class="login-btn" (click)="onLogin()">Sign In</button>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+<div class="auth-wrapper">
+  <div class="auth-content">
+    <div class="auth-bg">
+      <span class="r"></span>
+      <span class="r s"></span>
+      <span class="r s"></span>
+      <span class="r"></span>
+    </div>
+    <div class="card">
+      <div class="card-body text-center">
+        @if (!success()) {
+          <form (ngSubmit)="onSubmit()">
+            <div class="mb-4">
+              <i class="feather icon-lock auth-icon"></i>
+            </div>
+            <h3 class="mb-2">Reset Password</h3>
+            <p class="text-muted mb-4">Enter your email and we'll send you a reset token.</p>
+
+            @if (error()) {
+              <div class="alert alert-danger text-start">{{ error() }}</div>
+            }
+
+            <div class="input-group mb-3">
+              <input
+                type="email"
+                class="form-control"
+                placeholder="Enter your email"
+                [(ngModel)]="email"
+                name="email"
+                required
+              />
+            </div>
+
+            <button type="submit" class="btn btn-primary mb-4 w-100" [disabled]="loading()">
+              @if (loading()) { <span class="spinner-border spinner-border-sm me-2"></span> }
+              Send Reset Token
+            </button>
+
+            <p class="mb-0 text-muted">
+              Remember your password?
+              <a [routerLink]="['/login']">Back to Login</a>
+            </p>
+          </form>
+        } @else {
+          <div class="mb-4">
+            <i class="feather icon-check-circle auth-icon text-success"></i>
+          </div>
+          <h3 class="mb-2">Token Generated!</h3>
+          <p class="text-muted mb-2">Reset token sent for: <strong>{{ email }}</strong></p>
+          <a [routerLink]="['/new-password', resetToken()]" class="btn btn-primary mb-3">
+            Set New Password
+          </a>
+          <br>
+          <a [routerLink]="['/login']" class="btn btn-outline-secondary mt-2">Back to Login</a>
+        }
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,52 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:4200"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+      routes:
+        - id: prediction-service
+          uri: http://host.docker.internal:8003
+          predicates:
+            - Path=/api/v1/predictions/**,/api/v1/models/**,/api/v1/clusters/*/predict,/api/v1/dso/**
+
+        - id: monitoring-service
+          uri: http://host.docker.internal:8002
+          predicates:
+            - Path=/api/v1/metrics/**,/api/v1/system/**,/api/v1/alerts/**,/api/v1/clusters/**
+
+        - id: explainability-service
+          uri: http://host.docker.internal:8001
+          predicates:
+            - Path=/api/v1/explainability/**
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/auth/**,/api/users/**,/api/audit/**
+
+        - id: reporting-service
+          uri: lb://REPORTING-SERVICE
+          predicates:
+            - Path=/api/reports/**
+
+        - id: simulator-service
+          uri: http://host.docker.internal:8004
+          predicates:
+            - Path=/api/simulator/**
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://discovery-service:8761/eureka/
+  instance:
+    prefer-ip-address: true

@@ -1,0 +1,106 @@
+<!-- NOC OVERVIEW -->
+<div class="row">
+
+  <!-- HEADER NÉON -->
+  <div class="col-12 mb-4">
+    <div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(29, 78, 216, 0.05)); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 20px; padding: 2rem; backdrop-filter: blur(10px); position: relative; overflow: hidden; box-shadow: 0 8px 32px rgba(30, 64, 175, 0.1);">
+      <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #1e40af, #1d4ed8, #7c3aed, #ec4899);"></div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(90deg, #1e40af, #1d4ed8, #7c3aed, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0; text-shadow: 0 0 30px rgba(30, 64, 175, 0.3);">
+            NOC Engineer
+          </h3>
+          <p style="color: #6c757d; margin: 0.5rem 0 0 0; font-size: 1.1rem;">
+            Network Operations Center — real-time network health monitoring and alert management
+          </p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <span style="background: linear-gradient(135deg, #22c55e, #16a34a); color: black; padding: 0.5rem 1rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);">
+            ⚡ Live
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div class="col-12 mb-4">
+    <div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(29, 78, 216, 0.05)); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 16px; padding: 1.5rem; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(30, 64, 175, 0.1);">
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h5 style="color: #000000; font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">Network Live Map</h5>
+
+        <!-- ✅ LEGEND DANS HEADER -->
+        <div style="display: flex; gap: 1rem;">
+          <span style="display: flex; align-items: center; gap: 0.5rem; color: #22c55e; font-size: 0.85rem; font-weight: 600;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span> Healthy
+          </span>
+          <span style="display: flex; align-items: center; gap: 0.5rem; color: #FB923C; font-size: 0.85rem; font-weight: 600;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #FB923C;"></span> Warning
+          </span>
+          <span style="display: flex; align-items: center; gap: 0.5rem; color: #EF4444; font-size: 0.85rem; font-weight: 600;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #EF4444;"></span> Critical
+          </span>
+        </div>
+      </div>
+
+      <!-- MAP -->
+      <div id="map" class="noc-map"></div>
+
+    </div>
+  </div>
+
+ 
+  <!-- ALERTS BY ZONE -->
+<div class="col-12 mb-3">
+  <div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.08), rgba(29, 78, 216, 0.08)); border: 1px solid rgba(30, 64, 175, 0.25); border-radius: 16px; padding: 1.5rem; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(30, 64, 175, 0.12); position: relative; overflow: hidden;">
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #1e40af, #1d4ed8, #7c3aed, #ec4899);"></div>
+    <div style="padding: 0.5rem;">
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h5 style="font-size: 1.2rem; font-weight: 700; background: linear-gradient(90deg, #1e40af, #1d4ed8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0;">Alerts by Zone</h5>
+        <span style="background: rgba(30, 64, 175, 0.1); color: #1d4ed8; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(30, 64, 175, 0.2);">{{ totalAlerts }} Open</span>
+      </div>
+
+      <div *ngFor="let zone of alertZones" style="margin-bottom: 1.5rem;">
+
+        <!-- Zone header -->
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; padding: 0.75rem; background: rgba(30, 64, 175, 0.06); border-radius: 8px; border: 1px solid rgba(30, 64, 175, 0.15);">
+          <span style="width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;"
+            [ngStyle]="{'background': zone.status === 'healthy' ? '#22c55e' : zone.status === 'warning' ? '#FB923C' : '#EF4444',
+                        'box-shadow': zone.status === 'healthy' ? '0 0 6px rgba(34,197,94,0.6)' : zone.status === 'warning' ? '0 0 6px rgba(251,146,60,0.6)' : '0 0 6px rgba(239,68,68,0.6)'}">
+          </span>
+          <span style="font-weight: 700; font-size: 0.95rem; cursor: pointer;"
+            [ngStyle]="{'color': zone.status === 'healthy' ? '#16a34a' : zone.status === 'warning' ? '#d97706' : '#dc2626'}"
+            [routerLink]="['/zone', zone.zone]">
+            {{ zone.zone }} — {{ zone.status | titlecase }}
+          </span>
+        </div>
+
+        <!-- Alert items -->
+        <div *ngFor="let alert of zone.alerts"
+          style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid;"
+          [ngStyle]="{
+            'background': alert.priority === 1 ? 'rgba(239,68,68,0.07)' : alert.priority === 2 ? 'rgba(251,146,60,0.07)' : 'rgba(34,197,94,0.07)',
+            'border-left-color': alert.priority === 1 ? '#EF4444' : alert.priority === 2 ? '#FB923C' : '#22c55e',
+            'border': '1px solid ' + (alert.priority === 1 ? 'rgba(239,68,68,0.2)' : alert.priority === 2 ? 'rgba(251,146,60,0.2)' : 'rgba(34,197,94,0.2)'),
+            'border-left': '3px solid ' + (alert.priority === 1 ? '#EF4444' : alert.priority === 2 ? '#FB923C' : '#22c55e')
+          }">
+          <span style="padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; min-width: 28px; text-align: center;"
+            [ngStyle]="{
+              'background': alert.priority === 1 ? 'rgba(239,68,68,0.15)' : alert.priority === 2 ? 'rgba(251,146,60,0.15)' : 'rgba(34,197,94,0.15)',
+              'color': alert.priority === 1 ? '#EF4444' : alert.priority === 2 ? '#FB923C' : '#22c55e'
+            }">P{{ alert.priority }}</span>
+          <div style="flex: 1; font-size: 0.9rem; color: #1e293b;">{{ alert.message }}</div>
+          <span style="color: #6c757d; font-size: 0.8rem; white-space: nowrap;">{{ alert.time }}</span>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+  
+
+</div>

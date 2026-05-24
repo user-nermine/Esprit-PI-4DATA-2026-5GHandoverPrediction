@@ -1,0 +1,140 @@
+<div class="row">
+
+  <!-- HEADER NÉON -->
+  <div class="col-12 mb-4">
+    <div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(29, 78, 216, 0.05)); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 20px; padding: 2rem; backdrop-filter: blur(10px); position: relative; overflow: hidden; box-shadow: 0 8px 32px rgba(30, 64, 175, 0.1);">
+      <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #1e40af, #1d4ed8, #1e40af, #1d4ed8);"></div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(90deg, #1e40af, #1d4ed8, #1e40af, #1d4ed8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0; text-shadow: 0 0 30px rgba(30, 64, 175, 0.3);">
+            NOC Engineer
+          </h3>
+          <p style="color: #6c757d; margin: 0.5rem 0 0 0; font-size: 1.1rem;">
+            Report Generator — Generate comprehensive PDF/Excel reports with custom sections
+          </p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <span style="background: linear-gradient(135deg, #1e40af, #1e3a8a); color: white; padding: 0.5rem 1rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600; box-shadow: 0 4px 15px rgba(30, 64, 175, 0.2);">
+            ⚡ Reports
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REPORT CONFIGURATION -->
+  <div class="col-xl-7 col-md-12 mb-4">
+    <div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(29, 78, 216, 0.05)); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 16px; padding: 1.5rem; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(30, 64, 175, 0.1); height: 100%;">
+      <div style="padding: 0.5rem;">
+        <h5 style="color: #000000; font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem;">Report Configuration</h5>
+
+        <!-- Report Title -->
+        <div class="mb-3">
+          <label style="color: #1e40af; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">Report Title</label>
+          <input type="text" style="background: rgba(30, 64, 175, 0.1); border: 1px solid rgba(30, 64, 175, 0.3); color: #1e40af; padding: 0.75rem; border-radius: 8px; font-weight: 500; backdrop-filter: blur(10px); transition: all 0.3s ease; width: 100%;" [(ngModel)]="reportTitle" />
+        </div>
+
+        
+        <!-- Period -->
+        <div class="mb-3">
+          <label style="color: #1e40af; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">Period</label>
+          <div style="display: flex; gap: 1rem;">
+            <input type="date" style="background: rgba(30, 64, 175, 0.1); border: 1px solid rgba(30, 64, 175, 0.3); color: #1e40af; padding: 0.75rem; border-radius: 8px; font-weight: 500; backdrop-filter: blur(10px); transition: all 0.3s ease; flex: 1;" [(ngModel)]="dateFrom" />
+            <input type="date" style="background: rgba(30, 64, 175, 0.1); border: 1px solid rgba(30, 64, 175, 0.3); color: #1e40af; padding: 0.75rem; border-radius: 8px; font-weight: 500; backdrop-filter: blur(10px); transition: all 0.3s ease; flex: 1;" [(ngModel)]="dateTo" />
+          </div>
+        </div>
+
+        <!-- Zones -->
+        <div class="mb-3">
+          <label style="color: #1e40af; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">Zones</label>
+          <select multiple style="background: rgba(30, 64, 175, 0.1); border: 1px solid rgba(30, 64, 175, 0.3); color: #1e40af; padding: 0.75rem; border-radius: 8px; font-weight: 500; backdrop-filter: blur(10px); transition: all 0.3s ease; width: 100%; height: 120px;" [(ngModel)]="selectedZones">
+            <option style="background: #1a1a1a; color: #1e40af;" value="Zone A">Zone A</option>
+            <option style="background: #1a1a1a; color: #1e40af;" value="Zone B">Zone B</option>
+            <option style="background: #1a1a1a; color: #1e40af;" value="Zone C">Zone C</option>
+            <option style="background: #1a1a1a; color: #1e40af;" value="Zone D">Zone D</option>
+          </select>
+          <small style="color: #6c757d; font-size: 0.75rem; margin-top: 0.25rem; display: block;">Ctrl+clic pour sélectionner plusieurs zones</small>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- INCLUDE SECTIONS -->
+  <div class="col-xl-5 col-md-12 mb-4">
+    <div style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.05), rgba(109, 40, 217, 0.05)); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 16px; padding: 1.5rem; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(124, 58, 237, 0.1);">
+      <div style="padding: 0.5rem;">
+        <h5 style="color: #000000; font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem;">Include Sections</h5>
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <label style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.05); border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.1); cursor: pointer; transition: all 0.3s ease;">
+            <input type="checkbox" [(ngModel)]="criticalAlerts" style="width: 18px; height: 18px; accent-color: #EF4444;" />
+            <span style="color: #000000; font-size: 0.9rem; font-weight: 500;">Critical Alerts</span>
+            <div style="color: #6c757d; font-size: 0.75rem; margin-left: 0.5rem;">Operational incidents and alarm severity analysis.</div>
+          </label>
+          
+          <label style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: rgba(34, 197, 94, 0.05); border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.1); cursor: pointer; transition: all 0.3s ease;">
+            <input type="checkbox" [(ngModel)]="geographicCoordinates" style="width: 18px; height: 18px; accent-color: #22c55e;" />
+            <span style="color: #000000; font-size: 0.9rem; font-weight: 500;">Geographic Coordinates</span>
+            <div style="color: #6c757d; font-size: 0.75rem; margin-left: 0.5rem;">Zone locations and geographic data visualization.</div>
+          </label>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- ACTION BUTTONS -->
+  <div class="col-12 mb-4">
+    <div style="display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
+      <button style="background: linear-gradient(135deg, #1e3a8a, #2563eb); border: none; color: white; padding: 0.75rem 1.75rem; border-radius: 12px; font-weight: 700; font-size: 0.95rem; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35); display: inline-flex; align-items: center; gap: 0.6rem; cursor: pointer; transition: all 0.3s ease;" (click)="generatePDF()">
+        <i class="feather icon-file-text" style="font-size: 1rem;"></i>
+        Generate Report
+      </button>
+    </div>
+  </div>
+
+  <!-- HISTORIQUE -->
+  <div class="col-12 mb-3">
+    <div class="card noc-section-card">
+      <div class="card-body">
+        <h5 class="f-w-600 mb-3">Historique des rapports</h5>
+        <div class="table-responsive">
+          <table class="table noc-table mb-0">
+            <thead>
+              <tr>
+                <th>TITRE</th>
+                <th>PÉRIODE</th>
+                <th>ZONES</th>
+                <th>FORMAT</th>
+                <th>DATE</th>
+                <th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of history">
+                <td class="f-w-600">{{ r.title }}</td>
+                <td class="text-muted">{{ r.period }}</td>
+                <td>{{ r.zones }}</td>
+                <td>
+                  <span class="noc-status-badge"
+                        [ngClass]="r.format === 'PDF' ? 'rp-badge-pdf' : r.format === 'Excel' ? 'rp-badge-excel' : 'rp-badge-mail'">
+                    {{ r.format }}
+                  </span>
+                </td>
+                <td class="text-muted">{{ r.date }}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-secondary" style="font-size:11px;">
+                    Télécharger
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

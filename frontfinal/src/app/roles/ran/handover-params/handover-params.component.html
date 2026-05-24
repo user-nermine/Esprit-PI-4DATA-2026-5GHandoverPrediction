@@ -1,0 +1,147 @@
+<div class="row">
+  <div class="col-12">
+    <div class="page-header">
+      <div class="page-block">
+        <div class="row align-items-center">
+          <div class="col-md-12">
+            <div class="page-header-title">
+              <h5 class="m-b-10">Handover Parameters</h5>
+            </div>
+            <ul class="breadcrumb">
+              <li class="breadcrumb-item"><a [routerLink]="['/dashboard']">Home</a></li>
+              <li class="breadcrumb-item"><a [routerLink]="['../']">RAN Engineer</a></li>
+              <li class="breadcrumb-item">Handover Parameters</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Handover Parameter Sets</h5>
+        <button class="btn btn-success btn-sm" (click)="openAddModal()">
+          <i class="feather icon-plus me-1"></i> Add Parameters
+        </button>
+      </div>
+      <div class="card-body p-0">
+
+        <div *ngIf="loading" class="text-center py-4">
+          <div class="spinner-border text-success"></div>
+        </div>
+
+        <div class="table-responsive" *ngIf="!loading">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Cell Name</th>
+                <th>Algorithm</th>
+                <th>A3 Offset (dB)</th>
+                <th>Hysteresis (dB)</th>
+                <th>TTT (ms)</th>
+                <th>Last Modified</th>
+                <th>Modified By</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of params">
+                <td><strong>{{ p.cellName }}</strong></td>
+                <td><span class="badge bg-primary">{{ p.handoverAlgorithm }}</span></td>
+                <td>
+                  <span [class]="p.a3Offset > 3 ? 'text-warning fw-bold' : ''">
+                    {{ p.a3Offset }}
+                  </span>
+                </td>
+                <td>{{ p.hysteresis }}</td>
+                <td>{{ p.ttt }}</td>
+                <td>{{ p.lastModified | date:'dd/MM/yyyy' }}</td>
+                <td><small class="text-muted">{{ p.modifiedBy }}</small></td>
+                <td>
+                  <button class="btn btn-sm btn-outline-success me-1"
+                    (click)="openEditModal(p)">
+                    <i class="feather icon-edit-2"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger"
+                    (click)="deleteParams(p.id)">
+                    <i class="feather icon-trash-2"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade show d-block" tabindex="-1" *ngIf="showModal"
+  style="background:rgba(0,0,0,0.5)">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{ isEditMode ? 'Edit Parameters' : 'Add Handover Parameters' }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+
+          <div class="col-12">
+            <label class="form-label">Cell Name</label>
+            <input type="text" class="form-control"
+              [(ngModel)]="formData.cellName" placeholder="CELL-TUN-001-A">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Algorithm</label>
+            <select class="form-select" [(ngModel)]="formData.handoverAlgorithm">
+              <option *ngFor="let a of algorithmOptions" [value]="a">{{ a }}</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">TTT (ms)</label>
+            <select class="form-select" [(ngModel)]="formData.ttt">
+              <option *ngFor="let t of tttOptions" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">A3 Offset (dB): {{ formData.a3Offset }}</label>
+            <input type="range" class="form-range" min="-30" max="30" step="0.5"
+              [(ngModel)]="formData.a3Offset">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Hysteresis (dB): {{ formData.hysteresis }}</label>
+            <input type="range" class="form-range" min="0" max="30" step="0.5"
+              [(ngModel)]="formData.hysteresis">
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Modified By</label>
+            <input type="text" class="form-control"
+              [(ngModel)]="formData.modifiedBy">
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+        <button class="btn btn-success" (click)="saveParams()" [disabled]="saving">
+          <span *ngIf="saving" class="spinner-border spinner-border-sm me-1"></span>
+          {{ isEditMode ? 'Update' : 'Add' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

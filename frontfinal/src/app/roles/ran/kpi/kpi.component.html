@@ -1,0 +1,107 @@
+<div style="background: #ffffff; color: #1a1a1a; padding: 3rem 0; margin-bottom: 3rem; position: relative; overflow: hidden; border-bottom: 3px solid transparent; border-image: linear-gradient(90deg, #1e40af, #1d4ed8, #7C3AED, #FF4D9D) 1;">
+  <!-- Effet de réseau IA mode light -->
+  <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.08; pointer-events: none;">
+    <svg style="width: 100%; height: 100%;" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="network-kpi" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+          <circle cx="50" cy="50" r="1.5" fill="#1e40af" opacity="0.3"/>
+          <line x1="50" y1="50" x2="100" y2="50" stroke="#2563EB" stroke-width="0.3" opacity="0.2"/>
+          <line x1="50" y1="50" x2="50" y2="100" stroke="#7C3AED" stroke-width="0.3" opacity="0.2"/>
+          <line x1="50" y1="50" x2="0" y2="50" stroke="#FF4D9D" stroke-width="0.3" opacity="0.2"/>
+          <line x1="50" y1="50" x2="50" y2="0" stroke="#1e40af" stroke-width="0.3" opacity="0.2"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#network-kpi)"/>
+    </svg>
+  </div>
+  <div style="position: relative; z-index: 1;">
+    <div>
+      <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; background: linear-gradient(90deg, #1e40af, #1d4ed8, #7C3AED, #FF4D9D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">RAN Engineer KPI Monitoring</h1>
+      <div class="update-indicator" style="display: flex; align-items: center; gap: 1rem;">
+        <span style="background: linear-gradient(135deg, #1e40af, #1d4ed8); color: white; padding: 0.5rem 1rem; border-radius: 25px; font-weight: 600; backdrop-filter: blur(10px); transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 64, 175, 0.2);" *ngIf="isUpdating">
+          <i class="fa fa-refresh fa-spin" style="margin-right: 0.5rem;"></i> Updating...
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<!-- Zone Selection -->
+<div style="background: white; border: 1px solid rgba(30, 64, 175, 0.3); border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(10px); transition: all 0.3s ease; position: relative; overflow: hidden; margin-bottom: 2rem; box-shadow: 0 4px 20px rgba(30, 64, 175, 0.1);">
+  <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #00E6FF, #2563EB, #7C3AED, #FF4D9D);"></div>
+  <div style="margin-bottom: 1.5rem;">
+    <h3 style="font-size: 1.5rem; font-weight: 700; background: linear-gradient(90deg, #1e40af, #1d4ed8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Zone Selection</h3>
+  </div>
+  <div style="display: flex; align-items: center; gap: 1rem;">
+    <label style="color: #1e40af; font-weight: 600;">Select Zone:</label>
+    <select [(ngModel)]="selectedZone" (change)="onZoneChange($event)" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.1), rgba(29, 78, 216, 0.1)); border: 1px solid rgba(30, 64, 175, 0.2); color: #1e40af; padding: 0.5rem 1rem; border-radius: 10px; font-weight: 600; backdrop-filter: blur(10px);">
+      <option value="">All Zones</option>
+      <option *ngFor="let zone of availableZones" [value]="zone">{{ zone }}</option>
+    </select>
+    <button (click)="refreshZoneData()" style="background: linear-gradient(135deg, #1e40af, #1d4ed8); border: 1px solid #1e40af; color: white; padding: 0.5rem 1rem; border-radius: 15px; font-weight: 600; backdrop-filter: blur(10px); transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 64, 175, 0.2);">
+      <i class="fa fa-refresh" style="margin-right: 0.5rem;"></i> Refresh
+    </button>
+  </div>
+  <div style="margin-top: 1rem; color: #6c757d; font-size: 0.9rem;">
+    <strong>Currently displaying:</strong> All Zones
+    <span style="margin-left: 1rem; color: #1e40af;">
+      Last updated: {{ lastUpdateTime }}
+    </span>
+  </div>
+</div>
+
+<div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+  <!-- RSRP -->
+  <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 15px; padding: 1.5rem; flex: 1;">
+    <div style="font-size: 0.85rem; color: #6c757d; font-weight: 500; margin-bottom: 0.75rem;">RSRP (avg)</div>
+    <div style="font-size: 1.8rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem;">{{ currentClusterMetrics.avgRsrp }} dBm</div>
+    <div style="font-size: 0.8rem; color: #22c55e; font-weight: 500;">↑ +2.1 from baseline</div>
+  </div>
+  <!-- SINR -->
+  <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 15px; padding: 1.5rem; flex: 1;">
+    <div style="font-size: 0.85rem; color: #6c757d; font-weight: 500; margin-bottom: 0.75rem;">SINR (avg)</div>
+    <div style="font-size: 1.8rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem;">{{ currentClusterMetrics.avgSinr }} dB</div>
+    <div style="font-size: 0.8rem; color: #22c55e; font-weight: 500;">↑ Good coverage</div>
+  </div>
+  <!-- RSRQ -->
+  <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 15px; padding: 1.5rem; flex: 1;">
+    <div style="font-size: 0.85rem; color: #6c757d; font-weight: 500; margin-bottom: 0.75rem;">RSRQ (avg)</div>
+    <div style="font-size: 1.8rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem;">-9.8 dB</div>
+    <div style="font-size: 0.8rem; color: #6c757d; font-weight: 500;">→ Stable</div>
+  </div>
+  <!-- CQI -->
+  <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 15px; padding: 1.5rem; flex: 1;">
+    <div style="font-size: 0.85rem; color: #6c757d; font-weight: 500; margin-bottom: 0.75rem;">CQI (avg)</div>
+    <div style="font-size: 1.8rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem;">{{ currentClusterMetrics.activeCells }}</div>
+    <div style="font-size: 0.8rem; color: #22c55e; font-weight: 500;">↑ Good quality</div>
+  </div>
+</div>
+
+
+<div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
+  <div style="background: white; border: 1px solid rgba(0, 230, 255, 0.3); border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(10px); transition: all 0.3s ease; position: relative; overflow: hidden; flex: 1; box-shadow: 0 4px 20px rgba(0, 230, 255, 0.1);">
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #1e40af, #1d4ed8, #7C3AED, #FF4D9D);"></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <div>
+        <h3 style="font-size: 1.5rem; font-weight: 700; background: linear-gradient(90deg, #1e40af, #1d4ed8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Zone Performance Metrics</h3>
+      </div>
+      <span style="background: linear-gradient(135deg, #1e40af, #1d4ed8); color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600;">RADIO</span>
+    </div>
+    <div style="position:relative;height:300px"><canvas #chartKPI1></canvas></div>
+  </div>
+  <div style="background: white; border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(10px); transition: all 0.3s ease; position: relative; overflow: hidden; flex: 1; box-shadow: 0 4px 20px rgba(124, 58, 237, 0.1);">
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #7C3AED, #FF4D9D, #00E6FF, #2563EB);"></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <div>
+        <h3 style="font-size: 1.5rem; font-weight: 700; background: linear-gradient(90deg, #7C3AED, #FF4D9D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">RSRP Drop Analysis</h3>
+      </div>
+      <span style="background: linear-gradient(135deg, #7C3AED, #FF4D9D); color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600;">SIGNAL</span>
+    </div>
+    <div style="position:relative;height:300px"><canvas #chartKPI2></canvas></div>
+  </div>
+</div>
+

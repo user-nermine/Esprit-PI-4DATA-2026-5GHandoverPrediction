@@ -1,0 +1,214 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="header-row">
+    <div>
+      <h1>RAN Signal Degradation Report</h1>
+      <div class="header-sub">Comprehensive analysis of radio access network performance and handover failures</div>
+    </div>
+    <button class="btn-back" (click)="goBack()">
+      <i class="feather icon-arrow-left"></i> Back
+    </button>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-grid">
+  <div class="kpi-card cyan">
+    <div class="kpi-label">Avg RSRP</div>
+    <div><span class="kpi-value cyan">-88</span><span class="kpi-unit">dBm</span></div>
+    <div class="kpi-sub">&#8595; 2.1 dBm vs last period</div>
+  </div>
+  <div class="kpi-card purple">
+    <div class="kpi-label">Avg SINR</div>
+    <div><span class="kpi-value purple">14.3</span><span class="kpi-unit">dB</span></div>
+    <div class="kpi-sub">&#8593; 0.8 dB vs last period</div>
+  </div>
+  <div class="kpi-card red">
+    <div class="kpi-label">HO Failure Rate</div>
+    <div><span class="kpi-value red">8.4</span><span class="kpi-unit">%</span></div>
+    <div class="kpi-sub">&#8593; 1.3% vs last period</div>
+  </div>
+  <div class="kpi-card green">
+    <div class="kpi-label">HO Success Rate</div>
+    <div><span class="kpi-value green">91.6</span><span class="kpi-unit">%</span></div>
+    <div class="kpi-sub">&#8595; 1.3% vs last period</div>
+  </div>
+</div>
+
+<!-- Two-column: Config + Overview -->
+<div class="two-col">
+
+  <!-- Left: Report Configuration -->
+  <div class="report-card">
+    <h3 class="card-title">
+      <i class="feather icon-settings"></i> Report Configuration
+    </h3>
+
+    <div class="form-group">
+      <label>Report Title</label>
+      <input type="text" [(ngModel)]="reportTitle" />
+    </div>
+
+    <div class="form-group">
+      <label>Environment</label>
+      <select [(ngModel)]="environment">
+        <option value="production">Production</option>
+        <option value="staging">Staging</option>
+        <option value="development">Development</option>
+      </select>
+    </div>
+
+    <div class="date-row">
+      <div class="form-group">
+        <label>Date From</label>
+        <input type="date" [(ngModel)]="dateFrom" />
+      </div>
+      <div class="form-group">
+        <label>Date To</label>
+        <input type="date" [(ngModel)]="dateTo" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Report Sections</label>
+      <div class="check-grid">
+        <label *ngFor="let sec of sections">
+          <input type="checkbox" [(ngModel)]="sec.checked" />
+          {{ sec.label }}
+        </label>
+      </div>
+    </div>
+
+    <div class="format-box">
+      <i class="feather icon-file-text"></i>
+      <span>Format: <strong>PDF</strong> &middot; Est. {{ estimatedPages }} pages</span>
+    </div>
+
+    <button class="btn-generate" (click)="generateReport()">
+      <i class="feather icon-file-text"></i> Generate Report
+    </button>
+  </div>
+
+  <!-- Right: KPI Overview + Preview -->
+  <div class="report-card">
+    <h3 class="card-title">
+      <i class="feather icon-bar-chart-2"></i> Radio KPI Overview
+    </h3>
+
+    <div class="bar-row" *ngFor="let row of kpiRows">
+      <div class="bar-label">{{ row.label }}</div>
+      <div class="bar-track">
+        <div class="bar-fill" [class]="row.color" [style.width.%]="row.pct"></div>
+      </div>
+      <div class="bar-val">{{ row.value }} {{ row.unit }}</div>
+    </div>
+
+    <div class="preview-box">
+      <div class="preview-title">REPORT PREVIEW</div>
+      <div class="preview-line"></div>
+      <div class="preview-line short"></div>
+      <div class="preview-line shorter"></div>
+      <div class="preview-sections">
+        <span *ngFor="let sec of selectedSections">{{ sec.label }}</span>
+      </div>
+      <div class="preview-meta">{{ estimatedPages }} pages &middot; PDF &middot; {{ environment }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- HO Failure Analysis Table -->
+<div class="report-card" style="margin-bottom:2rem;">
+  <h3 class="card-title">
+    <i class="feather icon-alert-triangle"></i> HO Failure Analysis
+  </h3>
+  <div style="overflow-x:auto;">
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>Cell ID</th>
+          <th>Zone</th>
+          <th>HO Type</th>
+          <th>Failure Rate</th>
+          <th>RSRP</th>
+          <th>SINR</th>
+          <th>Cause</th>
+          <th>Severity</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of hoFailures">
+          <td><strong>{{ row.cellId }}</strong></td>
+          <td>{{ row.zone }}</td>
+          <td>{{ row.hoType }}</td>
+          <td>{{ row.failureRate }}%</td>
+          <td>{{ row.rsrp }} dBm</td>
+          <td>{{ row.sinr }} dB</td>
+          <td>{{ row.cause }}</td>
+          <td><span class="badge" [class]="row.severity">{{ row.severity }}</span></td>
+          <td>
+            <span class="badge"
+              [class.open]="row.status === 'Open'"
+              [class.in-review]="row.status === 'In Review'"
+              [class.resolved]="row.status === 'Resolved'">{{ row.status }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Recommendations -->
+<div class="report-card" style="margin-bottom:2rem;">
+  <h3 class="card-title">
+    <i class="feather icon-check-circle"></i> Recommendations
+  </h3>
+  <div class="rec-list">
+    <div class="rec-item" *ngFor="let rec of recommendations">
+      <div class="rec-dot" [class]="rec.priority"></div>
+      <div>
+        <div class="rec-title">
+          <span class="badge" [class]="rec.priority" style="margin-right:0.5rem;">{{ rec.priority }}</span>
+          {{ rec.title }}
+        </div>
+        <div class="rec-desc">{{ rec.description }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Report History -->
+<div class="report-card">
+  <h3 class="card-title">
+    <i class="feather icon-clock"></i> Report History
+  </h3>
+  <table class="report-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Title</th>
+        <th>Type</th>
+        <th>Pages</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of history">
+        <td>{{ item.date }}</td>
+        <td>{{ item.title }}</td>
+        <td><span class="badge" [class]="item.typeClass">{{ item.type }}</span></td>
+        <td>{{ item.pages }}</td>
+        <td><span class="badge" [class]="item.statusClass">{{ item.status }}</span></td>
+        <td style="display:flex;gap:0.4rem;">
+          <button class="btn-sm download" (click)="downloadReport(item)">
+            <i class="feather icon-download"></i> Download
+          </button>
+          <button class="btn-sm view" (click)="viewReport(item)">
+            <i class="feather icon-eye"></i> View
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

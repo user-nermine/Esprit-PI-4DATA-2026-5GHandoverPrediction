@@ -1,0 +1,163 @@
+<div class="page">
+
+  <div class="page-title">Reporting</div>
+  <div class="breadcrumb-rp">Data Scientist / <span>Reporting</span></div>
+  <div class="divider"></div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card c1">
+      <div class="kpi-icon"><i class="feather icon-file-text"></i></div>
+      <div class="kpi-lbl">Total reports</div>
+      <div class="kpi-val cyan">24</div>
+      <div class="kpi-sub">Generated this month</div>
+    </div>
+    <div class="kpi-card c2">
+      <div class="kpi-icon"><i class="feather icon-clock"></i></div>
+      <div class="kpi-lbl">Last report</div>
+      <div class="kpi-val purple">2h ago</div>
+      <div class="kpi-sub">HO Prediction &middot; Full report</div>
+    </div>
+    <div class="kpi-card c3">
+      <div class="kpi-icon"><i class="feather icon-check-circle"></i></div>
+      <div class="kpi-lbl">Approved models</div>
+      <div class="kpi-val green">3 / 4</div>
+      <div class="kpi-sub">DSOs validated</div>
+    </div>
+    <div class="kpi-card c4">
+      <div class="kpi-icon"><i class="feather icon-alert-triangle"></i></div>
+      <div class="kpi-lbl">Drift alerts</div>
+      <div class="kpi-val pink">2 active</div>
+      <div class="kpi-sub">RSRP &middot; tx_power</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+
+    <!-- Report Configuration -->
+    <div class="ncard">
+      <div class="card-title cyan">Report Configuration</div>
+
+      <div class="form-group">
+        <label class="form-label">Report Title</label>
+        <input type="text" [(ngModel)]="reportTitle" placeholder="e.g. Monthly ML Performance Report — May 2026" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Target Model</label>
+        <select [(ngModel)]="targetModel">
+          <option>All Models</option>
+          <option>HO Prediction</option>
+          <option>Signal Degradation</option>
+          <option>Next Best Cell</option>
+          <option>Handover Type</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Date Range</label>
+        <div class="date-row">
+          <input type="date" [(ngModel)]="dateFrom" />
+          <input type="date" [(ngModel)]="dateTo" />
+        </div>
+      </div>
+
+      <div class="section-lbl">Include Sections</div>
+      <div class="check-grid">
+        <div class="check-item" *ngFor="let s of sections">
+          <input type="checkbox" [(ngModel)]="s.checked" [id]="s.id" />
+          <label [for]="s.id">
+            <i class="feather {{s.icon}}" style="font-size:13px;margin-right:4px;color:#06b6d4"></i>{{ s.name }}
+          </label>
+        </div>
+      </div>
+
+      <button class="btn-generate" (click)="generateReport()">
+        <i class="feather icon-file-text"></i> Generate Report
+      </button>
+    </div>
+
+    <!-- Report Preview -->
+    <div class="ncard2">
+      <div class="card-title purple">Report Preview</div>
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:10px">Sections included in the next report</div>
+
+      <div class="preview-box">
+        <div class="preview-title">Report structure</div>
+        <div class="preview-item"><i class="feather icon-check-circle"></i> Executive Summary</div>
+        <ng-container *ngFor="let s of sections">
+          <div class="preview-item" [style.color]="s.checked ? '#334155' : '#cbd5e1'">
+            <i class="feather" [ngClass]="s.checked ? 'icon-check-circle' : 'icon-circle'"
+               [style.color]="s.checked ? '#06b6d4' : '#cbd5e1'"></i>
+            {{ s.name }}<span *ngIf="!s.checked" style="font-size:11px;margin-left:4px">(not selected)</span>
+          </div>
+        </ng-container>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+        <div style="background:#f8fafc;border-radius:10px;padding:10px 12px;text-align:center">
+          <div style="font-size:11px;color:#94a3b8;margin-bottom:3px">Est. pages</div>
+          <div style="font-size:18px;font-weight:600;color:#06b6d4">~{{ estimatedPages }}</div>
+        </div>
+        <div style="background:#f8fafc;border-radius:10px;padding:10px 12px;text-align:center">
+          <div style="font-size:11px;color:#94a3b8;margin-bottom:3px">Format</div>
+          <div style="font-size:18px;font-weight:600;color:#818cf8">{{ selectedFormat }}</div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px">
+        <div class="section-lbl">Quick generate</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div *ngFor="let q of quickReports"
+            style="display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border-radius:10px;padding:10px 12px;border:1px solid #e2e8f0">
+            <div>
+              <div style="font-size:12px;font-weight:600;color:#334155">{{ q.title }}</div>
+              <div style="font-size:11px;color:#94a3b8">{{ q.sub }}</div>
+            </div>
+            <button class="action-btn" (click)="quickGenerate(q.title)">
+              <i class="feather icon-zap"></i> Quick
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report History -->
+  <div class="ncard3">
+    <div class="card-title pink">Report History</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Report Name</th>
+          <th>Type</th>
+          <th>Model</th>
+          <th>Generated</th>
+          <th>By</th>
+          <th>Format</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of history">
+          <td style="font-weight:500;color:#0f172a">{{ r.name }}</td>
+          <td><span class="type-badge" [ngClass]="r.typeClass">{{ r.type }}</span></td>
+          <td>{{ r.model }}</td>
+          <td>{{ r.generated }}</td>
+          <td>{{ r.by }}</td>
+          <td>{{ r.format }}</td>
+          <td><span class="status-badge" [ngClass]="r.statusClass">
+            <i class="feather" [ngClass]="r.statusIcon" style="font-size:10px"></i> {{ r.status }}
+          </span></td>
+          <td style="display:flex;gap:4px">
+            <button class="action-btn" [style.color]="r.status === 'Pending' ? '#94a3b8' : ''"
+              (click)="downloadReport(r)"><i class="feather icon-download"></i></button>
+            <button class="action-btn" (click)="viewReport(r)"><i class="feather icon-eye"></i></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

@@ -1,0 +1,459 @@
+.performance-analyst-dashboard {
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+  h1 {
+    margin: 0;
+    color: #333;
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 10px;
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      &.btn-primary {
+        background: #3b82f6;
+        color: white;
+
+        &:hover {
+          background: #2563eb;
+        }
+      }
+
+      &.btn-secondary {
+        background: #e5e7eb;
+        color: #374151;
+
+        &:hover {
+          background: #d1d5db;
+        }
+      }
+
+      .icon-file-text,
+      .icon-download {
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+.overview-section {
+  margin-bottom: 30px;
+
+  .overview-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+
+    .overview-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-align: center;
+
+      h3 {
+        margin: 0 0 10px 0;
+        color: #666;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .metric-value {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #333;
+      }
+
+      .metric-trend {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        font-size: 14px;
+        font-weight: 500;
+
+        &.trend-up {
+          color: #10b981;
+        }
+
+        &.trend-down {
+          color: #ef4444;
+        }
+
+        .icon-arrow-up,
+        .icon-arrow-down {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+}
+
+.charts-section {
+  margin-bottom: 30px;
+
+  .chart-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+
+    .chart-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+      h2 {
+        margin: 0 0 20px 0;
+        color: #333;
+        font-size: 18px;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+.cluster-details {
+  margin-bottom: 30px;
+
+  h2 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .cluster-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+
+    .cluster-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+      .cluster-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+
+        h3 {
+          margin: 0;
+          color: #333;
+          font-size: 16px;
+          font-weight: 600;
+        }
+
+        .cluster-status {
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 500;
+
+          &.status-good {
+            background: #d1fae5;
+            color: #065f46;
+          }
+
+          &.status-warning {
+            background: #fed7aa;
+            color: #92400e;
+          }
+
+          &.status-critical {
+            background: #fee2e2;
+            color: #991b1b;
+          }
+        }
+      }
+
+      .cluster-metrics {
+        margin-bottom: 15px;
+
+        .metric {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 8px;
+          font-size: 14px;
+
+          .metric-label {
+            color: #666;
+          }
+
+          .metric-value {
+            font-weight: 600;
+            color: #333;
+          }
+        }
+      }
+
+      .cluster-actions {
+        display: flex;
+        gap: 10px;
+
+        .btn {
+          padding: 6px 12px;
+          border: none;
+          border-radius: 4px;
+          font-size: 12px;
+          cursor: pointer;
+          transition: all 0.2s;
+
+          &.btn-primary {
+            background: #3b82f6;
+            color: white;
+
+            &:hover {
+              background: #2563eb;
+            }
+          }
+
+          &.btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+
+            &:hover {
+              background: #d1d5db;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.recommendations-section {
+  margin-bottom: 30px;
+
+  h2 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .recommendations-grid {
+    display: grid;
+    gap: 15px;
+
+    .recommendation-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border-left: 4px solid #3b82f6;
+
+      &.priority-high {
+        border-left-color: #ef4444;
+      }
+
+      &.priority-medium {
+        border-left-color: #f59e0b;
+      }
+
+      &.priority-low {
+        border-left-color: #10b981;
+      }
+
+      .recommendation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+
+        h3 {
+          margin: 0;
+          color: #333;
+          font-size: 16px;
+          font-weight: 600;
+        }
+
+        .priority-badge {
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 500;
+          text-transform: uppercase;
+        }
+      }
+
+      .recommendation-content {
+        margin-bottom: 15px;
+
+        p {
+          margin: 0 0 10px 0;
+          color: #666;
+          font-size: 14px;
+          line-height: 1.5;
+        }
+
+        .recommendation-impact {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 14px;
+
+          .impact-label {
+            color: #666;
+          }
+
+          .impact-value {
+            font-weight: 600;
+            color: #10b981;
+          }
+        }
+      }
+
+      .recommendation-actions {
+        display: flex;
+        gap: 10px;
+
+        .btn {
+          padding: 6px 12px;
+          border: none;
+          border-radius: 4px;
+          font-size: 12px;
+          cursor: pointer;
+          transition: all 0.2s;
+
+          &.btn-primary {
+            background: #3b82f6;
+            color: white;
+
+            &:hover {
+              background: #2563eb;
+            }
+          }
+
+          &.btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+
+            &:hover {
+              background: #d1d5db;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.historical-section {
+  h2 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .time-range-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+
+    .btn {
+      padding: 8px 16px;
+      border: 1px solid #e5e7eb;
+      background: white;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &.active {
+        background: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+      }
+
+      &:hover:not(.active) {
+        background: #f8f9fa;
+      }
+    }
+  }
+
+  .historical-chart {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+}
+
+// Priority badge colors
+.recommendation-card.priority-high .priority-badge {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.recommendation-card.priority-medium .priority-badge {
+  background: #fed7aa;
+  color: #92400e;
+}
+
+.recommendation-card.priority-low .priority-badge {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .performance-analyst-dashboard {
+    padding: 10px;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .overview-section .overview-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .charts-section .chart-row {
+    grid-template-columns: 1fr;
+  }
+
+  .cluster-details .cluster-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .historical-section .time-range-selector {
+    flex-wrap: wrap;
+  }
+}

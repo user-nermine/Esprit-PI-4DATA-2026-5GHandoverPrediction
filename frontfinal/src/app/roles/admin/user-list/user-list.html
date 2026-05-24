@@ -1,0 +1,85 @@
+<div class="row">
+  <div class="col-sm-12">
+    <div style="background: linear-gradient(135deg, rgba(0, 230, 255, 0.05), rgba(37, 99, 235, 0.05)); border: 1px solid rgba(0, 230, 255, 0.2); border-radius: 20px; padding: 2rem; backdrop-filter: blur(10px); position: relative; overflow: hidden; box-shadow: 0 8px 32px rgba(0, 230, 255, 0.1);">
+      <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #00E6FF, #2563EB, #7C3AED, #FF4D9D);"></div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h5 style="color: #000000; font-size: 1.5rem; font-weight: 700; margin: 0;">User Management</h5>
+        <span style="background: linear-gradient(135deg, #22c55e, #16a34a); color: black; padding: 0.5rem 1rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);">
+          📋 All Users
+        </span>
+      </div>
+
+      @if (error()) {
+        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; color: #EF4444; font-weight: 500;">{{ error() }}</div>
+      }
+
+      <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+        <div style="flex: 1;">
+          <input type="text" style="background: rgba(30, 64, 175, 0.1); border: 1px solid rgba(30, 64, 175, 0.3); color: #1e40af; padding: 0.75rem 1rem; border-radius: 12px; font-weight: 500; backdrop-filter: blur(10px); transition: all 0.3s ease; width: 100%;"
+            placeholder="Search by name or email..."
+            [(ngModel)]="searchTerm" />
+        </div>
+        <div>
+          <button style="background: linear-gradient(135deg, #1e40af, #1d4ed8); border: 1px solid #1e40af; color: white; padding: 0.75rem 1.5rem; border-radius: 12px; font-weight: 600; backdrop-filter: blur(10px); transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(30, 64, 175, 0.2); display: inline-flex; align-items: center; gap: 0.5rem;" routerLink="/admin/add">
+            <i class="feather icon-user-plus" style="font-size: 16px;"></i> Add User
+          </button>
+        </div>
+      </div>
+
+        @if (loading()) {
+          <div style="text-align: center; padding: 2rem;">
+            <div style="width: 40px; height: 40px; border: 4px solid rgba(30, 64, 175, 0.2); border-top: 4px solid #1e40af; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+          </div>
+        } @else {
+          <div style="background: rgba(0, 0, 0, 0.05); border: 1px solid rgba(0, 0, 0, 0.1); border-radius: 12px; overflow: hidden; backdrop-filter: blur(10px);">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.1), rgba(29, 78, 216, 0.1));">
+                  <th style="padding: 1rem; color: #1e40af; font-weight: 600; text-align: left; border-bottom: 1px solid rgba(30, 64, 175, 0.2);">#</th>
+                  <th style="padding: 1rem; color: #1e40af; font-weight: 600; text-align: left; border-bottom: 1px solid rgba(30, 64, 175, 0.2);">Name</th>
+                  <th style="padding: 1rem; color: #1e40af; font-weight: 600; text-align: left; border-bottom: 1px solid rgba(30, 64, 175, 0.2);">Email</th>
+                  <th style="padding: 1rem; color: #1e40af; font-weight: 600; text-align: left; border-bottom: 1px solid rgba(30, 64, 175, 0.2);">Role</th>
+                  <th style="padding: 1rem; color: #1e40af; font-weight: 600; text-align: left; border-bottom: 1px solid rgba(30, 64, 175, 0.2);">Status</th>
+                  <th style="padding: 1rem; color: #1e40af; font-weight: 600; text-align: left; border-bottom: 1px solid rgba(30, 64, 175, 0.2);">Last Login</th>
+                  <th style="padding: 1rem; color: #1e40af; font-weight: 600; text-align: left; border-bottom: 1px solid rgba(30, 64, 175, 0.2);">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (user of filteredUsers(); track user.id; let i = $index) {
+                  <tr style="border-bottom: 1px solid rgba(0, 0, 0, 0.05); transition: all 0.3s ease;">
+                    <td style="padding: 1rem; color: #000000; font-weight: 500;">{{ i + 1 }}</td>
+                    <td style="padding: 1rem; color: #000000; font-weight: 500;">{{ user.fullName }}</td>
+                    <td style="padding: 1rem; color: #6c757d; font-size: 0.9rem;">{{ user.email }}</td>
+                    <td style="padding: 1rem;">
+                      <span [style.background]="user.role === 'ADMIN' ? 'linear-gradient(135deg, #1e40af, #1d4ed8)' : user.role === 'DATA_SCIENTIST' ? 'linear-gradient(135deg, #22c55e, #16a34a)' : user.role === 'RAN_ENGINEER' ? 'linear-gradient(135deg, #7C3AED, #6D28D9)' : user.role === 'NOC_ENGINEER' ? 'linear-gradient(135deg, #FB923C, #F59E0B)' : 'linear-gradient(135deg, #EF4444, #DC2626)'" [style.color]="'white'">{{ user.role }}</span>
+                    </td>
+                    <td style="padding: 1rem;">
+                      <span style="padding: 0.25rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600;" [style.background]="user.status === 'ACTIVE' ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'linear-gradient(135deg, #EF4444, #DC2626)'" [style.color]="'black'">
+                        {{ user.status }}
+                      </span>
+                    </td>
+                    <td style="padding: 1rem; color: #6c757d; font-size: 0.9rem;">{{ user.lastLogin ? (user.lastLogin | date:'yyyy-MM-dd HH:mm') : '—' }}</td>
+                    <td style="padding: 1rem;">
+                      <button style="background: linear-gradient(135deg, #1e40af, #1d4ed8); border: 1px solid #1e40af; color: white; padding: 0.5rem; border-radius: 8px; font-weight: 600; backdrop-filter: blur(10px); transition: all 0.3s ease; margin-right: 0.25rem;"
+                        [routerLink]="['/admin/edit', user.id]">
+                        <i class="feather icon-edit" style="font-size: 14px;"></i>
+                      </button>
+                      <button style="background: linear-gradient(135deg, #FB923C, #F59E0B); border: 1px solid #FB923C; color: black; padding: 0.5rem; border-radius: 8px; font-weight: 600; backdrop-filter: blur(10px); transition: all 0.3s ease; margin-right: 0.25rem;"
+                        (click)="toggleStatus(user)"
+                        [title]="user.status === 'ACTIVE' ? 'Suspend' : 'Activate'">
+                        <i class="feather icon-slash" style="font-size: 14px;"></i>
+                      </button>
+                      <button style="background: linear-gradient(135deg, #EF4444, #DC2626); border: 1px solid #EF4444; color: black; padding: 0.5rem; border-radius: 8px; font-weight: 600; backdrop-filter: blur(10px); transition: all 0.3s ease;" (click)="deleteUser(user)">
+                        <i class="feather icon-trash-2" style="font-size: 14px;"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+      </div>
+    </div>
+  </div>

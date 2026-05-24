@@ -1,0 +1,142 @@
+<div class="pg">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="badge"><span class="dot"></span>PIDEV 2025–2026 · Esprit School of Engineering</div>
+    <div class="hero-title">DoNext<span class="acc">5G</span> Handover Prediction Platform</div>
+    <div class="hero-sub">An end-to-end MLOps platform for 5G handover prediction, built on the DoNext Dortmund dataset (12,602,863 measurements · 51 features) with 4 prediction objectives trained across LightGBM, XGBoost, BiLSTM and TabNet.</div>
+    <div class="stats">
+      <div class="stat"><span class="stat-v">12.6M</span><span class="stat-l">Measurements</span></div>
+      <div class="stat"><span class="stat-v">205</span><span class="stat-l">Identified zones</span></div>
+      <div class="stat"><span class="stat-v">4</span><span class="stat-l">Prediction objectives</span></div>
+      <div class="stat"><span class="stat-v">5</span><span class="stat-l">User roles</span></div>
+    </div>
+  </div>
+
+  <!-- ROLES -->
+  <div class="sec">
+    <div class="sec-eyebrow">Role dashboards</div>
+    <div class="roles-grid">
+      <div class="rc admin">
+        <div class="rc-top"><div class="rc-ico admin-ico">⚙</div><div><div class="rc-role">System administrator</div><div class="rc-name">Admin Dashboard</div></div></div>
+        <p class="rc-desc">User management · Role assignment · Audit log · Account activation / deactivation</p>
+      </div>
+      <div class="rc ds">
+        <div class="rc-top"><div class="rc-ico ds-ico">⚗</div><div><div class="rc-role">Data scientist</div><div class="rc-name">Experiment tracking</div></div></div>
+        <p class="rc-desc">Training run history · Objective metrics · Data drift monitoring · Model deployment</p>
+      </div>
+      <div class="rc ran">
+        <div class="rc-top"><div class="rc-ico ran-ico">📡</div><div><div class="rc-role">RAN engineer</div><div class="rc-name">Radio KPI Dashboard</div></div></div>
+        <p class="rc-desc">RSRP / SINR / RSRQ / CQI per zone · 205 identified zones · Anomaly detection · Report generation</p>
+      </div>
+      <div class="rc noc">
+        <div class="rc-top"><div class="rc-ico noc-ico">🔧</div><div><div class="rc-role">NOC engineer</div><div class="rc-name">Monitoring + Reporting</div></div></div>
+        <p class="rc-desc">Leaflet map — Dortmund · P1/P2/P3 alerts · Network KPI cards · PDF reports · 5s polling</p>
+      </div>
+      <div class="rc perf span2">
+        <div class="rc-top"><div class="rc-ico perf-ico">📊</div><div><div class="rc-role">Core engineer</div><div class="rc-name">Performance View + Explainability</div></div></div>
+        <p class="rc-desc">Real-time predictions for all 4 objectives · SHAP feature importance · Waterfall chart · Zone comparison · 2–3s polling</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- THRESHOLDS -->
+  <div class="sec">
+    <div class="sec-eyebrow">Radio thresholds used in the platform</div>
+
+    <div class="tgrp">
+      <div class="tg-top"><span class="tg-kpi">RSRP — Reference Signal Received Power</span><span class="tg-std">3GPP TS 38.133 §10.1.6</span></div>
+      <div class="tg-sub">Measures the power level of a received reference signal. Range: −156 dBm to −31 dBm.</div>
+      <div class="rows">
+        <div class="row cr"><div class="rdot"></div><div class="rval">≤ −110 dBm</div><div class="rlbl">Weak coverage — P1 critical alert generated</div><div class="rtag">Zone 54 = −112.9 dBm</div></div>
+        <div class="row wa"><div class="rdot"></div><div class="rval">≤ −100 dBm</div><div class="rlbl">Degraded signal — P2 alert · Event A3 trigger</div><div class="rtag">TS 36.331 §5.5.4.4</div></div>
+        <div class="row ok"><div class="rdot"></div><div class="rval">> −100 dBm</div><div class="rlbl">Normal signal — no alert</div><div class="rtag">Zone 77 = −72.9 dBm</div></div>
+      </div>
+      <div class="tg-ref">Dataset median: −88.0 dBm · RSRP drop threshold (objective 2): min(rsrp[t+1..t+5]) − rsrp[t] &lt; −6 dBm · Ref: 3GPP TS 38.133 §10.1.6.1</div>
+    </div>
+
+    <div class="tgrp">
+      <div class="tg-top"><span class="tg-kpi">SINR — Signal to Interference plus Noise Ratio</span><span class="tg-std">3GPP TS 38.133 §10.1.17</span></div>
+      <div class="tg-sub">Ratio of signal power to interference plus noise. SINR = 0 dB means interference equals signal — decoding becomes impossible. Range: −23 dB to +40 dB.</div>
+      <div class="rows">
+        <div class="row cr"><div class="rdot"></div><div class="rval">≤ 0 dB</div><div class="rlbl">Severe interference — CQI = 1 — P1 critical</div><div class="rtag">Zone 51 = −8.3 dB</div></div>
+        <div class="row wa"><div class="rdot"></div><div class="rval">≤ 3 dB</div><div class="rlbl">Weak signal — dataset median for HO=1 — P2</div><div class="rtag">TS 38.214 §5.2.2.1</div></div>
+        <div class="row me"><div class="rdot"></div><div class="rval">≤ 8 dB</div><div class="rlbl">Degraded — reduced CQI — P3 medium</div><div class="rtag">TR 38.901 §7.3</div></div>
+        <div class="row ok"><div class="rdot"></div><div class="rval">> 8 dB</div><div class="rlbl">Normal — CQI ≥ 9 — no alert</div><div class="rtag">Zone 77 = +14.2 dB</div></div>
+      </div>
+      <div class="tg-ref">Dataset median (HO=1): 3.0 dB — why 3 dB is the P2 threshold · SINR→CQI mapping: TS 38.214 §5.2.2.1 · Measurement: TS 38.133 §10.1.17.1</div>
+    </div>
+
+    <div class="tgrp">
+      <div class="tg-top"><span class="tg-kpi">Handover probability — Objective 1 output</span><span class="tg-std">3GPP TS 38.331 §5.5.4</span></div>
+      <div class="tg-sub">The model outputs a probability that Event A3 will trigger and TTT will elapse — i.e. a handover will occur — before the network detects it itself.</div>
+      <div class="rows">
+        <div class="row cr"><div class="rdot"></div><div class="rval">≥ 0.70</div><div class="rlbl">Handover imminent — Event A3 confirmed — P1</div><div class="rtag">Threshold P1 = 0.70</div></div>
+        <div class="row wa"><div class="rdot"></div><div class="rval">0.50 – 0.70</div><div class="rlbl">Event A3 verifying — TTT not yet elapsed — P2</div><div class="rtag">Threshold P2 = 0.50</div></div>
+        <div class="row ok"><div class="rdot"></div><div class="rval">&#60; 0.50</div><div class="rlbl">No handover expected — serving cell stable</div><div class="rtag">HO rate (train) = 4.08%</div></div>
+      </div>
+      <div class="tg-ref">Event A3: neighbour RSRP > serving RSRP + offset · TTT values: 0 ms to 5120 ms · Ref: TS 38.331 §5.5.4.4 · §6.3.2 · TS 38.300 §15.1</div>
+    </div>
+
+    <div class="tgrp">
+      <div class="tg-top"><span class="tg-kpi">Alert priority rules</span><span class="tg-std">TS 38.331 · TS 38.133 · TS 38.214</span></div>
+      <div class="tg-sub">Final alert priority is determined by combining radio thresholds with model predictions in real time.</div>
+      <div class="rows">
+        <div class="row cr"><div class="rdot"></div><div class="rval">P1 Critical</div><div class="rlbl">RSRP ≤ −110 dBm  OR  SINR ≤ 0 dB  OR  HO probability ≥ 0.70</div><div class="rtag">Immediate action</div></div>
+        <div class="row wa"><div class="rdot"></div><div class="rval">P2 High</div><div class="rlbl">RSRP ≤ −100 dBm  OR  HO probability ≥ 0.50  OR  signal drop</div><div class="rtag">Active monitoring</div></div>
+        <div class="row me"><div class="rdot"></div><div class="rval">P3 Medium</div><div class="rlbl">SINR ≤ 8 dB  OR  UE velocity > 100 km/h</div><div class="rtag">Informational</div></div>
+      </div>
+      <div class="tg-ref">Evaluated by the monitoring service every 5 seconds · Real-time inference via trained models · Simulator pushes data every 3 seconds</div>
+    </div>
+  </div>
+
+  <!-- OBJECTIVES -->
+  <div class="sec">
+    <div class="sec-eyebrow">Prediction objectives</div>
+    <div class="obj-grid">
+      <div class="obj">
+        <div class="obj-num">Obj. 1</div>
+        <div>
+          <div class="obj-name">Handover prediction</div>
+          <div class="obj-desc">Binary classification — handover vs no handover · Label: cell_index[t] ≠ cell_index[t+1]</div>
+          <div class="obj-metric">F1 = 0.85 · AUC-PR = 0.9716</div>
+          <div class="obj-std">3GPP TS 38.331 §5.5.4 — Handover execution procedure</div>
+        </div>
+      </div>
+      <div class="obj">
+        <div class="obj-num">Obj. 2</div>
+        <div>
+          <div class="obj-name">Signal drop detection</div>
+          <div class="obj-desc">Binary — predicts RSRP drop within next 5 measurements · Threshold: Δ RSRP &lt; −6 dBm</div>
+          <div class="obj-metric">AUC-ROC = 0.9515</div>
+          <div class="obj-std">3GPP TS 38.133 §10.1.6 — RSRP · Event A2</div>
+        </div>
+      </div>
+      <div class="obj">
+        <div class="obj-num">Obj. 3</div>
+        <div>
+          <div class="obj-name">Best target cell</div>
+          <div class="obj-desc">Identifies the target cell for the next handover · 50 candidate cells</div>
+          <div class="obj-metric">Top-1 acc = 78.5% · Top-3 = 97.3%</div>
+          <div class="obj-std">3GPP TS 38.331 §5.5.4.3 — Target cell selection</div>
+        </div>
+      </div>
+      <div class="obj">
+        <div class="obj-num">Obj. 4</div>
+        <div>
+          <div class="obj-name">Handover type</div>
+          <div class="obj-desc">Classifies among 8 types · Intra-freq, inter-freq, inter-RAT NR…</div>
+          <div class="obj-metric">F1-macro = 0.37 · F1-weighted = 0.78</div>
+          <div class="obj-std">3GPP TS 38.331 §5.5.4 — Intra/inter-freq · inter-RAT NR</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="foot">
+    <div><span class="foot-brand">DoNext<span class="acc">5G</span></span><span class="foot-copy">Esprit School of Engineering · PIDEV 2025–2026</span></div>
+    <div class="foot-refs"><span>3GPP TS 38.331</span><span>·</span><span>3GPP TS 38.133</span><span>·</span><span>DoNext Dataset · Dortmund</span></div>
+  </div>
+
+</div>

@@ -1,0 +1,103 @@
+<div class="login-page">
+
+  <!-- Fond animé -->
+  <div class="bg-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <!-- Carte login -->
+  <div class="login-card">
+
+    <!-- Logo + titre -->
+    <div class="login-header">
+      <img src="assets/images/nexovera.png" alt="Nexovera" class="login-logo" />
+      <h2 class="login-title">Welcome Back</h2>
+      <p class="login-subtitle">Sign in to your account</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit($event)" class="login-form">
+
+      @if (error()) {
+        <div class="error-alert">
+          <i class="feather icon-alert-circle"></i>
+          {{ error() }}
+        </div>
+      }
+
+      <!-- Email -->
+      <div class="field-group">
+        <label class="field-label">Email Address</label>
+        <div class="input-wrap" [class.is-invalid]="submitted() && loginForm.email().invalid()">
+          <i class="feather icon-mail field-icon"></i>
+          <input
+            type="email"
+            class="field-input"
+            placeholder="you@example.com"
+            [field]="loginForm.email"
+          />
+        </div>
+        @if (submitted() && loginForm.email().invalid()) {
+          <div class="field-error">
+            @for (error of loginForm.email().errors(); track error.kind) {
+              <span>{{ error.message }}</span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Password -->
+      <div class="field-group">
+        <div class="field-label-row">
+          <label class="field-label">Password</label>
+          <a [routerLink]="['/reset-password']" class="forgot-link">Forgot password?</a>
+        </div>
+        <div class="input-wrap" [class.is-invalid]="submitted() && loginForm.password().errors().length > 0">
+          <i class="feather icon-lock field-icon"></i>
+          <input
+            [type]="showPassword() ? 'text' : 'password'"
+            id="password"
+            class="field-input"
+            [field]="loginForm.password"
+            placeholder="Min. 8 characters"
+          />
+          <i
+            [ngClass]="showPassword() ? 'feather icon-eye-off' : 'feather icon-eye'"
+            id="togglePassword"
+            (click)="togglePasswordVisibility()"
+          ></i>
+        </div>
+        @if (submitted() && loginForm.password().errors().length > 0) {
+          <div class="field-error">
+            @for (error of loginForm.password().errors(); track error.kind) {
+              <span>{{ error.message }}</span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Remember me -->
+      <div class="remember-row">
+        <label class="remember-label">
+          <input type="checkbox" name="checkbox-fill-1" id="checkbox-fill-a1" checked />
+          <span class="checkmark"></span>
+          Remember me
+        </label>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn-login">
+        <span>Sign In</span>
+        <i class="feather icon-arrow-right"></i>
+      </button>
+
+    </form>
+
+    <p class="signup-text">
+      Don't have an account?
+      <a [routerLink]="['/register']">Create one</a>
+    </p>
+
+  </div>
+</div>

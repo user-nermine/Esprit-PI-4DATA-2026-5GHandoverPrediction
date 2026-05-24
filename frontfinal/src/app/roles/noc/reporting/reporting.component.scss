@@ -1,0 +1,135 @@
+// ── Labels & inputs ───────────────────────────────────────────
+.rp-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.rp-input {
+  font-size: 13px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #1a202c;
+  background: #fff;
+
+  &:focus {
+    border-color: #4680ff;
+    box-shadow: 0 0 0 3px rgba(70,128,255,0.1);
+    outline: none;
+  }
+}
+
+.rp-select {
+  font-size: 13px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #1a202c;
+  background: #fff;
+  min-height: 120px;
+
+  option {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}
+
+// ── Checkboxes ────────────────────────────────────────────────
+.rp-check-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rp-check-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.rp-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #4680ff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.rp-check-label {
+  font-size: 13px;
+  color: #374151;
+}
+
+// ── Textarea ──────────────────────────────────────────────────
+.rp-textarea {
+  font-size: 13px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  color: #374151;
+  min-height: 140px;
+  resize: vertical;
+  width: 100%;
+
+  &:focus {
+    border-color: #4680ff;
+    box-shadow: 0 0 0 3px rgba(70,128,255,0.1);
+    outline: none;
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+    font-size: 12px;
+  }
+}
+
+// ── Buttons ───────────────────────────────────────────────────
+.rp-btn-pdf {
+  background: #4680ff;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+
+  &:hover { background: #3366e0; color: white; }
+}
+
+.rp-btn-excel {
+  background: transparent;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+
+  &:hover { background: #f9fafb; }
+}
+
+.rp-btn-mail {
+  background: transparent;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+
+  &:hover { background: #f9fafb; }
+}
+
+// ── Badges historique ─────────────────────────────────────────
+.rp-badge-pdf   { background: #fee2e2; color: #dc2626; border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600; }
+.rp-badge-excel { background: #dcfce7; color: #16a34a; border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600; }
+.rp-badge-mail  { background: #dbeafe; color: #1d4ed8; border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600; }

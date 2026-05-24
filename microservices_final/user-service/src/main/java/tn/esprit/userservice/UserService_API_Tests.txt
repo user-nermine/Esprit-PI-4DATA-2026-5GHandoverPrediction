@@ -1,0 +1,627 @@
+╔══════════════════════════════════════════════════════════════════════════════════╗
+║          5G HoverIQ — User Service API Tests                                   ║
+║          Base URL: http://localhost:8081                                        ║
+║          Tool: Postman (or curl)                                                ║
+╚══════════════════════════════════════════════════════════════════════════════════╝
+
+HOW TO USE THIS FILE
+────────────────────
+1. Open Postman
+2. For each test: create a new request, copy the method + URL + headers + body
+3. Run them IN ORDER — some tests depend on results of previous ones
+4. After LOGIN, copy the token and paste it in all "Authorization" headers
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST 1 — REGISTER (create a new user account)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT IT DOES:
+  Creates a brand new user in the database.
+  The password is hashed with BCrypt before saving.
+  A JWT token is returned immediately — you are "logged in" right after registering.
+  No token needed to call this endpoint (it's public).
+
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/register
+
+HEADERS:
+  Content-Type: application/json
+
+BODY (raw JSON):
+{
+  "fullName": "Nermine Rahalli",
+  "email": "nermine@esprit.tn",
+  "password": "Test1234!",
+  "role": "RAN_ENGINEER"
+}
+
+VALID ROLES (copy exactly):
+  SYSTEM_ADMIN
+  DATA_SCIENTIST
+  RAN_ENGINEER
+  NOC_ENGINEER
+
+EXPECTED RESPONSE — 201 Created:
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9...",
+  "email": "nermine@esprit.tn",
+  "fullName": "Nermine Rahalli",
+  "role": "RAN_ENGINEER"
+}
+
+POSSIBLE ERRORS:
+  400 Bad Request  → "Email is invalid" or "Password must be at least 8 characters"
+                     → Check your JSON body matches the format exactly
+  500 Internal     → "Email already exists: nermine@esprit.tn"
+                     → That email is already registered, change it
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST 2 — REGISTER (validation error test)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT IT DOES:
+  Tests that the API correctly rejects bad input.
+  Sends a password that is too short (less than 8 characters).
+  Verifies that Spring validation annotations (@Size, @Email) are working.
+
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/register
+
+HEADERS:
+  Content-Type: application/json
+
+BODY (raw JSON — intentionally bad):
+{
+  "fullName": "Test User",
+  "email": "notanemail",
+  "password": "short",
+  "role": "NOC_ENGINEER"
+}
+
+EXPECTED RESPONSE — 400 Bad Request:
+{
+  "errors": [
+    "Email is invalid",
+    "Password must be at least 8 characters"
+  ]
+}
+(exact format depends on your exception handler, but status must be 400)
+
+POSSIBLE ERRORS:
+  If you get 500 instead of 400, you are missing a @ControllerAdvice
+  exception handler. Let me know and I will add one for you.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST 3 — LOGIN (get your JWT token)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT IT DOES:
+  Authenticates an existing user with email + password.
+  The backend looks up the user, checks password with BCrypt.matches(),
+  updates the lastLogin timestamp, then returns a fresh JWT token.
+  This token is valid for 24 hours (86400000 ms in JwtService).
+
+  *** IMPORTANT: Copy the "token" value from the response.
+  *** You will paste it in ALL subsequent tests as the Authorization header.
+
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/login
+
+HEADERS:
+  Content-Type: application/json
+
+BODY (raw JSON):
+{
+  "email": "nermine@esprit.tn",
+  "password": "Test1234!"
+}
+
+EXPECTED RESPONSE — 200 OK:
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUkFOX0VOR0lORUVSIiwic3ViIjoibmVybWluZUBlc3ByaXQudG4iLCJpYXQiOjE3NDUyNDI0MDAsImV4cCI6MTc0NTMyODgwMH0.XXXX",
+  "email": "nermine@esprit.tn",
+  "fullName": "Nermine Rahalli",
+  "role": "RAN_ENGINEER"
+}
+
+HOW TO USE THE TOKEN IN POSTMAN:
+  In every next request, go to the "Headers" tab and add:
+  Key:   Authorization
+  Value: Bearer eyJhbGciOiJIUzI1NiJ9...   (paste your full token after "Bearer ")
+
+  OR use the "Authorization" tab in Postman:
+  Type: Bearer Token → paste token in the field
+
+POSSIBLE ERRORS:
+  500 → "Invalid email or password" — wrong email or password
+  500 → "Invalid email or password" — user does not exist (register first)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST 4 — LOGIN with wrong password (security test)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT IT DOES:
+  Verifies the backend rejects incorrect credentials.
+  BCrypt.matches() will return false and a RuntimeException is thrown.
+
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/login
+
+HEADERS:
+  Content-Type: application/json
+
+BODY:
+{
+  "email": "nermine@esprit.tn",
+  "password": "WrongPassword!"
+}
+
+EXPECTED RESPONSE — 500 (or 401 if you have exception handler):
+  "Invalid email or password"
+
+NOTE: Ideally this should return 401 not 500.
+If you want proper error codes, add a @ControllerAdvice — ask me.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST 5 — GET ALL USERS (protected route)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT IT DOES:
+  Returns the full list of users from the database.
+  This endpoint is PROTECTED — the JwtAuthFilter intercepts the request,
+  reads the "Authorization" header, extracts the email and role from the token,
+  sets the Spring SecurityContext, then allows the request through.
+  Without a valid token, you get 403 Forbidden.
+
+METHOD:  GET
+URL:     http://localhost:8081/api/users
+
+HEADERS:
+  Authorization: Bearer <your_token_from_test_3>
+
+NO BODY NEEDED
+
+EXPECTED RESPONSE — 200 OK:
+[
+  {
+    "id": 1,
+    "fullName": "Alice Martin",
+    "email": "alice@esprit.tn",
+    "role": "SYSTEM_ADMIN",
+    "status": "ACTIVE",
+    "lastLogin": null,
+    "createdAt": "2026-04-21T14:17:09.340335"
+  },
+  {
+    "id": 2,
+    "fullName": "Nermine Rahalli",
+    "email": "nermine@esprit.tn",
+    "role": "RAN_ENGINEER",
+    "status": "ACTIVE",
+    "lastLogin": "2026-04-21T15:00:00",
+    "createdAt": "2026-04-21T14:30:00"
+  }
+]
+
+POSSIBLE ERRORS:
+  403 Forbidden → you forgot the Authorization header or token is wrong
+  401 Unauthorized → token is expired (re-login to get a fresh one)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST 6 — GET USER BY ID
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT IT DOES:
+  Returns a single user by their database ID.
+  If the ID does not exist, a RuntimeException is thrown
+  ("User not found with id: X").
+
+METHOD:  GET
+URL:     http://localhost:8081/api/users/1
+
+HEADERS:
+  Authorization: Bearer <your_token>
+
+EXPECTED RESPONSE — 200 OK:
+{
+  "id": 1,
+  "fullName": "Alice Martin",
+  "email": "alice@esprit.tn",
+  "role": "SYSTEM_ADMIN",
+  "status": "ACTIVE",
+  "lastLogin": null,
+  "createdAt": "2026-04-21T14:17:09.340335"
+}
+
+TEST WITH NON-EXISTENT ID:
+  GET http://localhost:8081/api/users/999
+  Expected: 500 (or 404 with exception handler) — "User not found with id: 999"
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST 7 — CREATE USER (admin creates a user directly)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT IT DOES:
+  Admin-side user creation (different from /register — no token returned).
+  Creates a user and returns their profile data only.
+  The password is BCrypt-encoded before saving.
+  Status defaults to ACTIVE via @PrePersist in the User entity.
+
+METHOD:  POST
+URL:     http://localhost:8081/api/users
+
+HEADERS:
+  Authorization: Bearer <your_token>
+  Content-Type: application/json
+
+BODY:
+{
+  "fullName": "Manel Aloui",
+  "email": "manel@esprit.tn",
+  "password": "Test1234!",
+  "role": "DATA_SCIENTIST",
+  "status": "ACTIVE"
+}
+
+EXPECTED RESPONSE — 201 Created:
+{
+  "id": 3,
+  "fullName": "Manel Aloui",
+  "email": "manel@esprit.tn",
+  "role": "DATA_SCIENTIST",
+  "status": "ACTIVE",
+  "lastLogin": null,
+  "createdAt": "2026-04-21T15:05:00"
+}
+
+POSSIBLE ERRORS:
+  500 → "Email already exists" — use a different email
+  403 → Missing token
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST 8 — UPDATE USER (full update)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT IT DOES:
+  Updates an existing user's name, email, role, status, and optionally password.
+  If password field is present and non-empty → it gets re-hashed and saved.
+  If password field is absent or empty → password stays unchanged.
+
+  *** THIS IS WHERE THE @NotBlank BUG MATTERS ***
+  Before the fix: sending no password → 400 Bad Request (rejected by @NotBlank)
+  After the fix: sending no password → service skips password update, works fine
+
+METHOD:  PUT
+URL:     http://localhost:8081/api/users/2
+
+HEADERS:
+  Authorization: Bearer <your_token>
+  Content-Type: application/json
+
+BODY — update role and name, keep same password:
+{
+  "fullName": "Nermine Rahalli Senior",
+  "email": "nermine@esprit.tn",
+  "password": "Test1234!",
+  "role": "NOC_ENGINEER",
+  "status": "ACTIVE"
+}
+
+BODY — update without changing password (requires the @NotBlank fix):
+{
+  "fullName": "Nermine Rahalli Senior",
+  "email": "nermine@esprit.tn",
+  "role": "NOC_ENGINEER",
+  "status": "ACTIVE"
+}
+
+EXPECTED RESPONSE — 200 OK:
+{
+  "id": 2,
+  "fullName": "Nermine Rahalli Senior",
+  "email": "nermine@esprit.tn",
+  "role": "NOC_ENGINEER",
+  "status": "ACTIVE",
+  "lastLogin": "...",
+  "createdAt": "..."
+}
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST 9 — TOGGLE STATUS (ACTIVE ↔ SUSPENDED)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT IT DOES:
+  Flips a user's status between ACTIVE and SUSPENDED.
+  Calling it once → SUSPENDED.
+  Calling it again on the same user → back to ACTIVE.
+  No body needed — just the user ID in the URL.
+  This is useful for "soft disable" without deleting the user.
+
+METHOD:  PATCH
+URL:     http://localhost:8081/api/users/2/toggle-status
+
+HEADERS:
+  Authorization: Bearer <your_token>
+
+NO BODY
+
+EXPECTED RESPONSE (1st call) — 200 OK:
+{
+  "id": 2,
+  "fullName": "Nermine Rahalli Senior",
+  "email": "nermine@esprit.tn",
+  "role": "NOC_ENGINEER",
+  "status": "SUSPENDED"
+}
+
+EXPECTED RESPONSE (2nd call) — 200 OK:
+{
+  "status": "ACTIVE"
+}
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST 10 — DELETE USER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT IT DOES:
+  Permanently deletes a user from the database by ID.
+  The service first checks the user exists (throws if not found),
+  then calls deleteById(). Returns 204 No Content on success.
+
+  *** WARNING: This is a hard delete — not recoverable.
+  *** For production, prefer toggle-status to SUSPENDED instead.
+
+METHOD:  DELETE
+URL:     http://localhost:8081/api/users/3
+
+HEADERS:
+  Authorization: Bearer <your_token>
+
+NO BODY
+
+EXPECTED RESPONSE — 204 No Content
+  (empty body, just the 204 status code)
+
+VERIFY DELETION:
+  GET http://localhost:8081/api/users/3
+  Expected: 500 "User not found with id: 3"
+
+POSSIBLE ERRORS:
+  500 → "User not found with id: X" — ID does not exist
+  403 → Missing or invalid token
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST 11 — FORGOT PASSWORD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT IT DOES:
+  Generates a UUID reset token and saves it to the user record
+  along with an expiry time of 15 minutes from now.
+  In a real app this token would be emailed. Since you have no email
+  service yet, the token is returned directly in the response — use it
+  immediately in Test 12 before the 15-minute window expires.
+
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/forgot-password
+
+HEADERS:
+  Content-Type: application/json
+
+BODY:
+{
+  "email": "nermine@esprit.tn"
+}
+
+EXPECTED RESPONSE — 200 OK:
+  "Reset link sent to: nermine@esprit.tn | Token: a3f7c821-9d4e-4b2a-8c1f-000000000000"
+
+  *** Copy the UUID token at the end of that string.
+  *** You have 15 minutes to use it in Test 12.
+
+POSSIBLE ERRORS:
+  500 → "Email not found: nermine@esprit.tn" — email does not exist in DB
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST 12 — RESET PASSWORD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT IT DOES:
+  Uses the reset token from Test 11 to set a new password.
+  The service validates the token exists, checks expiry < now,
+  BCrypt-encodes the new password, clears the token fields, saves.
+
+METHOD:  POST
+URL:     http://localhost:8081/api/auth/reset-password
+
+HEADERS:
+  Content-Type: application/json
+
+BODY (paste your UUID from Test 11):
+{
+  "token": "a3f7c821-9d4e-4b2a-8c1f-000000000000",
+  "newPassword": "NewPass1234!"
+}
+
+EXPECTED RESPONSE — 200 OK:
+  "Password reset successfully!"
+
+VERIFY: Run Test 3 (login) with the new password "NewPass1234!" — should work.
+VERIFY: Run Test 3 with the OLD password "Test1234!" — should fail.
+
+POSSIBLE ERRORS:
+  500 → "Invalid reset token" — wrong UUID or already used
+  500 → "Reset token has expired" — more than 15 minutes passed (run Test 11 again)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST 13 — GET AUDIT LOGS (all)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT IT DOES:
+  Returns all audit log entries from the audit_logs table.
+  NOTE: Your AuditLogService.saveLog() method exists but is not yet called
+  from UserService. The table may be empty unless you have an @Aspect
+  or manual calls. Ask for the AOP logging implementation if needed.
+
+METHOD:  GET
+URL:     http://localhost:8081/api/audit-logs
+
+HEADERS:
+  Authorization: Bearer <your_token>
+
+EXPECTED RESPONSE — 200 OK:
+  [] (empty array if no logs saved yet)
+  OR list of log entries if AOP aspect is configured.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST 14 — GET AUDIT LOGS BY USER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+METHOD:  GET
+URL:     http://localhost:8081/api/audit-logs/user/Nermine
+
+HEADERS:
+  Authorization: Bearer <your_token>
+
+WHAT IT DOES:
+  Filters audit logs by userName (case-insensitive, contains match).
+  "Nermine" will match "Nermine Rahalli" etc.
+
+EXPECTED RESPONSE — 200 OK:
+  [] or list of logs for that user
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST 15 — GET AUDIT LOGS BY ROLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+METHOD:  GET
+URL:     http://localhost:8081/api/audit-logs/role/RAN_ENGINEER
+
+HEADERS:
+  Authorization: Bearer <your_token>
+
+WHAT IT DOES:
+  Filters audit logs by exact role string.
+  Must match RoleEnum exactly: SYSTEM_ADMIN, DATA_SCIENTIST, RAN_ENGINEER, NOC_ENGINEER
+
+EXPECTED RESPONSE — 200 OK:
+  [] or list of logs for that role
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST 16 — ACCESS PROTECTED ROUTE WITHOUT TOKEN (security test)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT IT DOES:
+  Verifies that the JWT filter blocks unauthenticated access.
+  Sending a request to a protected endpoint with NO Authorization header
+  should be rejected. This confirms your SecurityConfig is working.
+
+METHOD:  GET
+URL:     http://localhost:8081/api/users
+
+HEADERS:
+  (none — no Authorization header)
+
+EXPECTED RESPONSE — 403 Forbidden:
+{
+  "status": 403,
+  "error": "Forbidden"
+}
+
+If you get 200 OK here, your security config has a bug — tell me immediately.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEST 17 — ACCESS PROTECTED ROUTE WITH EXPIRED/FAKE TOKEN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+METHOD:  GET
+URL:     http://localhost:8081/api/users
+
+HEADERS:
+  Authorization: Bearer thisisafaketoken123
+
+EXPECTED RESPONSE — 403 Forbidden or 500:
+  JwtService will throw a SignatureException or MalformedJwtException
+  which bubbles up. Add a @ControllerAdvice to return 401 cleanly.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+THE @NotBlank FIX — WHAT TO CHANGE IN CODE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FILE: src/main/java/tn/esprit/userservice/dto/UserRequest.java
+
+BEFORE (broken for PUT):
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, message = "Password must be at least 8 characters")
+    private String password;
+
+AFTER (works for both POST register and PUT update):
+    @Size(min = 8, message = "Password must be at least 8 characters")
+    private String password;
+
+FILE: src/main/java/tn/esprit/userservice/controller/AuthController.java
+
+In the register() method, add a manual null check at the top:
+
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody UserRequest request) {
+        // Manual check since @NotBlank was removed from DTO
+        if (request.getPassword() == null || request.getPassword().isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+        UserResponse created = userService.createUser(request);
+        ...
+    }
+
+WHY THIS WORKS:
+  PUT /api/users/{id}  → no password in body → @Size not triggered (null skips @Size)
+                         → service receives null → skips password update ✅
+  POST /api/auth/register → no password → manual check returns 400 ✅
+  POST /api/auth/register → password "abc" → @Size triggers 400 ✅
+  POST /api/auth/register → password "Test1234!" → passes all checks ✅
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RECOMMENDED TEST ORDER (copy-paste ready sequence)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1.  POST /api/auth/register           → create Nermine
+  2.  POST /api/auth/login              → get token ← COPY THIS TOKEN
+  3.  GET  /api/users                   → see all users [needs token]
+  4.  GET  /api/users/1                 → get Alice [needs token]
+  5.  POST /api/users                   → create Manel [needs token]
+  6.  GET  /api/users                   → verify Manel appears [needs token]
+  7.  PUT  /api/users/2                 → update Nermine's role [needs token]
+  8.  GET  /api/users/2                 → verify update [needs token]
+  9.  PATCH /api/users/2/toggle-status  → suspend Nermine [needs token]
+  10. GET  /api/users/2                 → verify SUSPENDED [needs token]
+  11. PATCH /api/users/2/toggle-status  → re-activate Nermine [needs token]
+  12. POST /api/auth/forgot-password    → get reset token ← COPY UUID
+  13. POST /api/auth/reset-password     → change password with UUID
+  14. POST /api/auth/login              → login with NEW password (verify)
+  15. DELETE /api/users/3              → delete Manel [needs token]
+  16. GET  /api/users/3                 → verify 500/404 [needs token]
+  17. GET  /api/users (no token)        → verify 403 [security test]
+  18. GET  /api/audit-logs              → check logs [needs token]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+END OF TEST FILE
+Generated for: 5G HoverIQ — User Service (Spring Boot 3 + JWT + BCrypt)
+Backend port: 8081 | Frontend port: 4200
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

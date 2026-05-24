@@ -1,0 +1,44 @@
+<!-- Header Néon avec design cohérent -->
+<div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(37, 99, 235, 0.05)); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 20px; padding: 2rem; margin-bottom: 2rem; backdrop-filter: blur(10px); position: relative; overflow: hidden; box-shadow: 0 8px 32px rgba(30, 64, 175, 0.1);">
+  <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #1e40af, #2563EB, #7C3AED, #FF4D9D);"></div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1 style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(90deg, #1e40af, #2563EB, #7C3AED, #FF4D9D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0; text-shadow: 0 0 30px rgba(30, 64, 175, 0.3);">
+        Core Engineer
+      </h1>
+      <p style="color: #6c757d; margin: 0.5rem 0 0 0; font-size: 1.1rem;">
+        SHAP Explainability and model decision transparency
+      </p>
+    </div>
+    <div style="display: flex; gap: 1rem;">
+      <button routerLink="/core-engineer/reporting" style="background: linear-gradient(135deg, #1e3a8a, #2563eb); border: none; color: white; padding: 0.75rem 1.75rem; border-radius: 12px; font-weight: 700; font-size: 0.95rem; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35); display: inline-flex; align-items: center; gap: 0.6rem; cursor: pointer; transition: all 0.3s ease;">
+        <i class="feather icon-file-text" style="font-size: 1rem;"></i> Generate Report
+      </button>
+    </div>
+  </div>
+  
+  <!-- Zone Selection -->
+  <div style="display: flex; align-items: center; gap: 2rem;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <label style="color: #1e40af; font-weight: 600; font-size: 1rem;">Select Zone:</label>
+      <select [(ngModel)]="selectedZone" (ngModelChange)="onZoneChange()" style="background: rgba(30, 64, 175, 0.1); border: 1px solid rgba(30, 64, 175, 0.3); color: #1e40af; padding: 0.5rem 1rem; border-radius: 10px; font-weight: 500; backdrop-filter: blur(10px); transition: all 0.3s ease;">
+        <option *ngFor="let zone of availableZones" [value]="zone" style="background: #1a1a1a; color: #1e40af;">{{ zone }}</option>
+      </select>
+    </div>
+      </div>
+</div>
+  <!-- SHAP Feature Importance - Design Néon -->
+<div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(37, 99, 235, 0.05)); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(10px); position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(30, 64, 175, 0.1);">
+  <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #1e40af, #2563EB, #7C3AED, #FF4D9D);"></div>
+  <div>
+    <h4 style="font-size: 1.2rem; font-weight: 600; color: #1e40af; margin-bottom: 1rem;">SHAP Feature Importance</h4>
+  </div>
+        <apx-chart
+          [series]="shapSeries"
+          [chart]="shapChart"
+          [xaxis]="shapXaxis"
+          [plotOptions]="shapPlotOptions"
+          [dataLabels]="shapDataLabels">
+        </apx-chart>
+      </div>
+

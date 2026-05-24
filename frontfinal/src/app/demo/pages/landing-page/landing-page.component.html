@@ -1,0 +1,392 @@
+<!-- ═══════════════════════ NAVBAR ═══════════════════════ -->
+<nav class="navbar">
+  <div class="logo-box">
+    <img src="assets/images/nexovera.png" alt="Nexovera Logo" class="logo-img">
+  </div>
+
+  <div class="menu">
+    <span class="menu-label" (click)="scrollTo('platform')">Platform</span>
+    <span class="menu-label" (click)="scrollTo('impact')">Impact</span>
+    <span class="menu-label" (click)="scrollTo('why-nexovera')">Why Nexovera</span>
+    <span class="menu-label" (click)="scrollTo('our-values')">Our Values</span>
+    <span class="menu-label" (click)="scrollTo('our-team')">Our Team</span>
+  </div>
+
+  <button class="login-btn" (click)="navigateToLogin()">Access Platform</button>
+</nav>
+
+<!-- ═══════════════════════ HERO ═══════════════════════ -->
+<section class="hero">
+  <div class="hero-content">
+    <img src="assets/images/nexovera-logo.png" alt="Nexovera" class="hero-logo">
+    <h1>
+      AI-Powered Predictive Intelligence
+      <br>
+      for 5G Networks
+    </h1>
+    <p class="hero-description">
+      Nexovera transforms traditional network operations
+      into proactive, AI-driven decision systems
+      for modern telecom infrastructures.
+      By combining real-time monitoring, predictive analytics,
+      and explainable artificial intelligence,
+      the platform enables operators to anticipate network instability
+      before users experience disruptions.
+    </p>
+    <div class="tagline">Smarter Networks Start Before the Failure.</div>
+    <div class="hero-actions">
+      <button class="outline-btn" (click)="scrollTo('platform')">Discover More ↓</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ PLATFORM ═══════════════════════ -->
+<section id="platform" class="landing-section">
+  <div class="section-inner">
+    <div class="section-tag">🚀 Platform</div>
+    <h2 class="section-title">AI-Powered Network Intelligence</h2>
+    <p class="section-desc">
+      Nexovera transforms traditional telecom operations into proactive AI-driven decision systems
+      that anticipate network instability before users experience disruptions.
+    </p>
+
+    <div class="platform-cards">
+      <div class="platform-card">
+        <div class="card-icon">🔮</div>
+        <h4>Predictive Analytics</h4>
+        <p>Machine learning models trained on millions of network events predict handovers, signal drops, and cell failures minutes in advance.</p>
+      </div>
+      <div class="platform-card">
+        <div class="card-icon">📡</div>
+        <h4>Real-time Monitoring</h4>
+        <p>Track KPIs, handover events, RSRP, SINR, and signal quality across all zones and gNBs on a live interactive map.</p>
+      </div>
+      <div class="platform-card">
+        <div class="card-icon">💡</div>
+        <h4>Explainable AI (SHAP)</h4>
+        <p>Every AI decision is transparent. SHAP-powered explanations make model predictions actionable for network engineers.</p>
+      </div>
+      <div class="platform-card">
+        <div class="card-icon">⚙️</div>
+        <h4>ML Lifecycle Management</h4>
+        <p>Full MLflow integration for model training, versioning, validation, retraining, and deployment in a single workflow.</p>
+      </div>
+      <div class="platform-card">
+        <div class="card-icon">🗺️</div>
+        <h4>Multi-Zone Intelligence</h4>
+        <p>Cluster-level analytics across multiple geographic zones with per-zone performance metrics and anomaly detection.</p>
+      </div>
+      <div class="platform-card">
+        <div class="card-icon">🔐</div>
+        <h4>Role-Based Access</h4>
+        <p>Five specialized roles — Admin, RAN Engineer, NOC, Data Scientist, Performance Engineer — each with tailored dashboards.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ IMPACT ═══════════════════════ -->
+<section id="impact" class="landing-section alt-bg">
+  <div class="section-inner">
+    <div class="section-tag">⚡ Impact</div>
+    <h2 class="section-title">Real-World Impact</h2>
+    <p class="section-desc">
+      Measurable improvements across your entire network operations workflow,
+      from signal quality to user experience.
+    </p>
+
+    <div class="impact-grid">
+      <div class="impact-card">
+        <div class="impact-icon">🧠</div>
+        <div>
+          <h4>Smarter Operations</h4>
+          <p>AI replaces reactive firefighting with proactive network intelligence and automated decision support.</p>
+        </div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-icon">📉</div>
+        <div>
+          <h4>Fewer Dropped Connections</h4>
+          <p>Handover prediction with 78.5% top-1 accuracy ensures seamless UE transitions between cells.</p>
+        </div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-icon">👤</div>
+        <div>
+          <h4>Better User Experience</h4>
+          <p>Early signal drop detection (Δ RSRP &lt; −6 dBm) prevents degradation before users notice.</p>
+        </div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-icon">🔒</div>
+        <div>
+          <h4>Reliable Critical Comms</h4>
+          <p>Real-time alerts and zone-level monitoring keep critical network paths stable and monitored 24/7.</p>
+        </div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-icon">🚀</div>
+        <div>
+          <h4>Telecom AI Innovation</h4>
+          <p>3GPP-compliant thresholds combined with ML predictions set the foundation for next-gen 5G operations.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ WHY NEXOVERA ═══════════════════════ -->
+<section id="why-nexovera" class="landing-section">
+  <div class="section-inner">
+    <div class="section-tag">💡 Why Nexovera</div>
+    <h2 class="section-title">Why Operators Need Nexovera</h2>
+    <p class="section-desc">
+      Traditional monitoring systems react after failures occur.
+      Nexovera changes that model entirely.
+    </p>
+
+    <div class="why-grid">
+      <div class="why-col before-col">
+        <div class="why-col-header before-header">
+          <span class="col-badge before-badge">Before</span>
+          <h4>Traditional Operations</h4>
+        </div>
+        <ul class="why-list">
+          <li><span class="x-icon">✕</span> React after network failures</li>
+          <li><span class="x-icon">✕</span> Manual KPI monitoring</li>
+          <li><span class="x-icon">✕</span> Black-box vendor systems</li>
+          <li><span class="x-icon">✕</span> Siloed team workflows</li>
+          <li><span class="x-icon">✕</span> No handover prediction</li>
+          <li><span class="x-icon">✕</span> Delayed anomaly detection</li>
+        </ul>
+      </div>
+
+      <div class="why-arrow">→</div>
+
+      <div class="why-col after-col">
+        <div class="why-col-header after-header">
+          <span class="col-badge after-badge">With Nexovera</span>
+          <h4>AI-Driven Operations</h4>
+        </div>
+        <ul class="why-list">
+          <li><span class="check-icon">✓</span> Predict instability in advance</li>
+          <li><span class="check-icon">✓</span> Real-time AI dashboards</li>
+          <li><span class="check-icon">✓</span> Explainable SHAP decisions</li>
+          <li><span class="check-icon">✓</span> Role-based collaboration</li>
+          <li><span class="check-icon">✓</span> 78.5% handover accuracy</li>
+          <li><span class="check-icon">✓</span> Instant zone-level alerts</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ OUR VALUES ═══════════════════════ -->
+<section id="our-values" class="landing-section alt-bg">
+  <div class="section-inner">
+
+    <div style="margin-bottom:48px">
+      <div class="vals-tag"><i class="ti ti-leaf" aria-hidden="true"></i> Our Values</div>
+      <h2 class="vals-title">Technology That Serves<br/><span>People &amp; Planet</span></h2>
+      <p class="vals-subtitle">We believe the best technology isn't just smart — it's responsible. Every model we train, every prediction we deliver is guided by a simple conviction: <em style="color:#3b4cca">"Innovation without purpose is just noise. We build solutions that matter."</em></p>
+    </div>
+
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pillar-icon-wrap"><i class="ti ti-bolt" aria-hidden="true"></i></div>
+        <div class="pillar-title">Powering a Cleaner Digital Future</div>
+        <p class="pillar-desc">Telecom networks consume enormous energy. Our predictive framework reduces network waste at the source — fewer failed handovers, fewer retransmissions, fewer energy spikes. We don't just optimize performance. We optimize sustainability.</p>
+        <span class="pillar-tag"><i class="ti ti-circle-check" aria-hidden="true"></i> Less waste. Less energy. Cleaner networks.</span>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon-wrap" style="background:#f0fdf4;color:#34d399"><i class="ti ti-building-skyscraper" aria-hidden="true"></i></div>
+        <div class="pillar-title">Building Resilient Infrastructure</div>
+        <p class="pillar-desc">Our solution is built on open-source, modular, enterprise-grade technology — designed to scale, adapt, and evolve with your network. No vendor lock-in. No black boxes. Just resilient, transparent, future-proof systems that grow with you.</p>
+        <span class="pillar-tag" style="color:#16a34a;background:#f0fdf4"><i class="ti ti-circle-check" aria-hidden="true"></i> Innovation that lasts. Infrastructure that adapts.</span>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon-wrap" style="background:#fef3c7;color:#f59e0b"><i class="ti ti-world" aria-hidden="true"></i></div>
+        <div class="pillar-title">Connecting Communities, Empowering Cities</div>
+        <p class="pillar-desc">A dropped call isn't just a technical failure — it's a broken promise to your subscribers. Our framework ensures every handover is seamless, every connection is stable, and every citizen stays connected — whether streaming, working, or calling for help.</p>
+        <span class="pillar-tag" style="color:#b45309;background:#fef9c3"><i class="ti ti-circle-check" aria-hidden="true"></i> Better networks. Stronger communities.</span>
+      </div>
+    </div>
+
+    <div class="vals-section-label"><i class="ti ti-compass" style="color:#3b4cca;font-size:18px" aria-hidden="true"></i> Our Guiding Principles</div>
+    <div class="prin-grid">
+      <div class="prin-item">
+        <div class="prin-icon" style="background:#f0fdf4;color:#16a34a"><i class="ti ti-leaf" aria-hidden="true"></i></div>
+        <div><div class="prin-name">Sustainability by Design</div><div class="prin-desc">Every model we build considers energy efficiency and network waste reduction.</div></div>
+      </div>
+      <div class="prin-item">
+        <div class="prin-icon" style="background:#e0f7fa;color:#0891b2"><i class="ti ti-lock-open" aria-hidden="true"></i></div>
+        <div><div class="prin-name">Open &amp; Transparent</div><div class="prin-desc">100% open-source stack. No black boxes. Full explainability via SHAP.</div></div>
+      </div>
+      <div class="prin-item">
+        <div class="prin-icon" style="background:#ede9fe;color:#7c3aed"><i class="ti ti-shield-check" aria-hidden="true"></i></div>
+        <div><div class="prin-name">Trustworthy AI</div><div class="prin-desc">Aligned with UNESCO's recommendations — auditable, fair, and accountable.</div></div>
+      </div>
+      <div class="prin-item">
+        <div class="prin-icon" style="background:#fff7ed;color:#c2410c"><i class="ti ti-users" aria-hidden="true"></i></div>
+        <div><div class="prin-name">Human-Centered</div><div class="prin-desc">AI supports engineers — it never replaces them. Human oversight always in the loop.</div></div>
+      </div>
+      <div class="prin-item">
+        <div class="prin-icon" style="background:#fef9c3;color:#b45309"><i class="ti ti-chart-line" aria-hidden="true"></i></div>
+        <div><div class="prin-name">Measurable Impact</div><div class="prin-desc">We deliver KPIs you can track and ROI you can calculate.</div></div>
+      </div>
+      <div class="prin-item">
+        <div class="prin-icon" style="background:#fdf2f8;color:#be185d"><i class="ti ti-eye" aria-hidden="true"></i></div>
+        <div><div class="prin-name">Explainability First</div><div class="prin-desc">Every prediction is interpretable. SHAP values expose what drives each decision.</div></div>
+      </div>
+    </div>
+
+    <div class="sdg-row">
+      <span class="sdg-label"><i class="ti ti-world-check" style="color:#3b4cca;margin-right:4px" aria-hidden="true"></i> Aligned with global SDGs</span>
+      <span class="sdg-sep">|</span>
+      <span class="sdg-badge s7"><i class="ti ti-bolt" aria-hidden="true"></i> SDG 7 – Clean Energy</span>
+      <span class="sdg-sep">·</span>
+      <span class="sdg-badge s9"><i class="ti ti-building-factory-2" aria-hidden="true"></i> SDG 9 – Resilient Infrastructure</span>
+      <span class="sdg-sep">·</span>
+      <span class="sdg-badge s11"><i class="ti ti-building-community" aria-hidden="true"></i> SDG 11 – Sustainable Cities</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════ OUR TEAM ═══════════════════════ -->
+<section id="our-team" class="landing-section alt-bg">
+  <div class="section-inner">
+    <div class="section-tag">👥 Our Team</div>
+    <h2 class="section-title">Future Telecom Innovators</h2>
+    <p class="section-desc">
+      A multidisciplinary team of engineers building the next generation
+      of AI-powered telecom intelligence.
+    </p>
+
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="avatar">WT</div>
+        <div class="role-badge">Deep Learning & Neural Networks</div>
+        <div class="name">Wiem Tanazefti</div>
+      </div>
+      <div class="team-card">
+        <div class="avatar">MD</div>
+        <div class="role-badge">Telecom Networks & Data Analysis</div>
+        <div class="name">Med Dhia Selmi</div>
+      </div>
+      <div class="team-card">
+        <div class="avatar">NR</div>
+        <div class="role-badge">AI Systems & MLOps Pipelines</div>
+        <div class="name">Nermine Rahali</div>
+      </div>
+      <div class="team-card">
+        <div class="avatar">MA</div>
+        <div class="role-badge">Full-Stack Development</div>
+        <div class="name">Manel Aloui</div>
+      </div>
+      <div class="team-card">
+        <div class="avatar">MM</div>
+        <div class="role-badge">Machine Learning & Predictive Analytics</div>
+        <div class="name">Manel Magdouli</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<footer class="nv-footer">
+
+  <div class="nv-footer-top">
+
+    <!-- Brand -->
+    <div>
+      <div class="nv-brand-logo">
+        <div class="nv-brand-icon">N</div>
+        <div class="nv-brand-name">Nexovera</div>
+      </div>
+      <p class="nv-brand-desc">Building sustainable, intelligent, and resilient telecom networks with predictive AI.</p>
+      <a class="nv-brand-url" href="https://www.nexovera.tn" target="_blank">
+        <i class="ti ti-world"></i> www.nexovera.tn
+      </a>
+      <div class="nv-social-row">
+        <a class="nv-social-btn" href="#"><i class="ti ti-brand-linkedin"></i></a>
+        <a class="nv-social-btn" href="#"><i class="ti ti-brand-github"></i></a>
+        <a class="nv-social-btn" href="#"><i class="ti ti-brand-twitter"></i></a>
+        <a class="nv-social-btn" href="https://www.nexovera.tn"><i class="ti ti-world"></i></a>
+      </div>
+    </div>
+
+    <!-- Platform -->
+    <div>
+      <div class="nv-col-title">Platform</div>
+      <ul class="nv-links">
+        <li><a href="#"><i class="ti ti-chart-line"></i> ML Lifecycle</a></li>
+        <li><a href="#"><i class="ti ti-refresh"></i> Retraining</a></li>
+        <li><a href="#"><i class="ti ti-shield-check"></i> Validation</a></li>
+        <li><a href="#"><i class="ti ti-file-report"></i> Reporting</a></li>
+        <li><a href="#"><i class="ti ti-bell"></i> Alerts &amp; NOC</a></li>
+        <li><a href="#"><i class="ti ti-users"></i> User Management</a></li>
+      </ul>
+    </div>
+
+    <!-- Contact -->
+    <div>
+      <div class="nv-col-title">Contact</div>
+
+      <div class="nv-contact-item">
+        <div class="nv-contact-icon"><i class="ti ti-mail"></i></div>
+        <div>
+          <div class="nv-contact-label">Email</div>
+          <div class="nv-contact-value">
+            <a href="mailto:nermine.rahali@nexovera.tn">nermine.rahali&#64;nexovera.tn</a><br/>
+            <a href="mailto:wiem.tanazefti@nexovera.tn">wiem.tanazefti&#64;nexovera.tn</a><br/>
+            <a href="mailto:meddhia.selmi@nexovera.tn">meddhia.selmi&#64;nexovera.tn</a><br/>
+            <a href="mailto:manel.magdouli@nexovera.tn">manel.magdouli&#64;nexovera.tn</a><br/>
+            <a href="mailto:manel.aloui@nexovera.tn">manel.aloui&#64;nexovera.tn</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="nv-contact-item">
+        <div class="nv-contact-icon"><i class="ti ti-map-pin"></i></div>
+        <div>
+          <div class="nv-contact-label">Headquarters</div>
+          <div class="nv-contact-value">
+            Nexovera<br/>
+            Chotrana, Ariana<br/>
+            Tunisia
+          </div>
+        </div>
+      </div>
+
+      <div class="nv-contact-item">
+        <div class="nv-contact-icon"><i class="ti ti-rocket"></i></div>
+        <div>
+          <div class="nv-contact-label">Project</div>
+          <div class="nv-contact-value">
+            AI-Powered Predictive Intelligence<br/>
+            for 5G Networks &middot; 2026
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="nv-divider"></div>
+
+  <div class="nv-footer-bottom">
+    <div class="nv-copy">&#169; 2026 <span>Nexovera</span> &#8212; Chotrana, Ariana, Tunisia. All rights reserved.</div>
+    <div class="nv-badges">
+      <div class="nv-badge"><i class="ti ti-eye"></i> Explainable AI</div>
+      <div class="nv-badge"><i class="ti ti-chart-line"></i> Predictive Analytics</div>
+      <div class="nv-badge"><i class="ti ti-brand-open-source"></i> Open-Source Stack</div>
+    </div>
+    <div class="nv-legal">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="#">Documentation</a>
+    </div>
+  </div>
+
+</footer>

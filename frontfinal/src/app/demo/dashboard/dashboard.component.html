@@ -1,0 +1,92 @@
+<!-- NOC OVERVIEW -->
+<div class="row">
+
+  <!-- HEADER -->
+  <div class="col-12 mb-4 d-flex align-items-center gap-3">
+    <div>
+      <h3 class="f-w-700 mb-1">NOC Overview</h3>
+      <p class="text-muted mb-0">
+        Network Operations Center — real-time network health monitoring
+      </p>
+    </div>
+    <span class="badge noc-live-badge ms-2">Live</span>
+  </div>
+
+  <!-- MAP -->
+  <div class="col-12 mb-4">
+    <div class="card noc-section-card">
+
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Network Live Map</h5>
+
+        <!-- ✅ LEGEND DANS HEADER -->
+        <div class="map-legend-header">
+          <span class="legend-item">
+            <span class="dot green"></span> Healthy
+          </span>
+          <span class="legend-item">
+            <span class="dot orange"></span> Warning
+          </span>
+          <span class="legend-item">
+            <span class="dot red"></span> Critical
+          </span>
+        </div>
+      </div>
+
+      <!-- MAP -->
+      <div id="map" class="noc-map"></div>
+
+    </div>
+  </div>
+
+ <!-- KPI -->
+<div class="col-xl col-md-4 col-sm-6 mb-3" *ngFor="let kpi of kpiCards">
+  <div class="card noc-kpi-card h-100">
+    <div class="card-body py-3 px-3">
+      <p class="noc-kpi-label mb-2">{{ kpi.title }}</p>
+      <h2 class="noc-kpi-value mb-1" [ngClass]="kpi.valueClass">{{ kpi.value }}</h2>
+      <small [ngClass]="kpi.subClass">{{ kpi.sub }}</small>
+      <canvas [id]="'spark-' + kpi.id" class="kpi-sparkline"></canvas>
+    </div>
+  </div>
+</div>
+
+  <!-- ALERTES PAR ZONE -->
+<div class="col-12 mb-3">
+  <div class="card noc-section-card">
+    <div class="card-body">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Alertes par Zone</h5>
+        <span class="badge noc-open-badge">{{ totalAlerts }} Open</span>
+      </div>
+
+      <div *ngFor="let zone of alertZones" class="alert-group mb-3">
+
+        <!-- Header de zone -->
+        <div class="alert-group-header">
+          <span class="dot" [ngClass]="'dot-' + zone.status"></span>
+          <span class="alert-zone-name" [routerLink]="['/zone', zone.zone]" style="cursor:pointer; text-decoration:underline;">
+  {{ zone.zone }} — {{ zone.status | titlecase }}
+</span>
+          <div class="alert-group-line"></div>
+        </div>
+
+        <!-- Alertes de la zone -->
+        <div *ngFor="let alert of zone.alerts" class="alert-list-item">
+          <span [ngClass]="'alert-p' + alert.priority">P{{ alert.priority }}</span>
+          <div class="alert-desc flex-grow-1">
+            <b>{{ alert.gnb }}</b> — {{ alert.message }}
+          </div>
+          <span class="alert-time">{{ alert.time }}</span>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+  
+
+</div>

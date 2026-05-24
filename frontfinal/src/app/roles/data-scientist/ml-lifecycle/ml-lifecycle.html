@@ -1,0 +1,131 @@
+<div class="page-wrapper">
+  <!-- Zone Selection -->
+  <div style="background: white; padding: 1.5rem 0; border-bottom: 1px solid #e2e8f0;">
+    <div class="page-block">
+      <div class="row align-items-center">
+        <div class="col-md-3">
+          <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">Sélection de Zone</label>
+          <select [(ngModel)]="selectedZone"
+            (change)="onZoneChange()"
+              style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; background: white; color: #374151; font-size: 0.95rem;">            <option value="all">Toutes les zones</option>
+            <option value="zone-77">Zone 77</option>
+            <option value="zone-78">Zone 78</option>
+            <option value="zone-79">Zone 79</option>
+            <option value="zone-80">Zone 80</option>
+            <option value="zone-81">Zone 81</option>
+            <option value="zone-82">Zone 82</option>
+            <option value="zone-83">Zone 83</option>
+            <option value="zone-84">Zone 84</option>
+            <option value="zone-85">Zone 85</option>
+          </select>
+        </div>
+        <div class="col-md-9">
+          <div style="display: flex; align-items: center; gap: 1rem; height: 100%;">
+            <span style="color: #6b7280; font-size: 0.9rem;">Zone actuelle:</span>
+            <span style="background: linear-gradient(135deg, #00E6FF, #2563EB); color: black; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; font-size: 0.9rem;">{{ currentZoneLabel }}</span>
+            <span style="color: #6b7280; font-size: 0.9rem;">•</span>
+            <span style="color: #6b7280; font-size: 0.9rem;">Modèles actifs: {{ dsoCards.length }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Creative Simple Header -->
+  <div style="background: #ffffff; color: #1a1a1a; padding: 3rem 0; margin-bottom: 3rem; position: relative; overflow: hidden; border-bottom: 3px solid transparent; border-image: linear-gradient(90deg, #00E6FF, #2563EB, #7C3AED, #FF4D9D) 1;">
+    <!-- Effet de réseau IA mode light -->
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.08; pointer-events: none;">
+      <svg style="width: 100%; height: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="network-light" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+            <circle cx="50" cy="50" r="1.5" fill="#00E6FF" opacity="0.3"/>
+            <line x1="50" y1="50" x2="100" y2="50" stroke="#2563EB" stroke-width="0.3" opacity="0.2"/>
+            <line x1="50" y1="50" x2="50" y2="100" stroke="#7C3AED" stroke-width="0.3" opacity="0.2"/>
+            <line x1="50" y1="50" x2="0" y2="50" stroke="#FF4D9D" stroke-width="0.3" opacity="0.2"/>
+            <line x1="50" y1="50" x2="50" y2="0" stroke="#00E6FF" stroke-width="0.3" opacity="0.2"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#network-light)"/>
+      </svg>
+    </div>
+    <div class="page-block">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <div class="header-content">
+            <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; background: linear-gradient(90deg, #00E6FF, #2563EB, #7C3AED, #FF4D9D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-fill-color: transparent; position: relative; z-index: 1;">Data Scientist Dashboard</h1>
+          </div>
+        </div>
+        <div class="col-md-4 text-md-end">
+          <div class="header-actions">
+            <button style="background: linear-gradient(135deg, #00E6FF, #2563EB); border: 1px solid #00E6FF; color: black; padding: 0.75rem 1.5rem; border-radius: 25px; font-weight: 600; backdrop-filter: blur(10px); transition: all 0.3s ease; margin-right: 0.5rem; box-shadow: 0 4px 15px rgba(0, 230, 255, 0.2);">
+              <i class="feather icon-refresh-cw"></i>
+              <span>Refresh</span>
+            </button>
+            <button (click)="generateReport()" style="background: linear-gradient(135deg, #1e3a8a, #2563eb); border: none; color: white; padding: 0.75rem 1.75rem; border-radius: 12px; font-weight: 700; font-size: 0.95rem; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35); display: inline-flex; align-items: center; gap: 0.6rem; cursor: pointer; transition: all 0.3s ease;">
+              <i class="feather icon-file-text" style="font-size: 1rem;"></i>
+              <span>Generate Report</span>
+            </button>
+                      </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Performance Cards Section -->
+  <div style="padding: 2rem 0; background: #f8f9fa; position: relative; overflow: hidden;">
+    <!-- Effet de réseau IA mode light pour les cartes -->
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.05; pointer-events: none;">
+      <svg style="width: 100%; height: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="network-cards-light" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+            <circle cx="40" cy="40" r="1" fill="#00E6FF" opacity="0.3"/>
+            <line x1="40" y1="40" x2="80" y2="40" stroke="#2563EB" stroke-width="0.2" opacity="0.2"/>
+            <line x1="40" y1="40" x2="40" y2="80" stroke="#7C3AED" stroke-width="0.2" opacity="0.2"/>
+            <line x1="40" y1="40" x2="0" y2="40" stroke="#FF4D9D" stroke-width="0.2" opacity="0.2"/>
+            <line x1="40" y1="40" x2="40" y2="0" stroke="#00E6FF" stroke-width="0.2" opacity="0.2"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#network-cards-light)"/>
+      </svg>
+    </div>
+
+        <!-- Creative Cards Grid -->
+        <div class="row g-4" style="align-items: stretch;">
+          <div class="col-xl-3 col-lg-4 col-md-6" style="display: flex;" *ngFor="let dso of dsoCards; let i = index">
+            <div style="background: white; border: 1px solid rgba(0, 230, 255, 0.3); border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(10px); transition: all 0.3s ease; cursor: pointer; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 230, 255, 0.1); width: 100%; display: flex; flex-direction: column;" (click)="navigateToDSODetails(dso.id)">
+              <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #00E6FF, #2563EB, #7C3AED, #FF4D9D);"></div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #00E6FF, #2563EB); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; border: 1px solid rgba(0, 230, 255, 0.4); box-shadow: 0 4px 12px rgba(0, 230, 255, 0.3);">
+                  {{ i + 1 }}
+                </div>
+                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #7C3AED, #FF4D9D); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 1px solid rgba(124, 58, 237, 0.4); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);">
+                  <i class="feather" [ngClass]="getDSOIcon(dso.id)"></i>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.3rem; font-weight: 700; background: linear-gradient(90deg, #00E6FF, #2563EB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.5rem;">{{ dso.name }}</h3>
+                <div style="background: linear-gradient(135deg, #2563EB, #7C3AED); color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600; display: inline-block; margin-bottom: 1.5rem; border: 1px solid rgba(37, 99, 235, 0.4); box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);">
+                  {{ dso.bestModel }}
+                </div>
+              </div>
+
+              <div style="flex: 1; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid rgba(0, 230, 255, 0.15);" *ngFor="let metric of dso.metrics">
+                  <span style="font-size: 0.9rem; color: #6c757d; font-weight: 500;">{{ metric.label }}</span>
+                  <span style="font-size: 1.1rem; font-weight: 700; background: linear-gradient(90deg, #00E6FF, #2563EB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; padding: 0.25rem 0.5rem; border-radius: 5px;">{{ metric.value }}</span>
+                </div>
+              </div>
+
+              <div>
+                <button (click)="navigateToDSODetails(dso.id); $event.stopPropagation()" style="width: 100%; background: linear-gradient(135deg, #00E6FF, #2563EB); color: white; border: 1px solid rgba(0, 230, 255, 0.4); padding: 0.75rem; border-radius: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0, 230, 255, 0.2); cursor: pointer;">
+                  <i class="feather icon-arrow-right"></i>
+                  View Details
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+</div>

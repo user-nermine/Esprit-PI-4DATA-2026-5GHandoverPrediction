@@ -1,0 +1,171 @@
+<div class="row">
+  <!-- Page Header -->
+  <div class="col-12">
+    <div class="page-header">
+      <h1>RAN Engineer Professional Dashboard</h1>
+    </div>
+
+
+    <div class="metrics-row">
+      <div class="metric">
+        <div class="metric-label">HO Success Rate</div>
+        <div class="metric-val">96.4%</div>
+        <div class="metric-sub up">↑ DSO1 — Predicted: Success</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">HO Failure Rate</div>
+        <div class="metric-val">3.6%</div>
+        <div class="metric-sub down">↓ DSO1 — Predicted: Failure</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">RSRP Drop Predicted</div>
+        <div class="metric-val">12.3%</div>
+        <div class="metric-sub down">↓ DSO2 — >6 dBm in 5 measurements</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Average RSRP</div>
+        <div class="metric-val">-82 dBm</div>
+        <div class="metric-sub neutral">→ Input Feature DSO1/DSO2</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Average SINR</div>
+        <div class="metric-val">14.3 dB</div>
+        <div class="metric-sub up">↑ Input Feature</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">HO Predictions (DSO1) - 24h Trend</div>
+            <div class="card-sub">Success/failure rate predicted by 2h window · XGBoost AUC 0.943</div>
+          </div>
+          <span class="badge badge-blue">DSO1</span>
+        </div>
+        <div style="position:relative;height:200px">
+          <canvas id="chartKPI1"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">RSRP Drop Predicted (DSO2) - 24h Trend</div>
+            <div class="card-sub">% cells with RSRP drop >6 dBm predicted · 5 measurement horizon</div>
+          </div>
+          <span class="badge badge-orange">DSO2</span>
+        </div>
+        <div style="position:relative;height:200px">
+          <canvas id="chartKPI2"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Cell View - Combined DSO1 + DSO2 Outputs</div>
+          <div class="card-sub">HO Success Rate = 1 - mean(y_pred_dso1_fail) per cell · RSRP Drop Risk = mean(y_pred_dso2) per cell</div>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Cell ID</th>
+              <th>Zone</th>
+              <th>RSRP (feature)</th>
+              <th>SINR (feature)</th>
+              <th>HO Success % <small style="font-weight:400;color:#9CA3AF">(DSO1)</small></th>
+              <th>RSRP Drop Risk <small style="font-weight:400;color:#9CA3AF">(DSO2)</small></th>
+              <th>Nb HO (window)</th>
+              <th>ML Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>gNB-001</strong></td>
+              <td><span class="badge badge-gray">Zone A</span></td>
+              <td>-78 dBm</td>
+              <td>+16.2 dB</td>
+              <td>
+                <span style="color:#059669;font-weight:600">98.2%</span>
+              </td>
+              <td>
+                <span style="color:#059669;font-weight:600">4.1%</span>
+              </td>
+              <td>142</td>
+              <td>
+                <span class="badge badge-green">✓ Normal</span>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>gNB-002</strong></td>
+              <td><span class="badge badge-gray">Zone B</span></td>
+              <td>-86 dBm</td>
+              <td>+11.4 dB</td>
+              <td>
+                <span style="color:#B45309;font-weight:600">94.1%</span>
+              </td>
+              <td>
+                <span style="color:#B45309;font-weight:600">18.5%</span>
+              </td>
+              <td>228</td>
+              <td>
+                <span class="badge badge-orange">⚠ Risk</span>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>gNB-003</strong></td>
+              <td><span class="badge badge-gray">Zone A</span></td>
+              <td>-81 dBm</td>
+              <td>+14.8 dB</td>
+              <td>
+                <span style="color:#059669;font-weight:600">97.0%</span>
+              </td>
+              <td>
+                <span style="color:#059669;font-weight:600">7.2%</span>
+              </td>
+              <td>165</td>
+              <td>
+                <span class="badge badge-green">✓ Normal</span>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>gNB-004</strong></td>
+              <td><span class="badge badge-gray">Zone C</span></td>
+              <td>-92 dBm</td>
+              <td>+7.3 dB</td>
+              <td>
+                <span style="color:#DC2626;font-weight:600">88.5%</span>
+              </td>
+              <td>
+                <span style="color:#DC2626;font-weight:600">38.9%</span>
+              </td>
+              <td>201</td>
+              <td>
+                <span class="badge badge-red">✗ Critical</span>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>gNB-005</strong></td>
+              <td><span class="badge badge-gray">Zone B</span></td>
+              <td>-84 dBm</td>
+              <td>+12.9 dB</td>
+              <td>
+                <span style="color:#059669;font-weight:600">95.5%</span>
+              </td>
+              <td>
+                <span style="color:#059669;font-weight:600">11.3%</span>
+              </td>
+              <td>189</td>
+              <td>
+                <span class="badge badge-green">✓ Normal</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

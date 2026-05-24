@@ -1,0 +1,291 @@
+.zd-btn-back {
+  background: transparent;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  font-size: 13px;
+  padding: 6px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  &:hover { background: #f9fafb; color: #374151; }
+}
+
+// ── Stats RF ─────────────────────────────────────────────────
+.zdb-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.zdb-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 0.5px solid #f3f4f6;
+}
+
+.zdb-stat-label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.zdb-stat-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+// ── Section title ────────────────────────────────────────────
+.zdb-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+// ── Animations ───────────────────────────────────────────────
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// ── Light Background ───────────────────────────────────────────
+:host {
+  display: block;
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  min-height: 100vh;
+}
+
+// ── Timeline ─────────────────────────────────────────────────
+.zdb-timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.zdb-timeline-row {
+  display: flex;
+  gap: 14px;
+}
+
+.zdb-timeline-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.zdb-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+
+  &.zdb-circle-red   { background: #fee2e2; color: #dc2626; }
+  &.zdb-circle-amber { background: #fef9c3; color: #ca8a04; }
+  &.zdb-circle-green { background: #dcfce7; color: #16a34a; }
+  &.zdb-circle-blue  { background: #dbeafe; color: #1d4ed8; }
+}
+
+.zdb-line {
+  width: 1px;
+  background: #e5e7eb;
+  flex: 1;
+  min-height: 16px;
+  margin: 4px 0;
+}
+
+.zdb-content {
+  background: #f9fafb;
+  border: 0.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 14px;
+  flex: 1;
+  margin-bottom: 10px;
+}
+
+.zdb-content-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 4px;
+}
+
+.zdb-content-sub {
+  font-size: 11px;
+  color: #6b7280;
+  margin: 0;
+}
+
+// ── Boutons actions ───────────────────────────────────────────
+.zd-btn-intervene {
+  background: #ef4444;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  padding: 8px 18px;
+  &:hover { background: #dc2626; color: white; }
+}
+
+.zd-btn-escalade {
+  background: transparent;
+  color: #374151;
+  font-size: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 18px;
+  &:hover { background: #f9fafb; }
+}
+
+.zd-btn-prevention {
+  background: transparent;
+  color: #374151;
+  font-size: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 18px;
+  &:hover { background: #f9fafb; }
+}
+
+// ── Recommandations ───────────────────────────────────────────
+.zd-reco-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.zd-reco-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.zd-reco-urgent {
+  background: #fff5f5;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.zd-reco-normal {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
+}
+// ── Log couleurs ──────────────────────────────────────────────
+.zdb-circle {
+  &.zdb-circle-purple { background: #ede9fe; color: #7c3aed; }
+}
+
+.zdb-log-time {
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0 0 3px;
+}
+
+.zdb-content-red    { background: #fff5f5; border-color: #fecaca; }
+.zdb-content-amber  { background: #fffbeb; border-color: #fde68a; }
+.zdb-content-green  { background: #f0fdf4; border-color: #bbf7d0; }
+.zdb-content-blue   { background: #eff6ff; border-color: #bfdbfe; }
+.zdb-content-purple { background: #f5f3ff; border-color: #ddd6fe; }
+
+// ── Drift box ─────────────────────────────────────────────────
+.zdb-drift-box {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 12px 16px;
+  border-left: 3px solid #3b82f6;
+}
+
+.zdb-drift-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #60a5fa;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.zdb-drift-text {
+  font-size: 13px;
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+.zdb-drift-sub {
+  font-size: 11px;
+  color: #94a3b8;
+}
+// ── Actions recommandées ──────────────────────────────────────
+.zda-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.zda-card {
+  border-radius: 10px;
+  padding: 14px;
+  border: 0.5px solid;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &.zda-urgent { background: #fff5f5; border-color: #fecaca; border-top: 3px solid #ef4444; }
+  &.zda-warn   { background: #fffbeb; border-color: #fde68a; border-top: 3px solid #f59e0b; }
+  &.zda-info   { background: #eff6ff; border-color: #bfdbfe; border-top: 3px solid #3b82f6; }
+  &.zda-ml     { background: #f5f3ff; border-color: #ddd6fe; border-top: 3px solid #8b5cf6; }
+}
+
+.zda-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0;
+
+  .zda-urgent & { color: #dc2626; }
+  .zda-warn &   { color: #ca8a04; }
+  .zda-info &   { color: #1d4ed8; }
+  .zda-ml &     { color: #7c3aed; }
+}
+
+.zda-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+}
+
+.zda-sub {
+  font-size: 11px;
+  color: #6b7280;
+  margin: 0 0 8px;
+  flex: 1;
+}
+
+.zda-btn {
+  width: 100%;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 0;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover { opacity: 0.85; }
+
+  &.zda-btn-red    { background: #fee2e2; color: #dc2626; }
+  &.zda-btn-amber  { background: #fef9c3; color: #ca8a04; }
+  &.zda-btn-blue   { background: #dbeafe; color: #1d4ed8; }
+  &.zda-btn-purple { background: #ede9fe; color: #7c3aed; }
+}

@@ -1,0 +1,157 @@
+<div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(29, 78, 216, 0.05)); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 20px; padding: 2rem; backdrop-filter: blur(10px); position: relative; overflow: hidden; box-shadow: 0 8px 32px rgba(30, 64, 175, 0.1); margin-bottom: 2rem;">
+  <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #1e40af, #1d4ed8, #7c3aed, #ec4899);"></div>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h2 style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(90deg, #1e40af, #1d4ed8, #7c3aed, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0; text-shadow: 0 0 30px rgba(30, 64, 175, 0.3);">
+        System Admin
+      </h2>
+      <p style="color: #6c757d; margin: 0.5rem 0 0 0; font-size: 1.1rem;">
+        Bienvenue, {{ currentUser?.fullName }} - Panel d'administration système
+      </p>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <span style="background: linear-gradient(135deg, #1e40af, #1d4ed8); color: black; padding: 0.5rem 1rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600; box-shadow: 0 4px 15px rgba(30, 64, 175, 0.2);">
+        ⚡ Admin
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  @for (stat of getStats(); track stat.title) {
+    <div class="col-xl-3 col-md-6">
+      <div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(29, 78, 216, 0.05)); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 16px; padding: 1.5rem; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(30, 64, 175, 0.1); margin-bottom: 1rem;">
+        <div style="display: flex; align-items: center;">
+          <div style="flex: 1;">
+            <h6 style="color: #1e40af; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">{{ stat.title }}</h6>
+            <h3 style="color: #000000; font-size: 1.8rem; font-weight: 700; margin: 0;" [style.color]="stat.color === 'primary' ? '#1e40af' : stat.color === 'success' ? '#22c55e' : stat.color === 'warning' ? '#FB923C' : '#EF4444'">{{ stat.value }}</h3>
+          </div>
+          <div style="width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;" [style.background]="stat.color === 'primary' ? 'linear-gradient(135deg, #1e40af, #1d4ed8)' : stat.color === 'success' ? 'linear-gradient(135deg, #22c55e, #16a34a)' : stat.color === 'warning' ? 'linear-gradient(135deg, #FB923C, #F59E0B)' : 'linear-gradient(135deg, #EF4444, #DC2626)'">
+            <i class="feather icon-{{ stat.icon }}" style="color: black; font-size: 20px;"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<div class="row mt-4">
+  <div class="col-12">
+    <div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(29, 78, 216, 0.05)); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 16px; padding: 1.5rem; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(30, 64, 175, 0.1); margin-bottom: 1.5rem;">
+      <h4 style="color: #000000; font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem;">Actions Rapides</h4>
+      <div class="row">
+        @for (action of getQuickActions(); track action.title) {
+          <div class="col-xl-3 col-md-6 mb-3">
+            <div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(29, 78, 216, 0.05)); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 12px; padding: 1rem; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(30, 64, 175, 0.1); height: 100%;">
+              <div style="display: flex; align-items: start;">
+                <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #1e40af, #1d4ed8); display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                  <i class="feather icon-{{ action.icon }}" style="color: black; font-size: 18px;"></i>
+                </div>
+                <div style="flex: 1;">
+                  <h6 style="margin-bottom: 0.5rem;">
+                    <a [routerLink]="action.route" style="color: #1e40af; text-decoration: none; font-weight: 600; font-size: 0.9rem;">{{ action.title }}</a>
+                  </h6>
+                  <p style="color: #6c757d; margin: 0; font-size: 0.8rem;">{{ action.description }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-xl-8">
+    <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(220, 38, 38, 0.05)); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 16px; padding: 1.5rem; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(239, 68, 68, 0.1);">
+      <div style="padding: 0.5rem;">
+        <h5 style="color: #000000; font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem;">Activité Récente</h5>
+        <div style="position: relative; padding-left: 2rem;">
+          <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, #1e40af, #1d4ed8, #7c3aed, #ec4899); border-radius: 1px;"></div>
+          
+          <div style="position: relative; margin-bottom: 1.5rem;">
+            <div style="position: absolute; left: -2rem; top: 0.25rem; width: 12px; height: 12px; border-radius: 50%; background: #1e40af; border: 2px solid rgba(30, 64, 175, 0.2);"></div>
+            <div style="background: rgba(30, 64, 175, 0.05); border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 8px; padding: 1rem;">
+              <h6 style="color: #1e40af; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem;">Nouvel utilisateur enregistré</h6>
+              <p style="color: #000000; margin: 0 0 0.25rem 0; font-size: 0.85rem;">Data Scientist ajouté au système</p>
+              <small style="color: #6c757d; font-size: 0.75rem;">Il y a 2 heures</small>
+            </div>
+          </div>
+
+          <div style="position: relative; margin-bottom: 1.5rem;">
+            <div style="position: absolute; left: -2rem; top: 0.25rem; width: 12px; height: 12px; border-radius: 50%; background: #22c55e; border: 2px solid rgba(34, 197, 94, 0.2);"></div>
+            <div style="background: rgba(34, 197, 94, 0.05); border: 1px solid rgba(34, 197, 94, 0.1); border-radius: 8px; padding: 1rem;">
+              <h6 style="color: #22c55e; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem;">Configuration système mise à jour</h6>
+              <p style="color: #000000; margin: 0 0 0.25rem 0; font-size: 0.85rem;">Paramètres de sécurité modifiés</p>
+              <small style="color: #6c757d; font-size: 0.75rem;">Il y a 5 heures</small>
+            </div>
+          </div>
+
+          <div style="position: relative; margin-bottom: 1.5rem;">
+            <div style="position: absolute; left: -2rem; top: 0.25rem; width: 12px; height: 12px; border-radius: 50%; background: #FB923C; border: 2px solid rgba(251, 146, 60, 0.2);"></div>
+            <div style="background: rgba(251, 146, 60, 0.05); border: 1px solid rgba(251, 146, 60, 0.1); border-radius: 8px; padding: 1rem;">
+              <h6 style="color: #FB923C; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem;">Alerte performance détectée</h6>
+              <p style="color: #000000; margin: 0 0 0.25rem 0; font-size: 0.85rem;">Latence élevée sur Zone C</p>
+              <small style="color: #6c757d; font-size: 0.75rem;">Il y a 8 heures</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4">
+    <div style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.05), rgba(29, 78, 216, 0.05)); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 16px; padding: 1.5rem; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(30, 64, 175, 0.1);">
+      <div style="padding: 0.5rem;">
+        <h5 style="color: #000000; font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem;">Statistiques Utilisateurs</h5>
+        
+        <div style="margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="color: #000000; font-size: 0.9rem;">Administrateurs</span>
+            <span style="background: linear-gradient(135deg, #1e40af, #1d4ed8); color: black; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">2</span>
+          </div>
+          <div style="background: rgba(30, 64, 175, 0.1); border-radius: 3px; height: 6px; overflow: hidden;">
+            <div style="height: 6px; background: linear-gradient(90deg, #1e40af, #1d4ed8); width: 10%; border-radius: 3px;"></div>
+          </div>
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="color: #000000; font-size: 0.9rem;">Data Scientists</span>
+            <span style="background: linear-gradient(135deg, #22c55e, #16a34a); color: black; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">8</span>
+          </div>
+          <div style="background: rgba(34, 197, 94, 0.1); border-radius: 3px; height: 6px; overflow: hidden;">
+            <div style="height: 6px; background: linear-gradient(90deg, #22c55e, #16a34a); width: 40%; border-radius: 3px;"></div>
+          </div>
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="color: #000000; font-size: 0.9rem;">RAN Engineers</span>
+            <span style="background: linear-gradient(135deg, #7C3AED, #6D28D9); color: black; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">5</span>
+          </div>
+          <div style="background: rgba(124, 58, 237, 0.1); border-radius: 3px; height: 6px; overflow: hidden;">
+            <div style="height: 6px; background: linear-gradient(90deg, #7C3AED, #6D28D9); width: 25%; border-radius: 3px;"></div>
+          </div>
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="color: #000000; font-size: 0.9rem;">NOC Engineers</span>
+            <span style="background: linear-gradient(135deg, #FB923C, #F59E0B); color: black; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">3</span>
+          </div>
+          <div style="background: rgba(251, 146, 60, 0.1); border-radius: 3px; height: 6px; overflow: hidden;">
+            <div style="height: 6px; background: linear-gradient(90deg, #FB923C, #F59E0B); width: 15%; border-radius: 3px;"></div>
+          </div>
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="color: #000000; font-size: 0.9rem;">Core Engineers</span>
+            <span style="background: linear-gradient(135deg, #EF4444, #DC2626); color: black; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">2</span>
+          </div>
+          <div style="background: rgba(239, 68, 68, 0.1); border-radius: 3px; height: 6px; overflow: hidden;">
+            <div style="height: 6px; background: linear-gradient(90deg, #EF4444, #DC2626); width: 10%; border-radius: 3px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,127 @@
+services:
+  # ==================== NOUVEAU: INFRASTRUCTURE ====================
+  frontend:
+    build:
+      context: D:/Nexovera_App/frontfinal
+      dockerfile: Dockerfile
+    container_name: nexovera-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - gateway-service
+    networks:
+      - microservices-net
+    restart: unless-stopped
+
+  discovery-service:
+    build: ./discovery-service
+    container_name: discovery-service
+    ports:
+      - "8761:8761"
+    networks:
+      - microservices-net
+    restart: unless-stopped
+
+  postgres-users:
+    image: postgres:15-alpine
+    container_name: postgres-users
+    environment:
+      POSTGRES_DB: userdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_users:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+    restart: unless-stopped
+
+  postgres-reports:
+    image: postgres:15-alpine
+    container_name: postgres-reports
+    environment:
+      POSTGRES_DB: reportsdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_reports:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+    restart: unless-stopped
+
+  # ==================== NOUVEAU: GATEWAY ====================
+  
+  gateway-service:
+    build: ./gateway-service
+    container_name: gateway-service
+    ports:
+      - "8083:8080"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+    depends_on:
+      - discovery-service
+    networks:
+      - microservices-net
+    restart: unless-stopped
+
+  # ==================== NOUVEAU: SPRING BOOT SERVICES ====================
+  
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    ports:
+      - "8085:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-users:5432/userdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+    depends_on:
+      - discovery-service
+      - postgres-users
+    networks:
+      - microservices-net
+    restart: unless-stopped
+
+  reporting-service:
+    build: ./ms_reporting
+    container_name: reporting-service
+    ports:
+      - "8084:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-reports:5432/reportsdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+    depends_on:
+      - discovery-service
+      - postgres-reports
+    networks:
+      - microservices-net
+    restart: unless-stopped
+
+  # ==================== EXISTANTS: PYTHON SERVICES ====================
+  
+  simulator:
+    build: ./simulator
+    container_name: simulator
+    ports:
+      - "8004:8004"
+    networks:
+      - microservices-net
+    restart: unless-stopped
+
+volumes:
+  postgres_users:
+  postgres_reports:
+
+networks:
+  microservices-net:
+    driver: bridge
+
+
+
+

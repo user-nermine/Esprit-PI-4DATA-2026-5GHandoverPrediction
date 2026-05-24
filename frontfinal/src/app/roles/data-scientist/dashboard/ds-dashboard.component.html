@@ -1,0 +1,10 @@
+<div class="ds-dashboard">
+  <h2>Data Scientist Dashboard</h2>
+  <p>Selected Zone: {{ selectedZone }}</p>
+  <div *ngFor="let stat of getStats()">
+    <div class="stat-card">
+      <strong>{{ stat.title }}</strong>
+      <div>{{ stat.value }}</div>
+    </div>
+  </div>
+</div>
