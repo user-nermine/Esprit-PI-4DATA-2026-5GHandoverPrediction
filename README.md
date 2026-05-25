@@ -224,7 +224,7 @@ docker-compose up --build
 
 | Name |
 |---|
-| **Dhia Selmi** |
+| **Med Dhia Selmi** |
 | **Nermine Rahali** |
 | **Manel Aloui** |
 | **Manel Magdouli** |
